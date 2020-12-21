@@ -1,0 +1,64 @@
+{% extends "sw/templates/account/base.html" %}
+{% load i18n %}
+
+{% load bootstrap_tags %}
+{% load account socialaccount %}
+
+{% block title %}{% trans "Sign up" %}{% endblock %}
+
+ {% block body_outer %}
+
+				<div class="col-6  " style=" margin-left:11rem;margin-top:6rem;width:60rem; " >
+					    <div class="page-header" >
+					        <h2 class="text-left">{% trans "Sign up" %}</h2>
+					    </div>
+					    <div class="row">
+					      {% get_providers as socialaccount_providers %}
+					      {% if socialaccount_providers %}
+					          <p>{% blocktrans with site.name as site_name %}Sign up with one
+					              of your existing third party accounts{% endblocktrans %}</p>
+					          {% include "../account/socialaccount/snippets/provider_list.html" with process="signup" %}
+					          {% include "../account/socialaccount/snippets/login_extra.html" %}
+					          <hr>
+					      {% endif %}
+					    </div>
+					    <div class="row ">
+					      <p style="margin-left:12rem">{% trans "Create a new local account" %}</p>
+
+                <form id="signup_form" method="post" action="{% url "account_signup" %}" autocapitalize="off" {% if form.is_multipart %} enctype="multipart/form-data"{% endif %}>
+                    <fieldset>
+                        {% csrf_token %}
+                        {{ form|as_bootstrap }}
+                        {% if redirect_field_value %}
+                            <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+                        {% endif %}
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">{% trans "Sign up" %}</button>
+                        </div>
+                    </fieldset>
+                </form>
+					    </div>
+
+				</div>
+
+
+{% endblock %}
+
+{% block extra_script %}
+    {{ block.super }}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#id_username').focus();
+        });
+        var form_fields = document.getElementsByTagName('input')
+            form_fields[1].placeholder='Username..';
+            form_fields[2].placeholder='Email..';
+            form_fields[3].placeholder='Enter password...';
+            form_fields[4].placeholder='Re-enter Password...';
+
+
+            for (var field in form_fields){
+              form_fields[field].className += ' form-control'
+            }
+    </script>
+{% endblock %}

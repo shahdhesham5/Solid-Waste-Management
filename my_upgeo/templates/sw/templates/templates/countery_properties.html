@@ -1,0 +1,107 @@
+{% extends "../base_new.html" %}
+{% load i18n %}
+{% load static from staticfiles %}
+{% load base_tags %}
+
+{% block title %} GIG - {{ block.super }} {% endblock %}
+
+{% block body_class %}swm_home{% endblock %}
+
+{% block extra_head %}
+<style>
+  .swm_list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .swm_list li {
+    padding-right: 1.2rem;
+    position: relative;
+  }
+
+  .swm_list li:before {
+    width: .7rem;
+    display: block;
+    content: url('{{ STATIC_URL }}static/images/angle-left-solid.svg');
+    position: absolute;
+    right: -.1rem;
+    top: .6rem;
+    transition-duration: 0.4s;
+    transform-origin: center;
+  }
+
+</style>
+{% endblock %}
+
+{% block middle %}
+
+<main class="bg-light">
+  <div class="row m-0">
+    <aside class="swm_aside col-lg-2 col-md-3 col-sm-4 bg-secondary text-white p-2 py-5">
+      <img class="d-block mx-auto mb-4" src='{{ STATIC_URL }}static/icons/country.svg' style="width: 3rem;" alt="country">
+      <h5 class="text-center mb-5 ar-rtl"> تطبيق إدارة أملاك الدولة ورصد التعديات</h5>
+    </aside>
+
+
+
+      <!-- content -->
+      <div class="subModuleDetail system_manager mx-auto mb-5" style="max-width: 80rem;">
+        <div class="sys_components shadow-sm mt-5">
+          <h4 class="bg-primary text-white rounded-top p-3">الوظائف الرئيسية / الإمكانيات</h4>
+          <div class="p-3 py-4">
+            <ul class="ar-rtl swm_list">
+              <li class="h5 py-2">ربط وزارة التنمية المحلية إلكترونياً بنظام رصد ومتابعة التغييرات فى إستخدامات الاراضى على مستوى الجمهورية (التعديات)</li>
+              <li class="h5 py-2">ميكنة التراخيص لاجراء التدقيق الجغرافى وتيسيير المعاملات بدون تدخل بشرى</li>
+              <li class="h5 py-2">إتاحة إمكانية عمل النظام على أجهزة الهواتف المحمولة / اللوحية لتسهيل مهمة رصد المخالفات وتوثيقها ميدانيا بواسطة موظفى الادارة المحلية</li>
+              <li class="h5 py-2">الربط بقاعدة بيانات التراخيص والتى تحتوى على الرخص / الوثائق القانونية  التى تخص الهدف الذى سيتم رصده (مبنى - محل - عيادة - ... إلخ)</li>
+              <li class="h5 py-2">مقارنة الوضع الحالى على الواقع بما هو مذكور على النظام للتراخيص للمنشأة او النشاط وتحديد المخالفة وتسجيلها لحظياً ميدانياً</li>
+              <li class="h5 py-2">التنبيه الدورى حول تغييرات النشاط التى تحصل على أصول الوزارة</li>
+              <li class="h5 py-2">معرفة المناطق التى يتم التعدى عليها وحماية الأصول الاخرى</li>
+            </ul>
+          </div>
+        </div>
+        <div class="sys_components shadow-sm mt-5">
+          <h4 class="bg-primary text-white rounded-top p-3">المستخدمین</h4>
+          <div class="p-3 py-4">
+            <ul class="ar-rtl swm_list">
+              <li class="h5 py-2">مدير النظام</li>
+              <li class="h5 py-2">المشرف/المدير</li>
+              <li class="h5 py-2">مجموعة عمل ميدانية</li>
+              <li class="h5 py-2">المواطنين</li>
+              <li class="h5 py-2">المفتشون</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+
+  </div>
+</main>
+
+{% endblock middle %}
+
+{% block extra_script %}
+<script>
+  if (ar) {
+    // SWM
+    document.querySelector('.swm_aside').classList.add('order-12')
+
+  }
+
+
+  document.querySelectorAll('.subModule').forEach(subModule => {
+    subModule.addEventListener('click', e => {
+      // update selected
+      document.querySelectorAll('.subModule').forEach(item => item.classList.remove('active'));
+      subModule.classList.add('active')
+
+      // Display the sub module details
+      document.querySelectorAll('.subModuleDetail').forEach(item => item.classList.add('d-none'))
+      document.querySelector(`.${subModule.dataset.module}`).classList.remove('d-none')
+    })
+  })
+
+
+
+</script>
+{% endblock extra_script %}

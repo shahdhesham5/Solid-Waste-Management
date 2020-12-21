@@ -1,0 +1,201 @@
+{% extends "../base_new.html" %}
+{% load i18n %}
+{% load static from staticfiles %}
+{% load base_tags %}
+
+{% block title %} GIG - {{ block.super }} {% endblock %}
+
+{% block body_class %}swm_home{% endblock %}
+
+{% block extra_head %}
+<style>
+  .swm_list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .swm_list li {
+    padding-right: 1.2rem;
+    position: relative;
+  }
+
+  .swm_list li:before {
+    width: .7rem;
+    display: block;
+    content: url('{{ STATIC_URL }}static/images/angle-left-solid.svg');
+    position: absolute;
+    right: -.1rem;
+    top: .6rem;
+    transition-duration: 0.4s;
+    transform-origin: center;
+  }
+
+</style>
+{% endblock %}
+
+{% block middle %}
+
+<main class="bg-light">
+  <div class="row m-0">
+    <aside class="swm_aside col-lg-2 col-md-3 col-sm-4 bg-secondary text-white p-2 py-5">
+      <img class="d-block mx-auto mb-4" src= '{{ STATIC_URL }}static//icons/ads.svg' style="width: 3rem;" alt="ads">
+      <h5 class="text-center mb-5 ar-rtl">تطبيق إدارة مراقبة الإعلانات</h5>
+    </aside>
+
+    <section class="col swm_details p-3 py-5">
+      <!-- links -->
+      <div class="system_manage d-none">
+        <div class="row m-0">
+          <div class="col sm_card shadow-sm rounded m-3 p-4">
+            <!-- <p>Total users</p> -->
+            <p>اجمالى المستخدمين</p>
+            <h1 class="display-4 text-primary text-center mt-5">270</h1>
+            <!-- <p class="text-center text-muted">user</p> -->
+            <p class="text-center text-muted">مستخدم</p>
+          </div>
+          <div class="col sm_card shadow-sm rounded m-3 p-4">
+            <!-- <p>Total users</p> -->
+            <p>اجمالى المستخدمين</p>
+            <h1 class="display-4 text-primary text-center mt-5">270</h1>
+            <!-- <p class="text-center text-muted">user</p> -->
+            <p class="text-center text-muted">مستخدم</p>
+          </div>
+          <div class="col sm_card shadow-sm rounded m-3 p-4">
+            <!-- <p>Total users</p> -->
+            <p>اجمالى المستخدمين</p>
+            <h1 class="display-4 text-primary text-center mt-5">270</h1>
+            <!-- <p class="text-center text-muted">user</p> -->
+            <p class="text-center text-muted">مستخدم</p>
+          </div>
+        </div>
+
+
+        <div class="manage_users shadow-sm rounded my-5 bg-white">
+          <!-- <h4 class="bg-secondary text-white rounded-top p-3 px-4">Manage users</h4> -->
+          <h4 class="bg-secondary text-white rounded-top p-3 px-4">ادارة المستخدمين</h4>
+          <div class="p-4 pt-5">
+            <div class="row">
+              <div class="col-6">
+                <!-- Head -->
+                <div class="d-flex">
+                  <!-- <h4 class="text-primary ar-order-12">Supervisors</h4> -->
+                  <h4 class="text-primary ar-order-12">المشرفين</h4>
+                  <button class="btn btn-outline-primary btn-sm px-4 ml-auto"><i class="fas fa-user-plus"></i></button>
+                </div>
+
+                <!-- List -->
+                <div class="user_list mt-5">
+                  {% with counter="xxxxx" %}
+                  {% for i in counter %}
+                  <div class="user bg-light my-3 p-3 rounded">
+                    <div class="d-flex">
+                      <!-- <p class="mb-0 ar-order-12">Mohamed Youssef</p> -->
+                      <p class="mb-0 ar-order-12">محمد يوسف</p>
+                      <div class="ml-auto">
+                        <i class="fas fa-user-edit pointer mx-2"></i>
+                        <i class="fas fa-trash pointer text-danger"></i>
+                      </div>
+                    </div>
+                  </div>
+                  {% endfor %}
+                  {% endwith %}
+                </div>
+              </div>
+
+
+              <div class="col-6">
+                <!-- Head -->
+                <div class="d-flex">
+                  <!-- <h4 class="text-primary ar-order-12">Drivers</h4> -->
+                  <h4 class="text-primary ar-order-12">السائقين</h4>
+                  <button class="btn btn-outline-primary btn-sm px-4 ml-auto"><i class="fas fa-user-plus"></i></button>
+                </div>
+
+                <!-- List -->
+                <div class="user_list mt-5">
+                  {% with counter="xxxxx" %}
+                  {% for i in counter %}
+                  <div class="user bg-light my-3 p-3 rounded">
+                    <div class="d-flex">
+                      <!-- <p class="mb-0 ar-order-12">Mohamed Youssef</p> -->
+                      <p class="mb-0 ar-order-12">محمد يوسف</p>
+                      <div class="ml-auto">
+                        <i class="fas fa-user-edit pointer mx-2"></i>
+                        <i class="fas fa-trash pointer text-danger"></i>
+                      </div>
+                    </div>
+                  </div>
+                  {% endfor %}
+                  {% endwith %}
+                </div>
+              </div>
+
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- content -->
+      <div class="subModuleDetail system_manager mx-auto mb-5" style="max-width: 80rem;">
+        <div class="sys_components shadow-sm mt-5">
+          <h4 class="bg-primary text-white rounded-top p-3">الوظائف الرئيسية / الإمكانيات</h4>
+          <div class="p-3 py-4">
+            <ul class="ar-rtl swm_list">
+              <li class="h5 py-2">التفتيش على الإعلانات وجدولة نزول المفتشين من خلال ربطها بتواريخ نهاية الترخيص الخاص بكل اعلان</li>
+              <li class="h5 py-2">إدارة جميع أنواع الاعلانات</li>
+              <li class="h5 py-2">إدارة مواقع الإعلانات وإختيار أنسب المواقع لها</li>
+              <li class="h5 py-2">إدارة وتوثيق الإعلانات المخالفة وإتخاذ الإجراءات القانونية ضد اصحابها</li>
+              <li class="h5 py-2">إدارة التراخيص لإستخراج ترخيص جديد او لتجديد الترخيص القائم</li>
+              <li class="h5 py-2">الربط مع تطبيق المشاركة الجماهيرية لتلقى شكاوى المواطنين عن الاعلانات المخالفة</li>
+              <li class="h5 py-2">الربط مع لوحة التحكم والقيادة لمتابعة موقف الإعلانات لحظياً</li>
+              <li class="h5 py-2">تحقيق عائد مادى كبير يمكن توجيهه لتحسين الخدمات المُقدمة للمواطنين</li>
+            </ul>
+          </div>
+        </div>
+        <div class="sys_components shadow-sm mt-5">
+          <h4 class="bg-primary text-white rounded-top p-3">المستخدمین</h4>
+          <div class="p-3 py-4">
+            <ul class="ar-rtl swm_list">
+              <li class="h5 py-2">مدير النظام</li>
+              <li class="h5 py-2">المشرف/المدير</li>
+              <li class="h5 py-2">مجموعة عمل ميدانية</li>
+              <li class="h5 py-2">المواطنين</li>
+              <li class="h5 py-2">المعلنين</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </div>
+</main>
+
+{% endblock middle %}
+
+{% block extra_script %}
+<script>
+  if (ar) {
+    // SWM
+    document.querySelector('.swm_aside').classList.add('order-12')
+
+  }
+
+
+  document.querySelectorAll('.subModule').forEach(subModule => {
+    subModule.addEventListener('click', e => {
+      // update selected
+      document.querySelectorAll('.subModule').forEach(item => item.classList.remove('active'));
+      subModule.classList.add('active')
+
+      // Display the sub module details
+      document.querySelectorAll('.subModuleDetail').forEach(item => item.classList.add('d-none'))
+      document.querySelector(`.${subModule.dataset.module}`).classList.remove('d-none')
+    })
+  })
+
+
+
+</script>
+{% endblock extra_script %}

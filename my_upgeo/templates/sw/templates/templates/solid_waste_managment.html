@@ -1,0 +1,320 @@
+{% extends "../base_new.html" %}
+{% load i18n %}
+{% load static from staticfiles %}
+{% load base_tags %}
+
+{% block title %} GIG - {{ block.super }} {% endblock %}
+
+{% block body_class %}swm_home{% endblock %}
+
+{% block extra_head %}
+<style>
+  .swm_list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .swm_list li {
+    padding-right: 1.2rem;
+    position: relative;
+  }
+
+  .swm_list li:before {
+    width: .7rem;
+    display: block;
+    content: url('{{ STATIC_URL }}static/images/angle-left-solid.svg');
+    position: absolute;
+    right: -.1rem;
+    top: .6rem;
+    transition-duration: 0.4s;
+    transform-origin: center;
+  }
+
+</style>
+{% endblock %}
+
+{% block middle %}
+
+<main class="bg-light">
+  <div class="row m-0">
+    <aside class="swm_aside col-lg-2 col-md-3 col-sm-4 bg-secondary text-white p-2 py-5">
+      <img class="d-block mx-auto mb-4" src= '{{ STATIC_URL }}static/icons/trash.svg' style="width: 3rem;" alt="trash">
+      <h5 class="text-center mb-5 ar-rtl">نظام إدارة المخلفات الصلبة</h5>
+      <a href="#" class="subModule d-block text-white rounded ar-rtl p-3 active" data-module="chart">رسم توضيحى</a>
+      <a href="#" class="subModule d-block text-white rounded ar-rtl p-3" data-module="system_manager">تطبیق إدارة النظام</a>
+      <a href="#" class="subModule d-block text-white rounded ar-rtl p-3" data-module="operation_manager">تطبیق إدارة التحركات</a>
+      <a href="#" class="subModule d-block text-white rounded ar-rtl p-3" data-module="garbage_collection">تطبیق جمع المخلفات میدانیا</a>
+      <a href="#" class="subModule d-block text-white rounded ar-rtl p-3" data-module="collection_bins">تطبيق إدارة جمع المخلفات</a>
+      <a href="#" class="subModule d-block text-white rounded ar-rtl p-3" data-module="complains">تطبيق إدارة الشكاوى</a>
+      <a href="{% url 'mapexample' %}" class="d-block text-white rounded ar-rtl p-3" data-module="complains">THE MAP</a>
+    </aside>
+
+    <section class="col swm_details p-3 py-5">
+      <!-- links -->
+      <div class="system_manage d-none">
+        <div class="row m-0">
+          <div class="col sm_card shadow-sm rounded m-3 p-4">
+            <!-- <p>Total users</p> -->
+            <p>اجمالى المستخدمين</p>
+            <h1 class="display-4 text-primary text-center mt-5">270</h1>
+            <!-- <p class="text-center text-muted">user</p> -->
+            <p class="text-center text-muted">مستخدم</p>
+          </div>
+          <div class="col sm_card shadow-sm rounded m-3 p-4">
+            <!-- <p>Total users</p> -->
+            <p>اجمالى المستخدمين</p>
+            <h1 class="display-4 text-primary text-center mt-5">270</h1>
+            <!-- <p class="text-center text-muted">user</p> -->
+            <p class="text-center text-muted">مستخدم</p>
+          </div>
+          <div class="col sm_card shadow-sm rounded m-3 p-4">
+            <!-- <p>Total users</p> -->
+            <p>اجمالى المستخدمين</p>
+            <h1 class="display-4 text-primary text-center mt-5">270</h1>
+            <!-- <p class="text-center text-muted">user</p> -->
+            <p class="text-center text-muted">مستخدم</p>
+          </div>
+        </div>
+
+
+        <div class="manage_users shadow-sm rounded my-5 bg-white">
+          <!-- <h4 class="bg-secondary text-white rounded-top p-3 px-4">Manage users</h4> -->
+          <h4 class="bg-secondary text-white rounded-top p-3 px-4">ادارة المستخدمين</h4>
+          <div class="p-4 pt-5">
+            <div class="row">
+              <div class="col-6">
+                <!-- Head -->
+                <div class="d-flex">
+                  <!-- <h4 class="text-primary ar-order-12">Supervisors</h4> -->
+                  <h4 class="text-primary ar-order-12">المشرفين</h4>
+                  <button class="btn btn-outline-primary btn-sm px-4 ml-auto"><i class="fas fa-user-plus"></i></button>
+                </div>
+
+                <!-- List -->
+                <div class="user_list mt-5">
+                  {% with counter="xxxxx" %}
+                  {% for i in counter %}
+                  <div class="user bg-light my-3 p-3 rounded">
+                    <div class="d-flex">
+                      <!-- <p class="mb-0 ar-order-12">Mohamed Youssef</p> -->
+                      <p class="mb-0 ar-order-12">محمد يوسف</p>
+                      <div class="ml-auto">
+                        <i class="fas fa-user-edit pointer mx-2"></i>
+                        <i class="fas fa-trash pointer text-danger"></i>
+                      </div>
+                    </div>
+                  </div>
+                  {% endfor %}
+                  {% endwith %}
+                </div>
+              </div>
+
+
+              <div class="col-6">
+                <!-- Head -->
+                <div class="d-flex">
+                  <!-- <h4 class="text-primary ar-order-12">Drivers</h4> -->
+                  <h4 class="text-primary ar-order-12">السائقين</h4>
+                  <button class="btn btn-outline-primary btn-sm px-4 ml-auto"><i class="fas fa-user-plus"></i></button>
+                </div>
+
+                <!-- List -->
+                <div class="user_list mt-5">
+                  {% with counter="xxxxx" %}
+                  {% for i in counter %}
+                  <div class="user bg-light my-3 p-3 rounded">
+                    <div class="d-flex">
+                      <!-- <p class="mb-0 ar-order-12">Mohamed Youssef</p> -->
+                      <p class="mb-0 ar-order-12">محمد يوسف</p>
+                      <div class="ml-auto">
+                        <i class="fas fa-user-edit pointer mx-2"></i>
+                        <i class="fas fa-trash pointer text-danger"></i>
+                      </div>
+                    </div>
+                  </div>
+                  {% endfor %}
+                  {% endwith %}
+                </div>
+              </div>
+
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- content -->
+      <div class="subModuleDetail chart mx-auto mb-5" style="max-width: 80rem;">
+        <img class="d-block mx-auto" src= '{{ STATIC_URL }}static/images/E-Waste_Life_Cycle.png'  alt="chart">
+      </div>
+
+      <div class="subModuleDetail system_manager mx-auto mb-5 d-none" style="max-width: 80rem;">
+        <div class="sys_components shadow-sm mt-5">
+          <h4 class="bg-primary text-white rounded-top p-3">الوظائف الرئيسية / الإمكانيات</h4>
+          <div class="p-3 py-4">
+            <ul class="ar-rtl swm_list">
+              <li class="h5 py-2">إدارة بيانات النظام (جغرافية - وصفية - السيارات - أماكن الجمع - ... )</li>
+              <li class="h5 py-2">إدارة المستخدمين (اضافة مستخدم - حذف مستخدم - تحديد مهام وتكليفات لفريق العمل  Workforce Management)</li>
+              <li class="h5 py-2">إدارة صلاحيات المستخدمين (مدير نظام - مستخدم مكتبى/ميدانى - ... )</li>
+              <li class="h5 py-2">إدارة وظائف (اضافة - تعديل - حذف - قبول - رفض - ... )</li>
+              <li class="h5 py-2">متابعة وتقييم اداء فرق العمل KPIs</li>
+              <li class="h5 py-2">إمكانية عرض التقارير والإحصائيات للنظام</li>
+            </ul>
+          </div>
+        </div>
+        <div class="sys_components shadow-sm mt-5">
+          <h4 class="bg-primary text-white rounded-top p-3">المستخدمین</h4>
+          <div class="p-3 py-4">
+            <ul class="ar-rtl swm_list">
+              <li class="h5 py-2">مدير النظام</li>
+              <li class="h5 py-2">كافة المتعاملين مع قضية النفايات الصلبة</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="subModuleDetail operation_manager mx-auto mb-5 d-none" style="max-width: 80rem;">
+        <div class="sys_components shadow-sm mt-5">
+          <h4 class="bg-primary text-white rounded-top p-3">الوظائف الرئيسية / الإمكانيات</h4>
+          <div class="p-3 py-4">
+            <ul class="ar-rtl swm_list">
+              <li class="h5 py-2">تابعة حالة الصناديق الذكية لجمع المخلفات (تحتاج / لا تحتاج للتفريغ) على خريطة رقمية</li>
+              <li class="h5 py-2">تبع حركة سيارات جمع المخلفات ومتابعة حالتهم لحظياً</li>
+              <li class="h5 py-2">حديد مسارات التجميع / التفريغ لسيارات جمع المخلفات وإرسالها للسيارات لجمع المخلفات فى حينه</li>
+              <li class="h5 py-2">وجيه السيارات لأماكن تجمع القمامة والصناديق الممتلئه  من خلال الأجهزة اللوحية المتوفرة فى كل سيارة أو التى يتم الإبلاغ عنها من خلال الخريطة الحرارية لتجمعات النفايات. </li>
+              <li class="h5 py-2">مكانية عرض أماكن صناديق المخلفات وحالتها على خريطة رقمية.</li>
+              <li class="h5 py-2">مكانية إستعراض تفاصيل صناديق المخلفات (الكود - نسبة الإمتلاء - الموقع - الوصف - ... ).</li>
+              <li class="h5 py-2">مكانية إستعراض تفاصيل سيارات جمع المخلفات (الكود - نسبة الإمتلاء - الموقع - اسم السائق - ... ).</li>
+              <li class="h5 py-2">مكانية عرض خريطة حرارية (Heatmap) للمناطق المُبلغ عنها من خلال تطبيقات المشاركة الجماهيرية.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="sys_components shadow-sm mt-5">
+          <h4 class="bg-primary text-white rounded-top p-3">المستخدمین</h4>
+          <div class="p-3 py-4">
+            <ul class="ar-rtl swm_list">
+              <li class="h5 py-2">المشرف/المدير</li>
+              <li class="h5 py-2">مجموعة عمل ميدانية</li>
+              <li class="h5 py-2">كل فريق العمل الذي يدير او يراقب حركة المخلفات من المنبع للمصب.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="subModuleDetail garbage_collection mx-auto mb-5 d-none" style="max-width: 80rem;">
+        <div class="sys_components shadow-sm mt-5">
+          <h4 class="bg-primary text-white rounded-top p-3">الوظائف الرئيسية / الإمكانيات</h4>
+          <div class="p-3 py-4">
+            <ul class="ar-rtl swm_list">
+              <li class="h5 py-2">إستقبال / معاينة مسارات الجمع / التفريغ  على خريطة رقمية</li>
+              <li class="h5 py-2">تتبع المسار الحالى للسيارة وإرسال مكانها لإدارة التحركات </li>
+              <li class="h5 py-2">تنبيه السائق فور القرب من احد الصناديق الذكية لجمع المخلفات</li>
+              <li class="h5 py-2">حساب المسافات المقطوعة وكميات الوقود المستهلكة يوميا</li>
+              <li class="h5 py-2">إمكانية عرض أماكن الجمع وحالتها على الهاتف المحمول</li>
+              <li class="h5 py-2">إمكانية إستعراض تفاصيل أماكن الجمع (الكود - نسبة الإمتلاء - الموقع - الوصف - ... )</li>
+              <li class="h5 py-2">إمكانية عرض أماكن (المحطات الوسيطة - المدافن - المحارق) وحساب أنسب المسارات للوصول إليهم</li>
+              <li class="h5 py-2">إمكانية إستعراض تفاصيل الصناديق الذكية لجمع المخلفات (الكود - نسبة الإمتلاء - الموقع - الوصف - ... )</li>
+            </ul>
+          </div>
+        </div>
+        <div class="sys_components shadow-sm mt-5">
+          <h4 class="bg-primary text-white rounded-top p-3">المستخدمین</h4>
+          <div class="p-3 py-4">
+            <ul class="ar-rtl swm_list">
+              <li class="h5 py-2">المشرف/المدير</li>
+              <li class="h5 py-2">مجموعة العمل الميدانية</li>
+              <li class="h5 py-2">السائقين</li>
+              <li class="h5 py-2">كل من له علاقة بجمع المخلفات وتتبع حركتها ومراقبتها</li>
+            </u>
+          </div>
+        </div>
+      </div>
+
+      <div class="subModuleDetail collection_bins mx-auto mb-5 d-none" style="max-width: 80rem;">
+        <div class="sys_components shadow-sm mt-5">
+          <h4 class="bg-primary text-white rounded-top p-3">الوظائف الرئيسية / الإمكانيات</h4>
+          <div class="p-3 py-4">
+            <ul class="ar-rtl swm_list">
+              <li class="h5 py-2">تحديد حالة سيارت جمع المخلفات من خلال قياس نسبة إمتلائها</li>
+              <li class="h5 py-2">إرسال رسالة تنبيه لإدارة التحركات بقرب إمتلاء صندوق السيارة</li>
+              <li class="h5 py-2">حساب إجمالى المخلفات بالسيارات وتوقيتات تفريغها</li>
+              <li class="h5 py-2">حصر أعداد السيارات وحساب كمية المخلفات المنقولة على مدار اليوم</li>
+            </ul>
+          </div>
+        </div>
+        <div class="sys_components shadow-sm mt-5">
+          <h4 class="bg-primary text-white rounded-top p-3">المستخدمین</h4>
+          <div class="p-3 py-4">
+            <ul class="ar-rtl swm_list">
+              <li class="h5 py-2">المشرف/المدير</li>
+              <li class="h5 py-2">مجموعة العمل الميدانية</li>
+              <li class="h5 py-2">كل من له علاقة بادارة وجمع المخلفات</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="subModuleDetail complains mx-auto mb-5 d-none" style="max-width: 80rem;">
+        <div class="sys_components shadow-sm mt-5">
+          <h4 class="bg-primary text-white rounded-top p-3">الوظائف الرئيسية / الإمكانيات</h4>
+          <div class="p-3 py-4">
+            <ul class="ar-rtl swm_list">
+              <li class="h5 py-2">تلقى بلاغات مشرفى جمع النفايات عن الأماكن المطلوب رفعها</li>
+              <li class="h5 py-2">تلقى ومتابعة شكاوى المواطنين عن طريق تطبيقات المشاركة الجماهيرية</li>
+              <li class="h5 py-2">تلقى ومتابعة شكاوى المواطنين عن طريق الخط الساخن وتسجيلها على النظام</li>
+              <li class="h5 py-2">إرسال الشكاوى الى مشرفى جمع النفايات للتعامل معها</li>
+              <li class="h5 py-2">دفع سيارات جمع المخلفات للأماكن التى يكثر بها الشكاوى</li>
+              <li class="h5 py-2">إمكانية معاينة أماكن الشكاوى وتفاصيلها على خريطة رقمية</li>
+              <li class="h5 py-2">إمكانية الإستعلام عن الشكاوى فى منطقة معينة (محافظة - مدينة - حى)</li>
+              <li class="h5 py-2">إمكانية الإستعلام عن حالة الشكاوى فى نطاق معين</li>
+              <li class="h5 py-2">إمكانية رسم خريطة حرارية للأماكن ذات الشكاوى الكثيفة</li>
+            </ul>
+          </div>
+        </div>
+        <div class="sys_components shadow-sm mt-5">
+          <h4 class="bg-primary text-white rounded-top p-3">المستخدمین</h4>
+          <div class="p-3 py-4">
+            <ul class="ar-rtl swm_list">
+              <li class="h5 py-2">المشرف/المدير</li>
+              <li class="h5 py-2">المواطنين</li>
+              <li class="h5 py-2">مجموعة عمل ميدانية</li>
+              <li class="h5 py-2">كل من له علاقة بادارة ومراقبة شكاوي المواطنين ومراقبة قضية النفايات الصلبة</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+
+
+    </section>
+  </div>
+</main>
+
+{% endblock middle %}
+
+{% block extra_script %}
+<script>
+  if (ar) {
+    // SWM
+    document.querySelector('.swm_aside').classList.add('order-12')
+
+  }
+
+
+  document.querySelectorAll('.subModule').forEach(subModule => {
+    subModule.addEventListener('click', e => {
+      // update selected
+      document.querySelectorAll('.subModule').forEach(item => item.classList.remove('active'));
+      subModule.classList.add('active')
+
+      // Display the sub module details
+      document.querySelectorAll('.subModuleDetail').forEach(item => item.classList.add('d-none'))
+      document.querySelector(`.${subModule.dataset.module}`).classList.remove('d-none')
+    })
+  })
+
+
+
+</script>
+{% endblock extra_script %}

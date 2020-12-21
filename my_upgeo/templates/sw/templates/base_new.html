@@ -1,0 +1,475 @@
+<!-- -----------------------------------------------------------------
+-
+- Copyright (C) 2019 OSGeo
+-
+- This program is free software: you can redistribute it and/or modify
+- it under the terms of the GNU General Public License as published by
+- the Free Software Foundation, either version 3 of the License, or
+- (at your option) any later version.
+-
+- This program is distributed in the hope that it will be useful,
+- but WITHOUT ANY WARRANTY; without even the implied warranty of
+- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+- GNU General Public License for more details.
+-
+- You should have received a copy of the GNU General Public License
+- along with this program. If not, see <http://www.gnu.org/licenses/>.
+-
+---------------------------------------------------------------------- -->
+{% extends "base.html" %}
+{% load i18n avatar_tags %}
+{% load static from staticfiles %}
+{% load account socialaccount %}
+{% load base_tags %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta Http-Equiv="Cache-Control" Content="no-cache">
+    <meta Http-Equiv="Pragma" Content="no-cache">
+    <meta Http-Equiv="Expires" Content="0">
+    <meta Http-Equiv="Pragma-directive: no-cache">
+    <meta Http-Equiv="Cache-directive: no-cache">
+
+    <title>{% block title %}{{ SITE_NAME }}{% endblock %}</title>
+
+    <link rel="shortcut icon" href= '{{ STATIC_URL }}static/geonode/img/favicon.ico'  />
+
+
+    {% block head %}
+      <!-- <link href= "{{ STATIC_URL }}static/geonode/css/base.css"  rel="stylesheet" /> -->
+      <!-- <link href= "{{ STATIC_URL }}static/css/main.css"  rel="stylesheet" /> -->
+      <link href= "{{ STATIC_URL }}css/site_base.css"  rel="stylesheet" />
+
+      <!-- font awesome -->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/js/all.min.js"></script>
+
+
+
+
+      <!-- English css and font -->
+      <!-- <link href='{{ STATIC_URL }}static/css/main.css'  rel="stylesheet" /> -->
+      <link href="https://fonts.googleapis.com/css?family=Montserrat:400,500,600,700,800,900&display=swap" rel="stylesheet">
+
+      <!-- Arabic css and font -->
+      <link href='{{ STATIC_URL }}static/css/main-ar.css'  rel="stylesheet" />
+      <style>
+        @font-face {
+          font-family: Bahij;
+          src: url('{{ STATIC_URL }}static/fonts/Bahij_TheSansArabic-Bold.ttf' );
+        }
+      </style>
+      <link href= '{{ STATIC_URL }}static/css/ar-fix.css' rel="stylesheet" />
+
+      <script>const ar = true;</script>
+
+
+
+
+      <link href= '{{ STATIC_URL }}static/css/circle_nav.css'  rel="stylesheet" />
+
+
+      <link rel='stylesheet' id='cookie-law-info-css'  href= '{{ STATIC_URL }}static/geonode/css/cookie-law-info/cookie-law-info-public.css'  type='text/css' media='all' />
+      <link rel='stylesheet' id='cookie-law-info-gdpr-css'  href= '{{ STATIC_URL }}static/geonode/css/cookie-law-info/cookie-law-info-gdpr.css' type='text/css' media='all' />
+
+      <style type="text/css">[ng\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}</style>
+
+      {% block extra_head %}
+      {% endblock %}
+    {% endblock %}
+    <link rel="search" type="application/opensearchdescription+xml" href="{{SITEURL}}catalogue/opensearch" title="{% trans 'GeoNode Search' %}"/>
+
+    <script>
+      var siteUrl = '{{ SITEURL }}'.replace(/\/?$/, '/');
+      var staticUrl = '{{ STATIC_URL }}static/' ;
+    </script>
+
+    <!-- Autocomplete script for input boxes -->
+    <script src= '{{ STATIC_URL }}static/geonode/js/search/autocomplete.js' ></script>
+  </head>
+
+  <body class="{% block body_class %}{% endblock %}">
+    <!-- Navbar -->
+    {% block header %}
+
+      <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top shadow-sm">
+        <div class="container">
+          <!-- English brand -->
+          <a class="navbar-brand en-brand" href="{% url 'new' %}">
+            <img src= '{{ STATIC_URL }}static/images/tanmia.jpg'  alt="logo" style="width: 7rem;">
+          </a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ar-nav ml-auto">
+              <li class="nav-item active">
+                <a class="nav-link" href="{% url 'new' %}">الرئيسية</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link modules" href="new#modules"">مكونات المنصة</a>
+              </li>
+              <li class="nav-item">
+            {% if not user.is_authenticated and ACCOUNT_OPEN_SIGNUP and not READ_ONLY_MODE %}
+              <li><a class="nav-link" href="{% url "signup" %}">{% trans "Register" %}</a></li>
+                <li><a class="nav-link" href="{% url 'login' %}" data-toggle="modal" data-target="{% url 'login' %}" role="button" >{% trans "Sign in" %} </a></li>
+                 <!-- <a href="#" data-toggle="modal" data-target="#SigninModal" role="button">Sign in </a> -->
+            {% endif %}
+            {% if user.is_authenticated %}
+            <li>
+              <!-- <a href="#" class="dropdown-toggle avatar" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> -->
+              <a class="nav-link "onclick="dropdownFun()" href="#" class="dropdown-toggle avatar " data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                <!-- <button class="dropdown-toggle "> -->
+                {% autoescape off %}{% avatar user 40 %}{% endautoescape %}
+                {% with full_name=user.first_name|add:' '|add:user.last_name %}
+                  {% if full_name.strip %}
+                    {{ full_name | truncatechars:20 }}
+                  {% else %}
+                    {{ user.username | truncatechars:20 }}
+                  {% endif %}
+                {% endwith %}
+                <i class="fa fa-angle-down fa-lg"></i>
+              </a>
+              <ul class="dropdown-menu " id='myDropdown'>
+                      <li><a href="{{ user.get_absolute_url }}">{% trans "Profile" %}</a></li>
+                      <li><a href="{% url "recent-activity" %}">{% trans "Recent Activity" %}</a></li>
+                      {% if FAVORITE_ENABLED and user.is_authenticated %}
+                      <li><a href="{% url "favorite_list" %}">{% trans "Favorites" %}</a></li>
+                      {% endif %}
+                      <li><a href="{% url "messages_inbox" %}">{% trans "Inbox" %}</a></li>
+                      {% if user.is_superuser or user.is_staff %}
+                          <li role="separator" class="divider"></li>
+                          <li><a href="{% url "admin:index" %}">{% trans "Admin" %}</a></li>
+                          {% if 'geonode.geoserver' in INSTALLED_APPS %}
+                          <li><a href="{{ OGC_SERVER.default.WEB_UI_LOCATION }}">GeoServer</a></li>
+                          {% endif %}
+                          {% if USE_MONITORING %}
+                          <li role="separator" class="divider"></li>
+                          <li><a href="{% url "monitoring:index" %}">{% trans "Monitoring & Analytics" %}</a></li>
+                          {% endif %}
+                      {% endif %}
+                      <li role="separator" class="divider"></li>
+                      <li><a href="{% url "help" %}">{% trans "Help" %}</a></li>
+                      <li role="separator" class="divider"></li>
+                      <li><a href="{{SITEURL}}account/logout/">{% trans "Log out" %}</a></li>
+               </ul>
+              </li>
+
+          {% else %}
+
+              {% endif %}
+            </ul>
+
+
+          </div>
+
+
+
+          <!-- Arbic brand -->
+
+          <a class="navbar-brand ar-brand d-none col-3" href="{% url 'new' %}">
+
+            <img src='{{ STATIC_URL }}static/images/tanmia.jpg'  alt="logo" style="width: 6rem;">
+          </a>
+
+        </div>
+      </nav>
+
+
+      <script>
+
+        // Fix for ar
+        if (ar) {
+          // fixing the brand icon
+          document.querySelector('.ar-brand').classList.remove('d-none');
+          document.querySelector('.en-brand').classList.add('d-none');
+
+          // fixing the nav links ul
+          document.querySelector('.ar-nav').classList.add('rtl')
+          document.querySelector('.ar-nav').classList.remove('ml-auto')
+        }
+        // dropdown
+        function dropdownFun(){
+                  document.getElementById("myDropdown").classList.toggle("show");
+                }
+
+                // Close the dropdown menu if the user clicks outside of it
+                window.onclick = function(event) {
+                  if (!event.target.matches('#myDropdown')) {
+                    var dropdowns = document.getElementById("myDropdown");
+                   if (dropdowns.classList.contains('show')) {
+                        dropdowns.classList.remove('show');
+                      }
+                    }
+                  }
+
+
+
+        // Logout
+        const logout = document.getElementById('logout')
+        if (logout) {
+          logout.addEventListener('click', e => {
+            $.ajax({
+              url: "{% url 'account_logout' %}",
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              method: 'post',
+              success: () => location.href = '/'
+            })
+          })
+        }
+
+      </script>
+  {%endblock%}
+
+
+    <div class="alert alert-danger alert-dismissible" role="alert" id="ieflag" style="display:none">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <h1>{% trans "You are using an outdated browser that is not supported by GeoNode." %}</h1>
+      <p>{% trans "Please use a <strong>modern browser</strong> like Mozilla Firefox, Google Chrome or Safari." %}</p>
+    </div>
+
+
+  <div id="wrap">
+    {% block middle %}
+    <div class="container">
+      {% include "_status_message.html" %}
+      {% include "_announcements.html" %}
+      {% include "_messages.html" %}
+      {% block body_outer %}
+      <div class="row">
+        <div class="col-md-8">
+        {% block body %}{% endblock %}
+        </div>
+        <div class="col-md-4">
+        {% block sidebar %}{% endblock %}
+        </div>
+      </div>
+      {% endblock %}
+    </div>
+    {% endblock middle %}
+
+
+  </div>
+
+  {% block monitoring %}
+  {% endblock %}
+
+    <!-- Modal must stay outside the navbar -->
+
+    {% if not user.is_authenticated %}
+    <div class="modal fade" id="SigninModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">{% trans "Close" %}</span></button>
+            <h4 class="modal-title" id="myModalLabel">{% trans "Sign in" %}</h4>
+          </div>
+          <form class="form-signin" role="form" action="{% url "account_login" %}?next={{ request.path }}" method="post">
+            <div class="modal-body">
+              {% csrf_token %}
+              {% get_providers as socialaccount_providers %}
+              {% if socialaccount_providers %}
+                  {% include "socialaccount/snippets/provider_list.html" with process="login" %}
+                  {% include "socialaccount/snippets/login_extra.html" %}
+                <hr>
+              {% endif %}
+              <div class="form-group">
+                <label for="id_username" class="sr-only">{% trans "Username" %}:</label>
+                <input id="id_username" class="form-control" name="login" placeholder="{% trans "Username" %}" type="text" />
+              </div>
+              <div class="form-group">
+                <label for="id_password" class="sr-only">{% trans "Password" %}:</label>
+                <input id="id_password" class="form-control" name="password" placeholder="{% trans "Password" %}" type="password" autocomplete="off" />
+              </div>
+              <label class="checkbox">
+                <input type="checkbox" /> {% trans "Remember Me" %}
+              </label>
+              <p>
+                <a href="{% url 'account_reset_password' %}">{% trans "Forgot Password?" %}</a>
+              </p>
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-primary btn-block">{% trans "Sign in" %}</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    <!-- End of Modal -->
+
+
+
+
+    <!-- Footer -->
+    {%block footer%}
+
+    {% if request.path != '/custom_login' %}
+
+      <footer class=" py-4" style="background-color:#232A34">
+        <div class="container  pt-2 border-bottom">
+          <div class="row">
+            <div class="col-md-4 col-sm-12 mb-2 mt-1 text-center">
+              <img src='{{ STATIC_URL }}static/images/logo.png' alt="logo" style="width: 15rem;">
+            </div>
+            <div class="col-md-4 col-sm-12 mb-3 text-center">
+              <img src='{{ STATIC_URL }}static/images/tanmia-trans.png'  alt="logo" style="width: 15rem;">
+            </div>
+            <div class="col-4 pt-1 text-white text-right" style="text-align:'right'">
+              <h4 class="mb-3">تواصل معنا</h4>
+
+              <p class="mb-1 ar-rtl"> <i class="fas mx-2 fa-map-marker-alt"></i> 4 شارع نادى الصيد، الدقى، الجيزة</p>
+              <p class="mb-1"> info@mld.gov.eg <i class="fas mx-2 fa-envelope"></i> </p>
+              <p class="mb-1"> 02 3335 6708 - 02 3749 7656 <i class="fas mx-2 fa-phone"></i> </p>
+            </div>
+
+
+
+          </div>
+
+
+          <section class="social_links text-white text-center mt-1 pt-1">
+            <a href="https://www.facebook.com/MOLD.eg/" target="_blank"><i class="fab fa-2x fa-facebook-square m-3 pointer"></i></a>
+            <a href="https://twitter.com/MoLDEgypt" target="_blank"><i class="fab fa-2x fa-twitter-square m-3 pointer"></i></a>
+            <a href="https://www.linkedin.com/company/ministryoflocaldevelopment" target="_blank"><i class="fab fa-2x fa-linkedin m-3 pointer"></i></a>
+          </section>
+        </div>
+      </footer>
+
+    {% endif %}
+    {%endblock %}
+
+    {% if DEBUG_STATIC %}
+    <script src="{{ STATIC_URL }}static/lib/js/jquery.js" ></script>
+    <script src="{{ STATIC_URL }}static/lib/js/jquery.dataTables.js" ></script>
+    <script src="{{ STATIC_URL }}static/lib/js/bootstrap-treeview.js" ></script>
+    <script src="{{ STATIC_URL }}static/lib/js/bootstrap-tokenfield.js" ></script>
+    <script src="{{ STATIC_URL }}static/lib/js/fastselect.standalone.js"></script>
+    <script src="{{ STATIC_URL }}static/lib/js/select2.full.js" ></script>
+    <script src="{{ STATIC_URL }}static/lib/js/jquery.timeago.js" ></script>
+    <script src="{{ STATIC_URL }}static/lib/js/jq-ajax-progress.js" ></script>
+    <script src="{{ STATIC_URL }}static/lib/js/jquery-ui.js" ></script>
+    <script src="{{ STATIC_URL }}static/lib/js/jquery.raty.js" ></script>
+    <script src="{{ STATIC_URL }}static/lib/js/bootstrap.js" ></script>
+    <script src="{{ STATIC_URL }}static/lib/js/moment-with-locales.js" "></script>
+    <script src="{{ STATIC_URL }}static/lib/js/bootstrap-datetimepicker.js" ></script>
+    <script src="{{ STATIC_URL }}static/lib/js/json2.js" ></script>
+    <script src="{{ STATIC_URL }}static/lib/js/waypoints.js" ></script>
+    {% else %}
+    <!-- <script src={{ STATIC_URL }}static/lib/js/assets.min.js" ></script> -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    {% endif %}
+    <!-- <script src={{ STATIC_URL }}static/geonode/js/utils/utils.js" ></script>
+    <script src={{ STATIC_URL }}static/geonode/js/base/base.js" ></script>
+    <script type="text/javascript" src="{% url "javascript-catalog" %}"></script> -->
+    {% block extra_script %}{% endblock extra_script %}
+    <script>
+      // Arabic fixes
+
+      if (ar) {
+
+        // Bring to right
+        // document.querySelectorAll('.ar-bringToRight').forEach(item => {
+        //   item.classList.remove('ml-auto')
+        //   item.classList.add('mr-auto')
+        // })
+
+
+
+        // RTL in Arabic
+        document.querySelectorAll('.ar-rtl').forEach(item => item.classList.add('rtl'))
+
+        // Reordering in Arabic
+        document.querySelectorAll('.ar-order-1').forEach(item => item.classList.add('order-1'));
+        document.querySelectorAll('.ar-order-6').forEach(item => item.classList.add('order-6'));
+        document.querySelectorAll('.ar-order-12').forEach(item => item.classList.add('order-12'));
+
+      }
+
+
+
+
+
+
+    </script>
+    <!-- <script type="text/javascript">
+
+      // Autocomplete instance for the search found in the header.
+      $(document).ready(function() {
+        window.autocomplete2 = new Autocomplete({
+          form_selector: '#search',
+          input_selector: '#search_input',
+          container_selector: '#search-container',
+          url: '{% url "autocomplete_base" %}'
+        })
+        window.autocomplete2.setup()
+      })
+
+      $('#search_input').bind('selectChoice', function(e, choice) {
+          if(choice[0].children[0] == undefined) {
+              $('#search_input').val($(choice[0]).text());
+              $('#search').submit();
+          }
+      });
+      $(".datepicker").datepicker({
+          format: "yyyy-mm-dd"
+      });
+    </script> -->
+
+    <div class="modal fade" style="width: 100%; height: 100%;" id="_resource_uploading" data-backdrop="static" data-keyboard="false" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1>{% trans "Uploading..." %}</h1>
+                </div>
+                <div class="modal-body">
+                    <div class="progress">
+                      <div class="progress-bar progress-bar-info progress-bar-striped active" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width:100%">
+                        {% trans "Upload in progress..." %}
+                      </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" style="width: 100%; height: 100%;" id="_thumbnail_processing" data-backdrop="static" data-keyboard="false" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1>{% trans "Processing..." %}</h1>
+                </div>
+                <div class="modal-body">
+                    <div class="progress">
+                      <div class="progress-bar progress-bar-info progress-bar-striped active" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width:100%">
+                        {% trans "Updating Thumbnail..." %}
+                      </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="_thumbnail_feedbacks" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="exampleModalLabel">{% trans "Message box" %}</h4>
+          </div>
+          <div class="modal-body">
+            ...
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "OK" %}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
