@@ -1,0 +1,99 @@
+<featureType>
+  <id>FeatureTypeInfoImpl--5759f847:17769c3034d:-7fff</id>
+  <name>electricty_line</name>
+  <nativeName>electricty_line</nativeName>
+  <namespace>
+    <id>NamespaceInfoImpl-78ff667e:12476299803:-7ffe</id>
+  </namespace>
+  <title>electricty_line</title>
+  <abstract>No abstract provided.</abstract>
+  <keywords>
+    <string>electricty_line</string>
+    <string>features</string>
+  </keywords>
+  <metadataLinks>
+    <metadataLink>
+      <type>other</type>
+      <metadataType>other</metadataType>
+      <content>http://localhost:8000/catalogue/csw?request=GetRecordById&amp;service=CSW&amp;version=2.0.2&amp;id=6424576c-6665-11eb-84ef-d9b09bafe97f&amp;outputschema=http%3A%2F%2Fwww.w3.org%2F2005%2FAtom&amp;elementsetname=full</content>
+    </metadataLink>
+    <metadataLink>
+      <type>other</type>
+      <metadataType>other</metadataType>
+      <content>http://localhost:8000/catalogue/csw?request=GetRecordById&amp;service=CSW&amp;version=2.0.2&amp;id=6424576c-6665-11eb-84ef-d9b09bafe97f&amp;outputschema=http%3A%2F%2Fgcmd.gsfc.nasa.gov%2FAboutus%2Fxml%2Fdif%2F&amp;elementsetname=full</content>
+    </metadataLink>
+    <metadataLink>
+      <type>other</type>
+      <metadataType>other</metadataType>
+      <content>http://localhost:8000/catalogue/csw?request=GetRecordById&amp;service=CSW&amp;version=2.0.2&amp;id=6424576c-6665-11eb-84ef-d9b09bafe97f&amp;outputschema=http%3A%2F%2Fwww.opengis.net%2Fcat%2Fcsw%2F2.0.2&amp;elementsetname=full</content>
+    </metadataLink>
+    <metadataLink>
+      <type>other</type>
+      <metadataType>other</metadataType>
+      <content>http://localhost:8000/catalogue/csw?request=GetRecordById&amp;service=CSW&amp;version=2.0.2&amp;id=6424576c-6665-11eb-84ef-d9b09bafe97f&amp;outputschema=urn%3Aoasis%3Anames%3Atc%3Aebxml-regrep%3Axsd%3Arim%3A3.0&amp;elementsetname=full</content>
+    </metadataLink>
+    <metadataLink>
+      <type>text/xml</type>
+      <metadataType>FGDC</metadataType>
+      <content>http://localhost:8000/catalogue/csw?request=GetRecordById&amp;service=CSW&amp;version=2.0.2&amp;id=6424576c-6665-11eb-84ef-d9b09bafe97f&amp;outputschema=http%3A%2F%2Fwww.opengis.net%2Fcat%2Fcsw%2Fcsdgm&amp;elementsetname=full</content>
+    </metadataLink>
+    <metadataLink>
+      <type>other</type>
+      <metadataType>other</metadataType>
+      <content>http://localhost:8000/catalogue/csw?request=GetRecordById&amp;service=CSW&amp;version=2.0.2&amp;id=6424576c-6665-11eb-84ef-d9b09bafe97f&amp;outputschema=http%3A%2F%2Fwww.isotc211.org%2F2005%2Fgmd&amp;elementsetname=full</content>
+    </metadataLink>
+    <metadataLink>
+      <type>other</type>
+      <metadataType>other</metadataType>
+      <content>http://localhost:8000/showmetadata/xsl/1</content>
+    </metadataLink>
+  </metadataLinks>
+  <nativeCRS class="projected">PROJCS[&quot;WGS_1984_UTM_Zone_36N&quot;, 
+  GEOGCS[&quot;GCS_WGS_1984&quot;, 
+    DATUM[&quot;D_WGS_1984&quot;, 
+      SPHEROID[&quot;WGS_1984&quot;, 6378137.0, 298.257223563]], 
+    PRIMEM[&quot;Greenwich&quot;, 0.0], 
+    UNIT[&quot;degree&quot;, 0.017453292519943295], 
+    AXIS[&quot;Longitude&quot;, EAST], 
+    AXIS[&quot;Latitude&quot;, NORTH]], 
+  PROJECTION[&quot;Transverse_Mercator&quot;], 
+  PARAMETER[&quot;central_meridian&quot;, 33.0], 
+  PARAMETER[&quot;latitude_of_origin&quot;, 0.0], 
+  PARAMETER[&quot;scale_factor&quot;, 0.9996], 
+  PARAMETER[&quot;false_easting&quot;, 500000.0], 
+  PARAMETER[&quot;false_northing&quot;, 0.0], 
+  UNIT[&quot;m&quot;, 1.0], 
+  AXIS[&quot;x&quot;, EAST], 
+  AXIS[&quot;y&quot;, NORTH]]</nativeCRS>
+  <srs>EPSG:32636</srs>
+  <nativeBoundingBox>
+    <minx>305613.2105102539</minx>
+    <maxx>311204.36712265626</maxx>
+    <miny>3405408.4102783203</miny>
+    <maxy>3412427.3342884765</maxy>
+    <crs class="projected">EPSG:32636</crs>
+  </nativeBoundingBox>
+  <latLonBoundingBox>
+    <minx>30.967632709273975</minx>
+    <maxx>31.027353608798325</maxx>
+    <miny>30.7657855076157</miny>
+    <maxy>30.82998464050733</maxy>
+    <crs>EPSG:4326</crs>
+  </latLonBoundingBox>
+  <projectionPolicy>FORCE_DECLARED</projectionPolicy>
+  <enabled>true</enabled>
+  <advertised>true</advertised>
+  <store class="dataStore">
+    <id>DataStoreInfoImpl--5759f847:17769c3034d:-8000</id>
+  </store>
+  <serviceConfiguration>false</serviceConfiguration>
+  <simpleConversionEnabled>false</simpleConversionEnabled>
+  <maxFeatures>0</maxFeatures>
+  <numDecimals>0</numDecimals>
+  <padWithZeros>false</padWithZeros>
+  <forcedDecimal>false</forcedDecimal>
+  <overridingServiceSRS>false</overridingServiceSRS>
+  <skipNumberMatched>false</skipNumberMatched>
+  <circularArcPresent>false</circularArcPresent>
+  <encodeMeasures>false</encodeMeasures>
+</featureType>

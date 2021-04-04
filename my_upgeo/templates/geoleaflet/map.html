@@ -432,7 +432,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.js"></script>
 
-  <script>
+<script>
+
+  var stateStyle = {
+"color": 'blue',
+// "weight": 1,
+// "opacity": .90,
+// "fillOpacity": .90
+};
         var map = L.map('map').setView([30.8,31], 13,);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
@@ -441,7 +448,7 @@
          layers: 'line_water',
          transparent: true,
          format: 'image/png',
-         // opacity: 0.1
+
                }).addTo(map)
          var water_points=L.tileLayer.wms("http://localhost/geoserver/geonode/wms?", {
                 layers: 'valve_water',
@@ -460,7 +467,45 @@
                       layers: 'electricty_point',
                       transparent: true,
                     format: 'image/png',
+                    // styles:stateStyle
                 }).addTo(map)
+        var nexrad = L.tileLayer.wms("http://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r.cgi", {
+            layers: 'nexrad-n0r-900913',
+            format: 'image/png',
+            transparent: true,
+            attribution: "Weather data © 2012 IEM Nexrad",
+
+        })
+
+        var GEOJSON_URL='http://localhost/geoserver/geonode/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=geonode%3Aline_water&maxFeatures=50&outputFormat=application%2Fjson'
+        var myStyle = {
+              "color": "#ff7800",
+              "weight": 5,
+              "opacity": 0.65
+              };
+        var data =$.getJSON(GEOJSON_URL)
+        // console.log(data);
+        $.getJSON(GEOJSON_URL, function (data) {
+        var geolayer=  L.geoJson(data,{
+            onEachFeature:function (feature, layer) {
+              // console.log(feature);
+              style:myStyle
+                        }
+
+          }).bindPopup(function (layer) {
+                  return layer.feature.properties.Diameter;
+             }).addTo(map)
+//       // Assign the results to the geojsonData variable
+//            console.log(data);
+//            L.geoJSON(data, {
+//               onEachFeature:(feature,layer)=>{
+//                      style: function (feature,layer) {
+//                          return {color: 'red'};
+//                      }
+//                    })
+//    }).bindPopup(function (layer) {
+//        return layer.feature.properties.Diameter;
+//    }).addTo(map);
 
                // <!-- defining the basemap -->
             var baseMaps = {
@@ -473,11 +518,97 @@
               "water_lines": water_lines,
               "Water Points": water_points,
               'electricty_line':electricty_line,
-              'electricty_point':electricty_point
+              'electricty_point':electricty_point,
+              'nexrad':nexrad,
+              'geolayer':geolayer
+              // 'geoJson_water_lines':geoJson_water_lines,
 
           };
           // <!-- adding layer control to the map -->
           L.control.layers(baseMaps, overlayMaps).addTo(map);
+
+
+
+
+
+
+
+
+
+
+
+
+})
+
+
+
+
+
+                                function Identify(e)
+                                {
+
+                                  url='http://localhost/geoserver/geonode/wms?service=WMS&version=1.1.0&request=GetMap&layers=geonode%3Aelectricty_point&bbox=305855.191894531%2C3405505.28869629%2C310675.008300781%2C3411482.34387207&width=619&height=768&srs=EPSG%3A32636&format=application/openlayers'
+
+
+                                            var MySource = L.WMS.Source.extend({
+                                                'ajax': function(url, callback) {
+                                                    $.ajax(url, {
+                                                        'context': this,
+                                                        'success': function(result) {
+                                                            callback.call(this, result);
+                                                         }
+                                                    });
+                                                },
+                                                'showFeatureInfo': function(latlng, info) {
+                                                    $('.output').html(info);
+                                                }
+                                            });
+
+                                 }
+
+                              map.addEventListener('click', Identify);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 </script>
 </body>

@@ -29,35 +29,16 @@ urlpatterns += [
  url(r'^main/?$', main.main, name='main'),
 ]
 
-
-
-
-
 from da import views as dd
 urlpatterns += [
-    path("dd",dd.index,name='dd')
+    path("dd",dd.index,name='dd'),
+    path("ddd",dd.index2,name='ddd'),
 
-
-]
-
-
-from apii import views as apii
-urlpatterns += [
-## include your urls here
-    url(r'^apii/?$',
-        apii.show,
-    name='show'),
-    path("apii/<int:pk>",
-        apii.details,
-       name='details'),
-     path("apii/delete/<int:pk>",apii.delete,name='delete'),
-     path("apii/update/<int:pk>",apii.update,name='update'),
-        url(r'^apii/create/?$',
-            apii.create,
-        name='add'),
+     path('apii/',include('apii.urls')),
+     path("geoleaflet",include('geoleaflet.urls')),
+     path("Learning",include('Learning.urls')),
 
 ]
-
 
 
 from sw import views as views
@@ -76,16 +57,6 @@ url(r'^new/?$', views.index, name='new'),
    url(r'^test/?$', views.test, name='test'),
    url(r'^signup/?$', views.signup, name='signup'),
    url(r'^login/?$', views.login, name='login')
-
-]
-from geoleaflet import views as geoleaflet
-urlpatterns += [
-## include your urls here
-    url(r'^geoleaflet/?$',
-        geoleaflet.leaflet_index,
-        name='geoleaflet'),
-    path('geoleaflet/map',geoleaflet.leaflet_index_map,name='geoleaflet_map'),
-    path('geoleaflet/dashboard',geoleaflet.leaflet_index_dashboard,name='geoleaflet_dashboard')
 
 ]
 

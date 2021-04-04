@@ -1,0 +1,110 @@
+<style media="screen">
+  body {
+margin: 0;
+padding: 0;
+font-family: sans-serif;
+background: linear-gradient(to right, #b92b27, #1565c0)
+}
+
+.box {
+width: 500px;
+padding: 40px;
+position: relative;
+display:block;
+top: 50%;
+left: 35%;
+background: #202020;
+
+text-align: center;
+transition: 0.25s;
+margin-top: 100px;
+border-radius:100px;
+}
+
+.box input[type="text"],
+.box input[type="password"],
+.box input[type="Email"],
+.box input[type="age"],
+#id_age{
+border: 0;
+background: none;
+display: block;
+margin: 20px auto;
+text-align: center;
+border: 2px solid #3498db;
+padding: 10px 10px;
+width: 250px;
+outline: none;
+color: white;
+border-radius: 24px;
+transition: 0.25s
+}
+
+.box h1 {
+color: white;
+text-transform: uppercase;
+font-weight: 500
+}
+
+.box input[type="text"]:focus,
+.box input[type="password"]:focus,
+.box input[type="Email"]:focus,
+.box input[type="age"]:focus,
+#id_age:focus
+{
+width: 300px;
+border-color: #2ecc71
+}
+
+.box button{
+border: 0;
+background: none;
+display: block;
+margin: 20px auto;
+text-align: center;
+border: 2px solid #2ecc71;
+padding: 14px 40px;
+outline: none;
+color: white;
+border-radius: 24px;
+transition: 0.25s;
+cursor: pointer;
+}
+
+.box button:hover {
+background: #2ecc71
+}
+
+.box label {
+  color : beige;
+}
+.helptext{
+  color:#f7e1e1;
+  display:None;
+ }
+
+</style>
+<body>
+
+  <div class="container">
+  <div class="row">
+      <div class="col-md-6">
+          <div class="card">
+<form method="POST" class="box" autocomplete="off" enctype="multipart/form-data">
+    <img src="{{ STATIC_URL }}Learning/images/logo.png" width=50% alt="">
+    {% csrf_token %}
+    {{ userForm.as_p}}
+    {{studentForm.as_p}}
+
+
+    <button type="submit" class="btn btn-primary">Sign Up</button>
+  </form>
+
+  </div>
+  </div>
+  </div>
+  <br><br><br><br><br><br><br><br><br>
+  <br><br><br><br><br><br><br><br><br>
+  <br><br><br><br><br>
+
+  </body>

@@ -1,0 +1,16 @@
+<dataStore>
+  <id>DataStoreInfoImpl--5759f847:17769c3034d:-8000</id>
+  <name>electricty_line</name>
+  <type>Shapefile</type>
+  <enabled>true</enabled>
+  <workspace>
+    <id>WorkspaceInfoImpl-78ff667e:12476299803:-7ffd</id>
+  </workspace>
+  <connectionParameters>
+    <entry key="charset">UTF-8</entry>
+    <entry key="namespace">http://www.geonode.org/</entry>
+    <entry key="url">file:/opt/GIGproject/GIGproject/geoserver/data/data/geonode/electricty_line/</entry>
+  </connectionParameters>
+  <__default>false</__default>
+  <dateCreated>2021-02-03 21:18:44.43 UTC</dateCreated>
+</dataStore>

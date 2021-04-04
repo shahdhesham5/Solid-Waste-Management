@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Application-Name: 
+Implementation-Title: Web Application (WAR)
+Implementation-Version: 2.17-SNAPSHOT
+Build-Timestamp: 02-Feb-2021 08:39
+Archiver-Version: Plexus Archiver
+Built-By: aless
+Specification-Vendor: Open Source Geospatial Foundation
+Specification-Title: Web Application (WAR)
+Implementation-Vendor-Id: org.opengeo
+GeoServerModule: core
+Project-Version: 2.17-SNAPSHOT
+Implementation-Vendor: Open Source Geospatial Foundation
+Iteration-Name: 
+Git-Revision: f15b5e86c662fa72cba67a3ed4d49df61cd3f9c1
+Created-By: Apache Maven 3.6.0
+Build-Jdk: 1.8.0_271
+Specification-Version: 2.17-SNAPSHOT
+

@@ -1,0 +1,69 @@
+<div class="">
+  {{object.name}}
+  {{ object.students.all}}
+  {% for student in object.students.all%}
+    {%for grade in student.grade.all %}
+           {{grade.course}}:{{grade.grade}}
+    {% endfor %}
+  {% endfor %}
+
+  {% for exam in  object.exam.all%}
+  <div class="">
+     {{ exam.name}}
+  </div>
+  {% for q in exam.question.all%}
+  <div class="">
+
+    <p>{{q}}</p>
+
+    {%for answer in q.answers.all%}
+<form class="" action={%url 'eval' %} method="post">
+  {% csrf_token %}
+    <div id="ans" class="new" >
+       <input type="radio" class="choice" name={{q.id}} value={{ answer.first_choice}}>  {{ answer.first_choice}}
+       <input type="radio" class="choice" name={{q.id}} value={{ answer.second_choice}}>    {{ answer.second_choice}}
+       <input type="radio" class="choice" name={{q.id}} value={{ answer.third_choice}}>  {{ answer.third_choice}}
+       <input type="radio" class="choice" name={{q.id}} value={{ answer.fourth_choice}}>    {{ answer.fourth_choice}}
+    </div>
+      <input class="choice" id ="correct" style='display:None' value={{answer.correct_answer}}>
+
+    {% endfor%}
+
+
+
+  </div>
+
+
+  {% endfor %}
+  <input id="s" type="submit" name="" value="">
+
+</form>
+  {% endfor %}
+ {% if request.user.student in object.students.all  %}
+               <a href="{% url 'unenroll'  object.id %}">unenroll</a>
+  {% else %}
+      <a href="{% url 'enroll'  object.id %}">enroll</a>
+ {% endif %}
+
+</div>
+ <script type="text/javascript">
+  var s =document.getElementById('s')
+  var correct=document.getElementById('correct')
+  var choice =document.getElementsByClassName('choice')
+  var ans =document.getElementById('ans')
+  var listAns=[]
+  document.getElementById('s').onclick=function(){
+    for(var i=0; i<choice.length;i++){
+      if(choice[i].checked){
+        console.log(choice[i].value)
+        listAns.push(choice[i].value)
+        }
+
+  };
+     console.log(listAns);
+
+}
+
+
+
+</script>

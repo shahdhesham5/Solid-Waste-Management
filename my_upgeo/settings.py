@@ -37,7 +37,7 @@ except ImportError:
 
 #
 # General Django development settings
-#
+
 PROJECT_NAME = 'my_upgeo'
 
 # add trailing slash to site url. geoserver url will be relative to this
@@ -57,8 +57,11 @@ WSGI_APPLICATION = "{}.wsgi.application".format(PROJECT_NAME)
 LANGUAGE_CODE = os.getenv('LANGUAGE_CODE', "en")
 
 if PROJECT_NAME not in INSTALLED_APPS:
-    INSTALLED_APPS += (PROJECT_NAME,'geoleaflet','da', 'sw','main', 'rest_framework',
-    'rest_framework.authtoken','apii')
+    INSTALLED_APPS += (PROJECT_NAME, 'geoleaflet','da', 'sw','main',
+    'apii','Learning', )
+     # 'rest_framework',
+     # 'rest_framework.authtoken'
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 # Location of url mappings
 ROOT_URLCONF = os.getenv('ROOT_URLCONF', '{}.urls'.format(PROJECT_NAME))
@@ -149,11 +152,132 @@ REST_FRAMEWORK = {
     )
 }
 ALLOWED_HOSTS=['*']
+# DATABASES ['new']={
+#         #'ENGINE': 'django.db.backends.sqlite3',
+#         #'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#         'ENGINE' :  'django.contrib.gis.db.backends.postgis',
+#         'NAME' : 'mygis',
+#         'USER' :  'postgres',
+#         'HOST': 'localhost',
+#         'PASSWORD' : 'postgres',
+#         'PORT' : '5432',
+#
+#     }
+
+
+# DATABASES['default']['ENGINE'] = 'django.contrib.gis.db.backends.postgis'
 # Add your specific LDAP configuration after this comment:
 # https://docs.geonode.org/en/master/advanced/contrib/#configuration
 CORS_ALLOWED_ORIGINS = [
 ##to enable the front end
     "http://127.0.0.1:3000",
-    "http://127.0.0.1:8888",
-    
+    "http://127.0.0.1:8000",
+    "http://127.0.0.1:8081",
+    "http://127.0.0.1:8887",
+    "http://localhost:8887",
+    "http://localhost:80",
+
 ]
+
+# DATABASES = {
+#  'default': {
+#      'ENGINE': 'django.contrib.gis.db.backends.postgis',#'django.db.backends.sqlite3',
+#      'NAME': 'development',
+#      'USER' : 'postgres',
+#      'PASSWORD' : 'postgres',
+#      'HOST' : 'localhost',
+#      'PORT' : '5432',
+#
+#  },
+#  'geonode_imports' : {
+#      'ENGINE': 'django.contrib.gis.db.backends.postgis',
+#      'NAME': 'geonode_imports',
+#      'USER' : 'geonode_user',
+#      'PASSWORD' : 'a_password',
+#      'HOST' : 'localhost',
+#      'PORT' : '5432',
+#   }
+# }
+
+
+
+# To enable the MapStore2 based Client enable those
+# print('Mohamed11')
+# if 'geonode_mapstore_client' not in INSTALLED_APPS:
+#     print('Mohamed22')
+#     INSTALLED_APPS += (
+#         'mapstore2_adapter',
+#         'geonode_mapstore_client',)
+#
+# GEONODE_CLIENT_LAYER_PREVIEW_LIBRARY = 'mapstore'  # DEPRECATED use HOOKSET instead
+# GEONODE_CLIENT_HOOKSET = "geonode_mapstore_client.hooksets.MapStoreHookSet"
+# MAPSTORE_DEBUG = True
+#
+# def get_geonode_catalogue_service():
+#     if PYCSW:
+#         pycsw_config = PYCSW["CONFIGURATION"]
+#         if pycsw_config:
+#                 pycsw_catalogue = {
+#                     ("%s" % pycsw_config['metadata:main']['identification_title']): {
+#                         "url": CATALOGUE['default']['URL'],
+#                         "type": "csw",
+#                         "title": pycsw_config['metadata:main']['identification_title'],
+#                         "autoload": True
+#                      }
+#                 }
+#                 return pycsw_catalogue
+#     return None
+#
+# GEONODE_CATALOGUE_SERVICE = get_geonode_catalogue_service()
+#
+# MAPSTORE_CATALOGUE_SERVICES = {
+#     "Demo WMS Service": {
+#         "url": "https://demo.geo-solutions.it/geoserver/wms",
+#         "type": "wms",
+#         "title": "Demo WMS Service",
+#         "autoload": False
+#      },
+#     "Demo WMTS Service": {
+#         "url": "https://demo.geo-solutions.it/geoserver/gwc/service/wmts",
+#         "type": "wmts",
+#         "title": "Demo WMTS Service",
+#         "autoload": False
+#     }
+# }
+#
+# MAPSTORE_CATALOGUE_SELECTED_SERVICE = "Demo WMS Service"
+#
+# if GEONODE_CATALOGUE_SERVICE:
+#     MAPSTORE_CATALOGUE_SERVICES[list(GEONODE_CATALOGUE_SERVICE.keys())[0]] = GEONODE_CATALOGUE_SERVICE[list(GEONODE_CATALOGUE_SERVICE.keys())[0]]
+#     MAPSTORE_CATALOGUE_SELECTED_SERVICE = list(GEONODE_CATALOGUE_SERVICE.keys())[0]
+#
+# DEFAULT_MS2_BACKGROUNDS = [{
+#         "type": "osm",
+#         "title": "Open Street Map",
+#         "name": "mapnik",
+#         "source": "osm",
+#         "group": "background",
+#         "visibility": True
+#     },
+#     {
+#         "group": "background",
+#         "name": "osm",
+#         "source": "mapquest",
+#         "title": "MapQuest OSM",
+#         "type": "mapquest",
+#         "visibility": False
+#     }
+# ]
+#
+# # MAPSTORE_BASELAYERS = DEFAULT_MS2_BACKGROUNDS
+#
+# if 'geonode.geoserver' in INSTALLED_APPS:
+#     LOCAL_GEOSERVER = {
+#         "type": "wms",
+#         "url": OGC_SERVER['default']['PUBLIC_LOCATION'] + "wms",
+#         "visibility": True,
+#         "title": "Local GeoServer",
+#         "group": "background",
+#         "format": "image/png8",
+#         "restUrl": "/gs/rest"
+#     }

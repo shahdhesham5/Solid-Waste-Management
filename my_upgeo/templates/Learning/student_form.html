@@ -1,0 +1,9 @@
+
+<form method="post">{% csrf_token %}
+      {{ form.user.label }}{{request.user}}
+      {{ form.name.label}}{{form.name}}
+      {{form.age.label}}{{form.age}}
+      {{ form.Email.label}}{{form.Email}}
+
+    <input type="submit" value="Save">
+</form>
