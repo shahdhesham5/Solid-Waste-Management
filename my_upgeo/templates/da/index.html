@@ -635,25 +635,23 @@ function onEachFeature(feature, layer) {
    console.log(WIDTH,HEIGHT);
 
 var count=0
+overlayMaps={}
 function addLayerController(){
-  if( count>0){
-    console.log(count);
-    
-  };
    {% for layer in layers %}
    overlayMaps[ '{{layer.name}}' ] =L.geoJSON(geoLayers[ '{{layer.name}}' ],  {
        onEachFeature:showFeatureInfo
      })
    {% endfor %}
-
-  var layerControl=L.control.layers( baemap,overlayMaps).addTo(mymap);
-  count++
-
-
 }
+
 addLayerController()
+var layerControl=L.control.layers( baemap,overlayMaps).addTo(mymap);
 // Refresh
-document.getElementById('Refresh').addEventListener('click',addLayerController)
+document.getElementById('Refresh').addEventListener('click',function(){
+  addLayerController()
+  mymap.removeControl(layerControl)
+  L.control.layers( baemap,overlayMaps).addTo(mymap);
+})
 
 
 }
