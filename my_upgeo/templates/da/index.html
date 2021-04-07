@@ -17,14 +17,7 @@
     #mapid { height: 600px; }
   </style>
   <body>
-    <!-- {{geolayers}} -->
-  <!-- {% for layer in layers%}
-    <div class="">
-     <img src="http://localhost/geoserver/wms/reflect?layers={{layer.name}}&width=400" />
 
-    </div>
-
-    {%endfor%} -->
 
 
 </div>
@@ -67,7 +60,7 @@
   <div id="mapid"></div>
 
   <div class="container" id='featureTable'>
-
+    <input type="button" id='addFeature' name="" value="Add Feature">
     <table id='Table' >
       <thead id='th'>
 
@@ -75,15 +68,24 @@
     </table>
 
   </div>
+  <div id="mydiv" style="display:none">
+  <!-- Include a header DIV with the same name as the draggable DIV, followed by "header" -->
+  <div id="mydivheader">Add Feature Properties</div>
+      <div id="movingTable">
+
+      </div>
+
+  </div>
   <link rel="stylesheet" href="{% static 'leafletDraw/leafletdraw.css' %}"/>
   <script src="{% static 'leafletDraw/leafletdraw.js'%}"></script>
   <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.css"/> -->
   <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.js"></script> -->
 
- <script src="{% static 'leafletEditable/leafletEditable.js' %}">
+ <script src="{% static 'leafletEditable/leafletEditable.js' %}"></script>
+ <script src="{% static 'js/da/da.js' %}">
 
- </script>
-<!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script> -->
+</script>
+ <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script> -->
 
 
 <script type="text/javascript">
@@ -113,7 +115,6 @@ if(!temp){
                  .then(response => response.json())
                  .then(function(data){
                   geoLayers['{{layer.name}}']=data
-                  console.log(geoLayers);
                 })
 
 {% endfor %}
@@ -202,13 +203,11 @@ EditLayer.addEventListener('click',function(){
     var layerToEdit={
       ...layerToEditm
     }
-    var myFeature=L.geoJSON(layerToEdit,{
+  var myFeature=L.geoJSON(layerToEdit,{
       onEachFeature:function(feature,layer){
         // console.log(feature);
         layer.on('click',function(){
-          console.log(feature);
-          console.log(document.getElementsByTagName('tr').length)
-          for (let i=1;i<document.getElementsByTagName('tr').length;i++){
+            for (let i=1;i<document.getElementsByTagName('tr').length;i++){
             for (let j=0;j<document.getElementsByTagName('tr')[9].cells.length;j++){
               document.getElementsByTagName('tr')[i].cells[j].style.backgroundColor='white'
             }
@@ -246,7 +245,57 @@ EditLayer.addEventListener('click',function(){
 
       document.getElementById('Table').innerHTML+=feat
     }
+    //Add New Feature
+    document.getElementById('addFeature').addEventListener('click',function(){
+      document.getElementById('mydiv').style.display='block'
+      var oldFeature=layerToEdit.features[(layerToEdit.features.length)-2]
+      var newFeature=  JSON.parse(JSON.stringify(oldFeature));
+      document.getElementById('movingTable').innerHTML=''
+      var Thead="<tr >"
+      for (key in attributes){
+        Thead+='<th>'+attributes[key]+'</th>'
+        '<tr>'+attrValues[attributes[key]]+'</tr>'
+      }
+      Thead+="</tr>"
+      var feat='<tr>'
+      for (key in attributes){
+        console.log(typeof(oldFeature.properties[attributes[key]]))
+          feat+='<td> <input class="newInputs" type="'+typeof(oldFeature.properties[attributes[key]])+'" data="" value="" /> </td>'
+            }
+        feat +='</tr>'
+     document.getElementById('movingTable').innerHTML+='<table >'+Thead+feat+'</table>'
+     document.getElementById('movingTable').innerHTML+='<button type="button" id="draw"name="button">Add Polygon</button>'
+     document.getElementById('draw').addEventListener('click',function(){
+          mymap.editTools.startPolygon();
+          newFeature.geometry.coordinates[0]=[[],]
+          mymap.on('editable:drawing:end',function(e){
+            //get coordinates of drawn layer and make it suitable to add to the real layer
+            for (let k=0;k<e.layer._latlngs[0].length;k++){
+                  newFeature.geometry.coordinates[0][0].push([parseFloat(e.layer._latlngs[0][k].lng.toFixed(6)),parseFloat(e.layer._latlngs[0][k].lat.toFixed(6))])
+            }
+            for(let i=0;i<attributes.length;i++){
+                if(typeof(oldFeature.properties[attributes[i]])=='string'){
+              newFeature.properties[attributes[i]]=document.getElementsByClassName('newInputs')[i].value
+            }else{
+              newFeature.properties[attributes[i]]=parseFloat(document.getElementsByClassName('newInputs')[i].value)
+            }
 
+            }
+            newFeature.id='states.99'
+            layerToEdit.features.push(newFeature)
+                      mymap.eachLayer(function(layer) {
+                       if (!!layer.toGeoJSON) {
+                         mymap.removeLayer(layer);
+                       }
+                      });
+                for(let j=0;j<layerFeatures.length;j++){
+                        L.geoJSON(layerFeatures[j]).addTo(mymap)
+                      }
+
+          console.log(layerToEdit);
+          })
+        })
+    })
 
 
     var inputs=document.getElementsByClassName('inputs')
@@ -255,7 +304,13 @@ EditLayer.addEventListener('click',function(){
           //get the edited attribute
           var EditedAttr=attributes[i%attributes.length];
           var EFeature=layerFeatures[this.attributes.data.value]
-          layerFeatures[this.attributes.data.value].properties[EditedAttr]=inputs[i].value
+          if(typeof(layerFeatures[this.attributes.data.value].properties[EditedAttr])=='number'){
+              layerFeatures[this.attributes.data.value].properties[EditedAttr]=parseFloat(inputs[i].value)
+          }else{
+              layerFeatures[this.attributes.data.value].properties[EditedAttr]=inputs[i].value
+          }
+
+        
 
 
        latLong = []
@@ -652,6 +707,9 @@ document.getElementById('Refresh').addEventListener('click',function(){
   mymap.removeControl(layerControl)
   L.control.layers( baemap,overlayMaps).addTo(mymap);
 })
+
+
+
 
 
 }
