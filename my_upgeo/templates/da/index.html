@@ -203,9 +203,10 @@ EditLayer.addEventListener('click',function(){
     var layerToEdit={
       ...layerToEditm
     }
+  mymap.fitBounds(L.geoJson(layerToEdit).getBounds());
   var myFeature=L.geoJSON(layerToEdit,{
       onEachFeature:function(feature,layer){
-        // console.log(feature);
+
         layer.on('click',function(){
             for (let i=1;i<document.getElementsByTagName('tr').length;i++){
             for (let j=0;j<document.getElementsByTagName('tr')[9].cells.length;j++){
@@ -265,14 +266,29 @@ EditLayer.addEventListener('click',function(){
         feat +='</tr>'
      document.getElementById('movingTable').innerHTML+='<table >'+Thead+feat+'</table>'
      document.getElementById('movingTable').innerHTML+='<button type="button" id="draw"name="button">Add Polygon</button>'
+     if(newFeature.geometry.type=="MultiPolyline"){
+       document.getElementById('draw').innerHTML="Add PolyLine"
+     }
      document.getElementById('draw').addEventListener('click',function(){
+       if(newFeature.geometry.type=="MultiPolygon"){
           mymap.editTools.startPolygon();
+        }else{
+          document.getElementById('draw').innerHTML="Add PolyLine"
+           mymap.editTools.startPolyline()
+        }
           newFeature.geometry.coordinates[0]=[[],]
           mymap.on('editable:drawing:end',function(e){
             //get coordinates of drawn layer and make it suitable to add to the real layer
+            if(newFeature.geometry.type=="MultiPolygon"){
             for (let k=0;k<e.layer._latlngs[0].length;k++){
                   newFeature.geometry.coordinates[0][0].push([parseFloat(e.layer._latlngs[0][k].lng.toFixed(6)),parseFloat(e.layer._latlngs[0][k].lat.toFixed(6))])
             }
+          }else{
+            newFeature.geometry.coordinates[0]=[]
+            for (let k=0;k<e.layer._latlngs.length;k++){
+                  newFeature.geometry.coordinates[0].push([parseFloat(e.layer._latlngs[k].lng.toFixed(6)),parseFloat(e.layer._latlngs[k].lat.toFixed(6))])
+            }
+          }
             for(let i=0;i<attributes.length;i++){
                 if(typeof(oldFeature.properties[attributes[i]])=='string'){
               newFeature.properties[attributes[i]]=document.getElementsByClassName('newInputs')[i].value
@@ -281,7 +297,6 @@ EditLayer.addEventListener('click',function(){
             }
 
             }
-            newFeature.id='states.99'
             layerToEdit.features.push(newFeature)
                       mymap.eachLayer(function(layer) {
                        if (!!layer.toGeoJSON) {
@@ -310,7 +325,7 @@ EditLayer.addEventListener('click',function(){
               layerFeatures[this.attributes.data.value].properties[EditedAttr]=inputs[i].value
           }
 
-        
+
 
 
        latLong = []
@@ -321,12 +336,12 @@ EditLayer.addEventListener('click',function(){
                         latLong.push([location[1] , location[0]]);
                     });
                    });
-               console.log("polygon",latLong);
-             var Epolygon = L.polygon(latLong,{
+              var Epolygon = L.polygon(latLong,{
                style:{fillColor:'red'}
              }).addTo(mymap);
                 }else{
                   // latLong=layerFeatures[this.attributes.data.value].geometry.coordinates[0]
+                  console.log('important',layerFeatures[this.attributes.data.value].geometry.coordinates[0]);
                   layerFeatures[this.attributes.data.value].geometry.coordinates[0].forEach(function(location){
                                  latLong.push([location[1] , location[0]]);
 
@@ -338,10 +353,29 @@ EditLayer.addEventListener('click',function(){
                 }
              Epolygon.editing.enable();
              Epolygon.on('dblclick',function(){
-               EFeature.geometry.coordinates[0]=Epolygon._latlngs
+               console.log("hakshdkahsk",Epolygon._latlngs);
+               if(EFeature.geometry.type=='MultiPolygon'){
+               EFeature.geometry.coordinates[0][0]=[]
+               for(let i=0;i<Epolygon._latlngs[0].length;i++){
+               EFeature.geometry.coordinates[0][0].push([Epolygon._latlngs[0][i].lng,Epolygon._latlngs[0][i].lat])
+             }
+           }else{
+             EFeature.geometry.coordinates[0]=[]
+             for(let i=0;i<Epolygon._latlngs.length;i++){
+               EFeature.geometry.coordinates[0].push([Epolygon._latlngs[i].lng,Epolygon._latlngs[i].lat])
+             }
+             console.log("llkslksl",EFeature.geometry.coordinates[0]);
+           }
+
               console.log(',,,,',layerToEdit)
+              mymap.eachLayer(function(layer) {
+               if (!!layer.toGeoJSON) {
+                 mymap.removeLayer(layer);
+               }
+              });
+              L.geoJSON(layerToEdit).addTo(mymap)
                // mymap.removeLayer(myFeature)
-               // var myEditedFeature=L.geoJSON(layerToEdit).addTo(mymap)
+               // var myEditedFeature=
 
 
                    })
