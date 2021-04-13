@@ -9,3 +9,6 @@ class Hige(models.Model):
 class Higis(models.Model):
     name= models.CharField(max_length=255)
     po= models.MultiPolygonField(srid=4326)
+
+# class editedLayers(models.Model):
+#     name=models.CharField(max_length=255)

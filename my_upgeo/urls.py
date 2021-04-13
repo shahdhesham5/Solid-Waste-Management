@@ -31,12 +31,11 @@ urlpatterns += [
 
 from da import views as dd
 urlpatterns += [
-    path("dd",dd.index,name='dd'),
-    path("ddd",dd.index2,name='ddd'),
 
-     path('apii/',include('apii.urls')),
-     path("geoleaflet",include('geoleaflet.urls')),
-     path("Learning",include('Learning.urls')),
+    path("dd/",include('da.urls')),
+    path('apii/',include('apii.urls')),
+    path("geoleaflet",include('geoleaflet.urls')),
+    path("Learning",include('Learning.urls')),
 
 ]
 

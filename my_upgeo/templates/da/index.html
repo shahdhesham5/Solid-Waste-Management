@@ -195,6 +195,7 @@ EditLayer.addEventListener('click',function(){
   '</select>'+
   '<button type="button" id="EditLayerbtn" name="button"> Edit</button>'+
   '<input type="button" id="addFeature" name="" value="Add Feature">'+
+  '<input type="button" id="delFeature" name="" value="Delete Feature">'+
   '<input type="button" id="pushFeature" name="" value="push Feature">'
   '</div>'
   addEventToEditBtn()
@@ -327,6 +328,7 @@ EditLayer.addEventListener('click',function(){
             document.getElementById('Table').innerHTML+=addfeat
 
             mymap.off('editable:drawing:end',xyz)
+            document.getElementById('mydiv').style.display='none'
             document.getElementById('pushFeature').addEventListener('click',function(){
               mymap.eachLayer(function(layer) {
                         if (!!layer.toGeoJSON) {
@@ -342,7 +344,32 @@ EditLayer.addEventListener('click',function(){
           })
         })
     }
+    // delet
+    document.getElementById('delFeature').addEventListener('click',function(){
+      document.getElementById('delFeature').style.backgroundColor='red'
+      mymap.eachLayer(function(layer) {
+                if (!!layer.toGeoJSON) {
+                     mymap.removeLayer(layer);
+                }
+            });
+      L.geoJSON(layerToEdit,{
+             onEachFeature:(feature,layer)=>{
+               layer.on('click',function(e){
+                 console.log(e.target.feature);
+                 layer.remove(e.target.feature)
+                 let arr=layerToEdit.features
+                  for( var i = 0; i < arr.length; i++){
+                    if ( arr[i] === e.target.feature) {
+                       arr.splice(i, 1);
+                    }
+                  }
+                  loadingData()
+                 console.log(layerToEdit);
+               })
+             }
+           }).addTo(mymap)
 
+    })
     // console.log("kj",inputs.length);
   function Misk(){
     var inputs=document.getElementsByClassName('inputs')
@@ -381,31 +408,31 @@ EditLayer.addEventListener('click',function(){
                 }
              Epolygon.editing.enable();
              Epolygon.on('dblclick',function(){
-               console.log("hakshdkahsk",Epolygon._latlngs);
                if(EFeature.geometry.type=='MultiPolygon'){
-               EFeature.geometry.coordinates[0][0]=[]
-               for(let i=0;i<Epolygon._latlngs[0].length;i++){
-               EFeature.geometry.coordinates[0][0].push([Epolygon._latlngs[0][i].lng,Epolygon._latlngs[0][i].lat])
-             }
-           }else{
-             EFeature.geometry.coordinates[0]=[]
-             for(let i=0;i<Epolygon._latlngs.length;i++){
-               EFeature.geometry.coordinates[0].push([Epolygon._latlngs[i].lng,Epolygon._latlngs[i].lat])
-             }
-             console.log("llkslksl",EFeature.geometry.coordinates[0]);
-           }
+                 EFeature.geometry.coordinates[0][0]=[]
+                 for(let i=0;i<Epolygon._latlngs[0].length;i++){
+                   EFeature.geometry.coordinates[0][0].push([Epolygon._latlngs[0][i].lng,Epolygon._latlngs[0][i].lat])
+                      }
+                    }else{
+                        EFeature.geometry.coordinates[0]=[]
+                        for(let i=0;i<Epolygon._latlngs.length;i++){
+                            EFeature.geometry.coordinates[0].push([Epolygon._latlngs[i].lng,Epolygon._latlngs[i].lat])
+                            }
+
+                            }
 
               console.log(',,,,',layerToEdit)
               mymap.eachLayer(function(layer) {
                if (!!layer.toGeoJSON) {
                  mymap.removeLayer(layer);
+
                }
+
               });
+
               L.geoJSON(layerToEdit,{
                 onEachFeature:getFeatureEdited
               }).addTo(mymap)
-               // mymap.removeLayer(myFeature)
-               // var myEditedFeature=
 
 
                    })
