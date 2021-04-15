@@ -27,6 +27,7 @@
 <input type="button" id="clearRule" value="clear Rules">
 <input type="button" id='EditLayer' name="" value="Edit Layer">
 <input type="button" id='Refresh' name="" value="refresh Layer">
+<input type="button" id='updateDiv' name="" value="updateDiv">
 <div class="container " id='EditingLayerContainer' ></div>
 <div class="container " id='editingContainer' style="display:none">
            <div class="">
@@ -81,14 +82,13 @@
   </div>
   <link rel="stylesheet" href="{% static 'leafletDraw/leafletdraw.css' %}"/>
   <script src="{% static 'leafletDraw/leafletdraw.js'%}"></script>
-  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.css"/> -->
-  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.js"></script> -->
+
 
  <script src="{% static 'leafletEditable/leafletEditable.js' %}"></script>
  <script src="{% static 'js/da/da.js' %}">
 
 </script>
- <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script> -->
+ <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 
 
 <script type="text/javascript">
@@ -181,6 +181,13 @@ spinner(document,'load')
 
 
 function PageLoad(){
+  document.getElementById('updateDiv').addEventListener('click',updateDiv)
+  function updateDiv()
+  {
+     // $( "#mapid" ).load(window.location.href + " #mapid" )
+     mymap=mymap
+      // document.getElementById("mapid").load(window.location.href + document.getElementById("mapid") );
+  }
 
 //EditingLayer
 var EditLayer=document.getElementById('EditLayer')
@@ -196,7 +203,8 @@ EditLayer.addEventListener('click',function(){
   '<button type="button" id="EditLayerbtn" name="button"> Edit</button>'+
   '<input type="button" id="addFeature" name="" value="Add Feature">'+
   '<input type="button" id="delFeature" name="" value="Delete Feature">'+
-  '<input type="button" id="pushFeature" name="" value="push Feature">'
+  '<input type="button" id="pushFeature" name="" value="push Feature">'+
+  '<input type="button" id="postFeature" name="" value="post Feature">'
   '</div>'
   addEventToEditBtn()
   })
@@ -330,11 +338,14 @@ EditLayer.addEventListener('click',function(){
             mymap.off('editable:drawing:end',xyz)
             document.getElementById('mydiv').style.display='none'
             document.getElementById('pushFeature').addEventListener('click',function(){
-              mymap.eachLayer(function(layer) {
-                        if (!!layer.toGeoJSON) {
-                             mymap.removeLayer(layer);
-                        }
-                    });
+              // mymap.eachLayer(function(layer) {
+              //           if (!!layer.toGeoJSON) {
+              //                mymap.removeLayer(layer);
+              //           }
+              //
+              //            });
+
+            clearToRedraw()
             loadingData()
              L.geoJSON(layerToEdit,{
                     onEachFeature:getFeatureEdited
@@ -346,12 +357,10 @@ EditLayer.addEventListener('click',function(){
     }
     // delet
     document.getElementById('delFeature').addEventListener('click',function(){
-      document.getElementById('delFeature').style.backgroundColor='red'
-      mymap.eachLayer(function(layer) {
-                if (!!layer.toGeoJSON) {
-                     mymap.removeLayer(layer);
-                }
-            });
+      document.getElementById('delFeature').style.background='red'
+    clearToRedraw()
+
+
       L.geoJSON(layerToEdit,{
              onEachFeature:(feature,layer)=>{
                layer.on('click',function(e){
@@ -422,13 +431,17 @@ EditLayer.addEventListener('click',function(){
                             }
 
               console.log(',,,,',layerToEdit)
-              mymap.eachLayer(function(layer) {
-               if (!!layer.toGeoJSON) {
-                 mymap.removeLayer(layer);
+              // mymap.eachLayer(function(layer) {
+              //  if (!!layer.toGeoJSON) {
+              //    mymap.removeLayer(layer);
+              //
+              //  }
+              //
+              //
+              // });
+              clearToRedraw()
 
-               }
 
-              });
 
               L.geoJSON(layerToEdit,{
                 onEachFeature:getFeatureEdited
@@ -444,6 +457,23 @@ EditLayer.addEventListener('click',function(){
 
 }
 Misk()
+document.getElementById('postFeature').addEventListener('click',function(){
+  fetch("{% url 'recieve' %}", {
+  method: 'POST', // or 'PUT'
+  headers: {
+    'Content-Type': 'application/json',
+    'X-CSRFToken': csrftoken,
+          },
+          body: JSON.stringify(layerToEdit),
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log('Success:', data);
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+        });
+})
   }
 
 
@@ -501,9 +531,24 @@ showbtn.addEventListener('click',function(){
 
 
 
-//initiate map
-var mymap = L.map('mapid',{editable: true}).setView([51.505, -0.09], 4);
-
+//initiate map;
+var mymap;
+var baeMap;
+var view;
+var zoom;
+function loadMap(){
+if (view){
+  console.log(zoom);
+   mymap = L.map('mapid',{editable: true}).setView([view.lat, view.lng],zoom);
+}else{
+    mymap = L.map('mapid',{editable: true}).setView([51.505, -0.09], 4);
+}
+baeMap=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(mymap);
+isMap = true;
+}
+loadMap()
 //initiate base map
 var baeMap=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -606,6 +651,24 @@ document.getElementById('layers').addEventListener('change',function(){
   }
   )
 
+  function clearToRedraw(){
+      //Check if map is loaded, if false then load else remove everything and reload it
+      if(isMap != true){
+          loadMap();
+      }else{
+          //For each layer on the map remove everything and clear variables
+          mymap.eachLayer(function(layer){
+              view= mymap.getCenter();
+              zoom=mymap.getZoom();
+              mymap.remove();
+              if (!!layer.toGeoJSON) {
+
+                mymap.removeLayer(layer);
+              } //clear the pointManager array of points
+              isMap = false;
+              loadMap(); //reload the map function
+          });
+        }}
 
 function b(){
 
@@ -614,7 +677,10 @@ function b(){
 
        mymap.removeLayer(layer);
      }
+
     });
+
+
   var geolayer=L.geoJSON(temp,{
         onEachFeature: onEachFeature
       }).addTo(mymap);

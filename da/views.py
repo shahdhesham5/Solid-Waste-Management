@@ -31,7 +31,10 @@ un = 'admin'
 pw = 'geoserver'
 # url='http://localhost/geoserver/wfs?request=GetFeature&service=WFS&version=1.0.0&typeName='+geonode:states+'&outputFormat=application/json'
 
-
+def recieve(request):
+    data=request.body
+    print(json.loads(data))
+    return HttpResponse("done")
 
 def index2(request):
     url='http://localhost/geoserver/wfs?request=GetFeature&service=WFS&version=1.0.0&typeName='+that_layer.name+'&outputFormat=application/json'
