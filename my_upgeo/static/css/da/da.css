@@ -119,15 +119,54 @@ caption {
   position:sticky;
 }
 .result{
-  margin-left: 420px;
+  /* margin-left: 514px; */
 
+  grid-column-start: 3;
+    grid-row-start: 3;
+
+
+}
+#ruleContainer{
+
+  padding-left: 39%;
+}
+#attr1{
+margin-left: 0.4%;;
+}
+#attr1 ,#attr2 ,#layers
+  {
+   min-width: 16% !important;
+   height:2%!important;
+   border-radius: 3px !important;
+   margin-bottom: 1px !important;
+   -webkit-appearance: none !important;
+   -moz-appearance: none !important;
+   appearance: none !important;      /* Remove default arrow */
+   background-image: url(...);   /* Add custom arrow */
 }
 .colorpicker {
     margin-left: 6px;
 }
 #editingContainer{
   background-image: radial-gradient( #00416a,#e4e5e6 );
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #layers{
   margin-left: 10px;
 }

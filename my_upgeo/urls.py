@@ -32,7 +32,7 @@ urlpatterns += [
 from da import views as dd
 urlpatterns += [
 
-    path("dd/",include('da.urls')),
+    path("dd/",include('da.urls'),name='dd'),
     path('apii/',include('apii.urls')),
     path("geoleaflet",include('geoleaflet.urls')),
     path("Learning",include('Learning.urls')),
