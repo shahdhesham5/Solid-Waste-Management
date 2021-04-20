@@ -13,31 +13,31 @@
   <script src="{% static 'leaflet.table/supagrid.js'%}" type="text/javascript"></script>
   <script src="{% static 'leaflet.table/leaflet.table.js'%}" type="text/javascript"></script>
   <style media="screen">
-    #mapid { height:500px; }
-    #wrap{
-      margin-top: 0px;
-      padding: 0px;
-    }
-    #ruleContainer{
-      padding-left: 39%;
-    }
-    #attr1{
-    margin-left: 0.4%;;
-    }
-    .result{
-      margin-left: 0px;
-    }
-    #attr1 ,#attr2 ,#layers
-      {
-       min-width: 16% !important;
-       height:2%!important;
-       border-radius: 3px !important;
-       margin-bottom: 1px !important;
-       -webkit-appearance: none !important;
-       -moz-appearance: none !important;
-       appearance: none !important;      /* Remove default arrow */
-       background-image: url(...);   /* Add custom arrow */
-    }
+        #mapid { height:500px; }
+        #wrap{
+          margin-top: 0px;
+          padding: 0px;
+        }
+        #ruleContainer{
+          padding-left: 39%;
+        }
+        #attr1{
+        margin-left: 0.4%;;
+        }
+        .result{
+          margin-left: 0px;
+        }
+        #attr1 ,#attr2 ,#layers
+          {
+           min-width: 16% !important;
+           height:2%!important;
+           border-radius: 3px !important;
+           margin-bottom: 1px !important;
+           -webkit-appearance: none !important;
+           -moz-appearance: none !important;
+           appearance: none !important;      /* Remove default arrow */
+           background-image: url(...);   /* Add custom arrow */
+        }
   </style>
   {% endblock %}
   {% block middle %}
@@ -51,6 +51,8 @@
 
 <input type="button" id='EditLayer' name="" value="Edit Layer">
 <input type="button" id='Refresh' name="" value="refresh Layer">
+<input type="button" id="postFeature" name="" value="post Feature">
+
 <div class="container " id='EditingLayerContainer' ></div>
 <div class="container-fluid " id='editingContainer' style="display:none">
           <input type="button" id="addRule" value="Add Rule">
@@ -115,7 +117,7 @@
  <script src="{% static 'js/da/da.js' %}">
 
 </script>
- <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+ <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script> -->
 
 
 <script type="text/javascript">
@@ -126,18 +128,23 @@
 //Add the spinner till map loads
 //Edit Layer function [you can edit layer and export it as geojson]
 // then we get a copy of layer as layerToEdit
-
 //Add rules to change the style
 //enableEditing
 //initiate map
 //initiate basemap
 // initiate the basemao and overlay layers in the controller
 // get the layer info from backend
-var geoLayers={{geolayers | safe}}
+
+console.log("ks");
+
+var geoLayers=JSON.parse('{{ geolayers| safe }}')
+console.log(typeof(geoLayers));
+
+
 var lays='{{ layers | safe }}'
 var layerName=document.getElementById('layers').value
-console.log(layerName);
 var temp = geoLayers[layerName]
+
 if(!temp){
   // for(let i=0;i<lays.length;i++){
   console.log('{{layers.last}}');
@@ -171,7 +178,7 @@ window.onload = async () => {
 
 
 
-function getCookie(name) {
+function getCookie(name){
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
         const cookies = document.cookie.split(';');
@@ -223,10 +230,10 @@ function PageLoad(){
     '<button type="button" id="EditLayerbtn" name="button"> Edit</button>'+
     '<input type="button" id="addFeature" name="" value="Add Feature">'+
     '<input type="button" id="delFeature" name="" value="Delete Feature">'+
-    '<input type="button" id="postFeature" name="" value="post Feature">'
     '</div>'
     addEventToEditBtn()
     })
+
 
     function addEventToEditBtn(){
     var Editbtn=document.getElementById("EditLayerbtn")
@@ -291,7 +298,7 @@ function PageLoad(){
       }
       var AddedFeatures={}
       //Add New Feature
-      document.getElementById('addFeature').addEventListener('click',xc)
+    document.getElementById('addFeature').addEventListener('click',xc)
       function xc(){
         document.getElementById('mydiv').style.display='block'
         var oldFeature=layerToEdit.features[0]
@@ -307,7 +314,7 @@ function PageLoad(){
         for (key in attributes){
               feat+='<td> <input class="newInputs" type="'+typeof(oldFeature.properties[attributes[key]])+'" data="" value="" /> </td>'
               }
-          feat +='</tr>'
+           feat +='</tr>'
        document.getElementById('movingTable').innerHTML+='<table >'+Thead+feat+'</table>'
        document.getElementById('mydiv2').innerHTML='<button type="button" id="draw"name="button">Add Polygon</button>'
        if(newFeature.geometry.type=="MultiLineString"){
@@ -403,7 +410,7 @@ function PageLoad(){
 
       })
       // console.log("kj",inputs.length);
-    function Misk(){
+  function Misk(){
       var inputs=document.getElementsByClassName('inputs')
       for (let i=0;i<inputs.length;i++){
          inputs[i].addEventListener('change',function xx(e){
@@ -452,20 +459,7 @@ function PageLoad(){
                               }
 
                               }
-
-                console.log(',,,,',layerToEdit)
-                // mymap.eachLayer(function(layer) {
-                //  if (!!layer.toGeoJSON) {
-                //    mymap.removeLayer(layer);
-                //
-                //  }
-                //
-                //
-                // });
                 clearToRedraw()
-
-
-
                 L.geoJSON(layerToEdit,{
                   onEachFeature:getFeatureEdited
                 }).addTo(mymap)
@@ -480,27 +474,32 @@ function PageLoad(){
 
   }
       Misk()
-      document.getElementById('postFeature').addEventListener('click',function(){
-        fetch("{% url 'recieve' %}", {
-        method: 'POST', // or 'PUT'
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': csrftoken,
-                },
-                body: JSON.stringify(layerToEdit),
-              })
-              .then(response => response.json())
-              .then(data => {
-                console.log('Success:', data);
-              })
-              .catch((error) => {
-                console.error('Error:', error);
-              });
-      })
+
+
+
     }
 
-
-
+  document.getElementById('postFeature').addEventListener('click',postFeature)
+    function postFeature(){
+            fetch("{% url 'recieve' %}", {
+            method: 'POST', // or 'PUT'
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': csrftoken,
+                    },
+                    body: JSON.stringify({
+                                  'name':document.getElementById('layersToEdit').value,
+                                  'layer':geoLayers[document.getElementById('layersToEdit').value]
+                                }),
+                  })
+                  .then(response => response.json())
+                  .then(data => {
+                    console.log('Success:', data);
+                  })
+                  .catch((error) => {
+                    console.error('Error:', error);
+                  });
+          }
 
   // adding Rule
   var addRule = document.getElementById('addRule')
@@ -508,7 +507,7 @@ function PageLoad(){
 
   addRule.addEventListener('click',function(){
 
-    ruleContainer.innerHTML+="<div class='rule'>"+"<select name='attra' class='attra' form='carform' ><option value='2'>2</option></select>"+
+  ruleContainer.innerHTML+="<div class='rule'>"+"<select name='attra' class='attra' form='carform' ><option value='2'>2</option></select>"+
                                 "<select name='attrb' class='attrb' form='carform' ><option value='1'>1</option></select>"+
                                 '<input type="number" class="result" value="0"> %'+
                                 '<input type="color" class="colorpicker" value="#0000ff">'+"</div>"

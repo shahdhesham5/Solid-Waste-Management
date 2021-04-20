@@ -32,9 +32,37 @@ pw = 'geoserver'
 # url='http://localhost/geoserver/wfs?request=GetFeature&service=WFS&version=1.0.0&typeName='+geonode:states+'&outputFormat=application/json'
 
 def recieve(request):
-    data=request.body
-    print(json.loads(data))
+    data=json.loads(request.body)
+    print(data['name'])
+    try:
+        x=editedLayers.objects.get(name=data['name'])
+        print("edited")
+        print(x.name)
+        x.layer=data['layer']
+        x.save()
+    except:
+        Layer=editedLayers()
+        Layer.name=data['name']
+        Layer.layer=data['layer']
+        Layer.save()
+
+
     return HttpResponse("done")
+def Layers_Edited(request):
+    data = editedLayers.objects.all()
+    layers=[]
+    for layer in data:
+        layers.append({layer.name:layer.layer})
+    context={
+        'layers':json.dumps(layers)
+    }
+    print('layer')
+    return render(request,'da/LayersEdited.html',context)
+
+
+
+
+
 
 def index2(request):
     url='http://localhost/geoserver/wfs?request=GetFeature&service=WFS&version=1.0.0&typeName='+that_layer.name+'&outputFormat=application/json'
@@ -47,7 +75,7 @@ import requests
 
 
 def index(request):
-    d =m.Layer.objects.all()
+    # d =m.Layer.objects.all()
     #shape = fiona.open("{{ STATIC_URL}}/shapefile/electricty_line.shp")
     #print shape.schema
     #{'geometry': 'LineString', 'properties': OrderedDict([(u'FID', 'float:11')])}
@@ -184,7 +212,7 @@ def index(request):
         "link":url,
         # "layersGeojson":geoJsonLayer,
         'url':url,
-        'geolayers':layers
+        'geolayers':json.dumps(layers)
     }
 
     return render(request,'da/index.html',context)

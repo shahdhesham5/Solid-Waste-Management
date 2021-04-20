@@ -1,8 +1,9 @@
 from django.urls import path
-from . import views as dd
+from .views import *
 
 urlpatterns = [
-    path("",dd.index,name='dd'),
-    path("d",dd.index2,name='ddd'),
-    path("recieve",dd.recieve,name='recieve'),
+    path("",index,name='dd'),
+    path("d",index2,name='ddd'),
+    path("recieve",recieve,name='recieve'),
+    path("Layers_Edited",Layers_Edited,name='Layers_Edited')
 ]

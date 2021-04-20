@@ -27,30 +27,29 @@ L.tileLayer.wms("http://localhost/geoserver/geonode/wms?", {
  layers: 'line_water',
  transparent: true,
  opacity: 0.4
-			 }).addTo(map)
+})
 
+var po;
 
-
-	</script>
-	<script type="text/javascript">
-
-	fetch('http://localhost/geoserver/geonode/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=geonode%3Aline_water&maxFeatures=50&outputFormat=application%2Fjson')
+fetch('http://localhost/geoserver/geonode/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=geonode%3Aline_water&maxFeatures=50&outputFormat=application%2Fjson')
 	.then((response)=>response.json())
 	.then((data)=>
 	 {
-
+		 po=data
+		 console.log(data);
+   L.geoJson(data).addTo(map)
 	 for(let i=0;i< data.features.length;i++){
 		 var line= data.features[i]
-		 console.log(line);
+
 		 var diameter=line.properties.Diameter
 		 var name = line.properties.Markaz_Nam+line.id
-     console.log(diameter,name);
-		 break
-	 }
- }
-);
+     // console.log(diameter,name);
 
-	console.log(data);
+	 }
+ });
+
+
+	// console.log(data);
 
 	</script>
 </body>
