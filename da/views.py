@@ -1,8 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse ,HttpResponseRedirect
-#import fiona
-#import shapefile
-# Create your views here.
+from django.contrib.auth.decorators import login_required
 from geoserver.catalog import Catalog
 from geonode.geoserver.helpers import (_render_thumbnail,
                                        _prepare_thumbnail_body_from_opts,
@@ -24,6 +22,13 @@ from django.core import serializers
 from .models import *
 from geonode.layers import models as m
 from geonode.layers.views import *
+from django.http import JsonResponse
+
+
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
+
 baseURL = "http://localhost/geoserver/gwc/rest/seed/"
 descURL = "https://localhost/geoserver/gwc/rest/layers/"
 
@@ -33,30 +38,115 @@ pw = 'geoserver'
 
 def recieve(request):
     data=json.loads(request.body)
-    print(data['name'])
     try:
-        x=editedLayers.objects.get(name=data['name'])
+        x=editedLayer.objects.get(name=data['name'] , user_name=request.user.username)
         print("edited")
         print(x.name)
         x.layer=data['layer']
         x.save()
     except:
-        Layer=editedLayers()
+        Layer=editedLayer()
         Layer.name=data['name']
         Layer.layer=data['layer']
+        print("the error belwo me")
+        Layer.user_name = request.user.username
         Layer.save()
 
 
     return HttpResponse("done")
-def Layers_Edited(request):
-    data = editedLayers.objects.all()
+
+def AcceptLayer(request):
+    data=json.loads(request.body)
+    try:
+        x=AcceptedLayer.objects.get(name=data['name'])
+        x.layer=data['layer']
+        x.save()
+    except:
+        Layer=AcceptedLayer()
+        Layer.name=data['name']
+        Layer.layer=data['layer']
+        Layer.user_name = data['user_name']
+        Layer.superviser = request.user.username
+        Layer.save()
+    #deleting it from edited layers
+    y=editedLayer.objects.get(name=data['name'] , user_name=data['user_name'] )
+    y.delete()
+    layEdited=editedLayer.objects.all()
     layers=[]
-    for layer in data:
-        layers.append({layer.name:layer.layer})
+    for layer in layEdited:
+        layers.append({layer.name+' by: '+layer.user_name:layer.layer })
     context={
-        'layers':json.dumps(layers)
+        'layers':layers
     }
-    print('layer')
+    return  JsonResponse(context)
+
+
+
+def RejectedEdits(request):
+    data=json.loads(request.body)
+    try:
+        x=RejectedLayer.objects.get(name=data['name'], user_name=data['user_name'])
+        x.layer=data['layer']
+        print('hj')
+        x.save()
+    except:
+        Layer=RejectedLayer()
+        print('x')
+        Layer.name=data['name']
+        Layer.layer=data['layer']
+        Layer.user_name = data['user_name']
+        Layer.note = data['note']
+        Layer.superviser = request.user.username
+        print('y')
+        Layer.save()
+        print('z')
+    #deleting it from edited layers
+    try:
+        y=editedLayer.objects.get(name=data['name'] , user_name=data['user_name'] )
+    except:
+        y=editedLayer.objects.get(name=data['name'] , user_name=data['prev_user'] )
+    y.delete()
+    layEdited=editedLayer.objects.all()
+    layers=[]
+    for layer in layEdited:
+        layers.append({layer.name+' by: '+layer.user_name:layer.layer })
+    context={
+        'layers':layers
+    }
+    return  JsonResponse(context)
+
+# def AssignEdit(request):
+
+
+
+
+
+
+
+
+
+
+from geonode.utils import json_serializer_producer
+
+def Layers_Edited(request):
+    users= User.objects.exclude(username='AnonymousUser')
+    data = editedLayer.objects.all()
+    layers=[]
+    # cat2= gs_catalog
+    # cat = Catalog("http://localhost/geoserver/rest/", username="admin", password="geoserver")
+    for layer in data:
+        layers.append({layer.name+' by: '+ layer.user_name:layer.layer })
+        # xlayer = cat.get_layer(layer.name)
+        # topp = cat.get_workspace("geonode")
+        # ds=cat.get_stores()[0]
+        # new_source=ds.get_resources()[1]
+        # xlayer.set_resource=new_source
+        # cat.save(xlayer)
+        # cat.reload()
+    context={
+        'layers':json.dumps(layers),
+        'users':users
+    }
     return render(request,'da/LayersEdited.html',context)
 
 
@@ -65,7 +155,11 @@ def Layers_Edited(request):
 
 
 def index2(request):
-    url='http://localhost/geoserver/wfs?request=GetFeature&service=WFS&version=1.0.0&typeName='+that_layer.name+'&outputFormat=application/json'
+    # url='http://localhost/geoserver/wfs?request=GetFeature&service=WFS&version=1.0.0&typeName='+that_layer.name+'&outputFormat=application/json'
+    # curl -X PUT http://localhost/geoserver/rest/layers/geonode%3Aline_water -H  "accept: application/json" -H  "content-type: application/xml" -d "<?xml version=\"1.0\" encoding=\"UTF-8\"?><layer>\t<name>string</name>\t<path>string</path>\t<type>VECTOR</type>\t<defaultStyle>\t\t<name>string</name>\t</defaultStyle>\t<styles>\t\t<@class>linked-hash-set</@class>\t\t<style>\t\t\t<name>string</name>\t\t</style>\t</styles>\t<resource>\t\t<@class>featureType</@class>\t\t<name>string</name>\t</resource>\t<opaque>true</opaque>\t<metadata>\t\t<@key>buffer</@key>\t\t<$>string</$>\t</metadata>\t<attribution>\t\t<title>string</title>\t\t<href>string</href>\t\t<logoURL>string</logoURL>\t\t<logoWidth>0</logoWidth>\t\t<logoHeight>0</logoHeight>\t\t<logoType>string</logoType>\t</attribution>\t<authorityURLs>\t\t<name>string</name>\t\t<href>string</href>\t</authorityURLs>\t<identifiers>\t\t<authority>string</authority>\t\t<identifier>string</identifier>\t</identifiers></layer>"
+    return HttpResponse('k')
+
+
 
 
 
@@ -73,26 +167,8 @@ def index2(request):
 
 import requests
 
-
+@login_required
 def index(request):
-    # d =m.Layer.objects.all()
-    #shape = fiona.open("{{ STATIC_URL}}/shapefile/electricty_line.shp")
-    #print shape.schema
-    #{'geometry': 'LineString', 'properties': OrderedDict([(u'FID', 'float:11')])}
-    #first feature of the shapefile
-    #first = shape.next()
-    #print first # (GeoJSON format)
-    #shape = shapefile.Reader("{{ STATIC_URL }}shapefile/electricty_line.shp")
-    #feature = shape.shapeRecords()[0]
-    #first = feature.shape.__geo_interface__
-    #print first # (GeoJSON format)
-    # cat = Catalog("http://localhost/geoserver/rest/")
-    # y=    ("http://localhost/geoserver/wfs?request=GetFeature&service=WFS&version=1.0.0&typeName=states&srsName=EPSG:4326&outputFormat=application/json")
-    # print(y)
-    # xx=requests.get(y)
-    # print(xx)
-    # return HttpResponseRedirect(y)
-
     cat = Catalog("http://localhost/geoserver/rest/", username="admin", password="geoserver")
     cat2= gs_catalog
     # shapefile_plus_sidecars = geoserver.util.shapefile_and_friends('cat.get_layer("states")')

@@ -40,10 +40,31 @@
 {% endblock %}
 
 {% block middle %}
-<div id="mapid"></div>
-{% for layer in layers %}
-     {{ layer.keys }}
-{% endfor %}
+<div class="container-fluid">
+  <div class="COL-3" id='ll' width='20%'>
+    <select name="attr1"  id="layers" form="carform" >
+
+    </select>
+    <button type="button" id='acceptBtn' name="button">Accept</button>
+    <button type="button" id='rejectBtn' name="button">Reject</button>
+    <button type="button" id='assignBtn' name="button">Assign To other user</button>
+  </div>
+  <div id='note' style="display: none">
+    <input type="text" id='noteSubmitted' name="" value="" placeholder="Reason for rejection">
+    <input type="submit" id='submitNote' name="" value="submit Rejection">
+  </div>
+    <div id='assign' style="display: none">
+      New User:<select class="" id="assignedUser" name="">
+        {% for user in users %}
+        <option value="{{user.username}}">{{ user.username}}</option>
+        {% endfor %}
+      </select>
+      <input type="text" id='assignedNote' name="" value="" placeholder="Reason for Reassigning">
+      <input type="submit" id='assignNote' name="" value="submit Assign">
+    </div>
+  <div class='col-8' id="mapid"></div>
+</div>
+
 <script type="text/javascript">
   var mymap;
   var baeMap;
@@ -63,14 +84,179 @@ function loadMap(){
       }
 
 loadMap()
+function clearToRedraw(){
+    //Check if map is loaded, if false then load else remove everything and reload it
+    if(isMap != true){
+        loadMap();
+    }else{
+        //For each layer on the map remove everything and clear variables
+        mymap.eachLayer(function(layer){
+            view= mymap.getCenter();
+            zoom=mymap.getZoom();
+            mymap.remove();
+            if (!!layer.toGeoJSON) {
+
+              mymap.removeLayer(layer);
+            } //clear the pointManager array of points
+            isMap = false;
+            loadMap(); //reload the map function
+        });
+      }}
 
 var layers=JSON.parse('{{layers | safe}}')
 
+function loadingEditedLayers(layers){
+console.log('this is Layers:' ,layers);
+document.getElementById('layers').innerHTML=''
 for(let i=0;i<layers.length;i++){
   var layerName=Object.keys(layers[i])[0]
-  console.log(layerName);
   L.geoJSON(layers[i][layerName]).addTo(mymap)
+  document.getElementById('layers').innerHTML+=' <option value="'+i+'"> '+ layerName +' </option>'
 }
+}
+loadingEditedLayers(layers)
+//firstkey
+
+document.getElementById('layers').addEventListener('change',function(){
+  var selected=document.getElementById('layers').value
+  var layerSelected=layers[selected][Object.keys(layers[selected])[0]]
+  clearToRedraw()
+  console.log(selected);
+  var selectedLayer=L.geoJSON(layerSelected).addTo(mymap)
+  mymap.fitBounds(selectedLayer.getBounds())
+})
+
+function getCookie(name){
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+const csrftoken = getCookie('csrftoken');
+
+
+//Accept Layer
+document.getElementById('acceptBtn').addEventListener('click',function(){
+  var selected=document.getElementById('layers').value
+  var layerName=Object.keys(layers[selected])[0].split(' ')[0]
+  var user_name=Object.keys(layers[selected])[0].split(' ')[2]
+  var layerSelected=layers[selected][Object.keys(layers[selected])[0]]
+  console.log(selected,layerName, user_name);
+  console.log(layerSelected);
+  fetch('{% url "AcceptLayer"%}',{
+    method:'POST',
+    headers:{
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrftoken,
+    },
+      body:JSON.stringify({
+        'name':layerName,
+        'user_name':user_name,
+        'layer':layerSelected
+      })
+    })
+        .then(response => response.json())
+        .then(data => {
+          loadingEditedLayers(data.layers)
+          console.log('Success:', data);
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+        })
+  // loadingEditedLayers()
+  })
+
+  //Reject Layer
+  document.getElementById('rejectBtn').addEventListener('click',function(){
+    document.getElementById('note').style.display='block'
+    document.getElementById('submitNote').addEventListener('click',function(e){
+    var selected=document.getElementById('layers').value
+    var layerName=Object.keys(layers[selected])[0].split(' ')[0]
+    var user_name=Object.keys(layers[selected])[0].split(' ')[2]
+    var layerSelected=layers[selected][Object.keys(layers[selected])[0]]
+    console.log(selected,layerName, user_name);
+    console.log(layerSelected);
+    fetch('{% url "RejectedEdits"%}',{
+      method:'POST',
+      headers:{
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrftoken,
+      },
+        body:JSON.stringify({
+          'name':layerName,
+          'user_name':user_name,
+          'layer':layerSelected,
+          'note':document.getElementById('noteSubmitted').value
+        })
+      })
+          .then(response => response.json())
+          .then(data => {
+            loadingEditedLayers(data.layers)
+            console.log('Success:', data);
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+          })
+      })
+    // loadingEditedLayers()
+    })
+
+document.getElementById('assignBtn').addEventListener('click',function(){
+  document.getElementById('assign').style.display='block'
+  document.getElementById('assignNote').addEventListener('click',function(){
+    var selected=document.getElementById('layers').value
+    var layerName=Object.keys(layers[selected])[0].split(' ')[0]
+    var user_name=Object.keys(layers[selected])[0].split(' ')[2]
+    var layerSelected=layers[selected][Object.keys(layers[selected])[0]]
+    fetch('{% url "RejectedEdits"%}',{
+      method:'POST',
+      headers:{
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrftoken,
+      },
+        body:JSON.stringify({
+          'name':layerName,
+          'user_name':document.getElementById('assignedUser').value,
+          'layer':layerSelected,
+          'note':document.getElementById('assignedNote').value,
+          'prev_user': user_name
+        })
+      })
+          .then(response => response.json())
+          .then(data => {
+            console.log('Success:', data);
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+          })
+      })
+      // loadingEditedLayers()
+    })
+
+// fetch('http://localhost/geoserver/rest/workspaces/geonode/datastores/my_upgeo_data/featuretypes',{
+// method: 'POST', // or 'PUT'
+// headers: {
+//   'Content-Type': 'application/json',
+//   'X-CSRFToken': csrftoken,
+//         },
+//         body: JSON.stringify(layers[0][layerName]),
+//       })
+//       .then(response => response.json())
+//       .then(data => {
+//         console.log('Success:', data);
+//       })
+//       .catch((error) => {
+//         console.error('Error:', error);
+//       })
 // console.log(geoLayers[0]);
 // console.log(geoLayers);
 

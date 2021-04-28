@@ -152,6 +152,15 @@ REST_FRAMEWORK = {
     )
 }
 ALLOWED_HOSTS=['*']
+
+
+
+
+
+# max_request_size_to_be_5Mb
+DATA_UPLOAD_MAX_MEMORY_SIZE = 15242880
+
+
 # DATABASES ['new']={
 #         #'ENGINE': 'django.db.backends.sqlite3',
 #         #'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
