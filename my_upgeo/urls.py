@@ -29,10 +29,9 @@ urlpatterns += [
  url(r'^main/?$', main.main, name='main'),
 ]
 
-from da import views as dd
-urlpatterns += [
 
-    path("dd/",include('da.urls'),name='dd'),
+urlpatterns += [
+    path("dd/",include('mapCustomisation.urls'),name='dd'),
     path('apii/',include('apii.urls')),
     path("geoleaflet",include('geoleaflet.urls')),
     path("Learning",include('Learning.urls')),

@@ -2,9 +2,9 @@ from django.shortcuts import render
 from django.http import HttpResponse ,HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from geoserver.catalog import Catalog
-from geonode.geoserver.helpers import (_render_thumbnail,
-                                       _prepare_thumbnail_body_from_opts,
-                                       gs_catalog)
+# from geonode.geoserver.helpers import (_render_thumbnail,
+#                                        _prepare_thumbnail_body_from_opts,
+#                                        gs_catalog)
 from geonode.geoserver.helpers import (ogc_server_settings,
                                        set_layer_style)
 from django.conf import settings
@@ -135,7 +135,7 @@ def Layers_Edited(request):
     # cat2= gs_catalog
     # cat = Catalog("http://localhost/geoserver/rest/", username="admin", password="geoserver")
     for layer in data:
-        layers.append({layer.name+' by: '+ layer.user_name:layer.layer })
+        layers.append({layer.name+' by: '+ layer.editor.user.username:layer.layer })
         # xlayer = cat.get_layer(layer.name)
         # topp = cat.get_workspace("geonode")
         # ds=cat.get_stores()[0]
