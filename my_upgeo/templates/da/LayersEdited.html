@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "./index.html" %}
 {% block extra_head %}
 <title>Pengeo</title>
 {%load static%}
@@ -56,7 +56,9 @@
     <div id='assign' style="display: none">
       New User:<select class="" id="assignedUser" name="">
         {% for user in users %}
-        <option value="{{user.username}}">{{ user.username}}</option>
+          {% if user.editor%}
+            <option value="{{user.username}}">{{ user.username}}</option>
+          {% endif%}
         {% endfor %}
       </select>
       <input type="text" id='assignedNote' name="" value="" placeholder="Reason for Reassigning">
@@ -150,8 +152,6 @@ document.getElementById('acceptBtn').addEventListener('click',function(){
   var layerName=Object.keys(layers[selected])[0].split(' ')[0]
   var user_name=Object.keys(layers[selected])[0].split(' ')[2]
   var layerSelected=layers[selected][Object.keys(layers[selected])[0]]
-  console.log(selected,layerName, user_name);
-  console.log(layerSelected);
   fetch('{% url "AcceptLayer"%}',{
     method:'POST',
     headers:{

@@ -47,11 +47,15 @@
 
 </div>
 
+
+
 <input type='button' id='hideshow' value='Edit'>
 
 <input type="button" id='EditLayer' name="" value="Edit Layer">
 <input type="button" id='Refresh' name="" value="refresh Layer">
+{% if request.user.editor  %}
 <input type="button" id="postFeature" name="" value="post Feature">
+{% endif%}
 
 <div class="container " id='EditingLayerContainer' ></div>
 <div class="container-fluid " id='editingContainer' style="display:none">
@@ -478,8 +482,9 @@ function PageLoad(){
 
 
     }
-
+  if (document.getElementById('postFeature')){
   document.getElementById('postFeature').addEventListener('click',postFeature)
+}
     function postFeature(){
             fetch("{% url 'recieve' %}", {
             method: 'POST', // or 'PUT'

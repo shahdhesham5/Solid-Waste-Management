@@ -2,9 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse ,HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from geoserver.catalog import Catalog
-# from geonode.geoserver.helpers import (_render_thumbnail,
-#                                        _prepare_thumbnail_body_from_opts,
-#                                        gs_catalog)
+from geonode.geoserver.helpers import  gs_catalog
 from geonode.geoserver.helpers import (ogc_server_settings,
                                        set_layer_style)
 from django.conf import settings
@@ -40,10 +38,9 @@ def recieve(request):
     data=json.loads(request.body)
     try:
         x=editedLyr.objects.get(name=data['name'] , editor=request.user.editor)
-        print("edited")
-        print(x.name)
         x.layer=data['layer']
         x.save()
+        msg='edited'
     except:
         Layer=editedLyr()
         Layer.name=data['name']
@@ -51,30 +48,38 @@ def recieve(request):
         print("the error belwo me")
         Layer.editor = request.user.editor
         Layer.save()
+        msg='created'
 
-
-    return HttpResponse("done")
+    context={
+        'msg':msg
+    }
+    return JsonResponse(context)
 
 def AcceptLayer(request):
     data=json.loads(request.body)
     try:
         x=AcceptedLyr.objects.get(name=data['name'])
+        print('try',x)
         x.layer=data['layer']
         x.save()
     except:
         Layer=AcceptedLyr()
         Layer.name=data['name']
         Layer.layer=data['layer']
+        print('exceptL')
         Layer.editor = Editor.objects.get(user__username=data['user_name'])
+        print('excepte')
         Layer.superviser = request.user.superviser
+        print('r')
         Layer.save()
     #deleting it from edited layers
     y=editedLyr.objects.get(name=data['name'] , editor=Editor.objects.get(user__username=data['user_name']) )
+    print('y',y)
     y.delete()
     layEdited=editedLyr.objects.all()
     layers=[]
     for layer in layEdited:
-        layers.append({layer.name+' by: '+layer.editor:layer.layer })
+        layers.append({'{} by: {}'.format(layer.name,layer.editor):layer.layer})
     context={
         'layers':layers
     }
@@ -85,33 +90,33 @@ def AcceptLayer(request):
 def RejectedEdits(request):
     data=json.loads(request.body)
     try:
-        x=rejectedLyr.objects.get(name=data['name'], user__user_name=Editor.objects.get(user__username=data['user_name']))
+        x=RejectedLyr.objects.get(name=data['name'], user__user_name=Editor.objects.get(user__username=data['user_name']))
         x.layer=data['layer']
-        print('hj')
         x.save()
+        msg='Not the first time to be rejected from the same user'
     except:
-        Layer=rejectedLyr()
-        print('x')
+        Layer=RejectedLyr()
         Layer.name=data['name']
         Layer.layer=data['layer']
         Layer.editor = Editor.objects.get(user__username=data['user_name'])
         Layer.note = data['note']
         Layer.superviser = request.user.superviser
-        print('y')
         Layer.save()
-        print('z')
+        msg='first time to be rejected from this user'
     #deleting it from edited layers
     try:
-        y=editedLyr.objects.get(name=data['name'] , user__user_name=Editor.objects.get(user__username=data['user_name']))
+        y=editedLyr.objects.get(name=data['name'] , editor=Editor.objects.get(user__username=data['user_name']))
     except:
-        y=editedLyr.objects.get(name=data['name'] , user_name=Editor.objects.get(user__username=data['prev_user']) )
+        y=editedLyr.objects.get(name=data['name'] , editor=Editor.objects.get(user__username=data['prev_user']))
+
     y.delete()
     layEdited=editedLyr.objects.all()
     layers=[]
     for layer in layEdited:
-        layers.append({layer.name+' by: '+layer.editor:layer.layer })
+        layers.append({'{} by: {}'.format(layer.name,layer.editor):layer.layer})
     context={
-        'layers':layers
+        'layers':layers,
+        'msg':msg
     }
     return  JsonResponse(context)
 
@@ -130,24 +135,32 @@ from geonode.utils import json_serializer_producer
 
 def Layers_Edited(request):
     users= User.objects.exclude(username='AnonymousUser')
-    data = editedLyr.objects.all()
-    layers=[]
-    # cat2= gs_catalog
-    # cat = Catalog("http://localhost/geoserver/rest/", username="admin", password="geoserver")
-    for layer in data:
-        layers.append({layer.name+' by: '+ layer.editor.user.username:layer.layer })
-        # xlayer = cat.get_layer(layer.name)
-        # topp = cat.get_workspace("geonode")
-        # ds=cat.get_stores()[0]
-        # new_source=ds.get_resources()[1]
-        # xlayer.set_resource=new_source
-        # cat.save(xlayer)
-        # cat.reload()
-    context={
-        'layers':json.dumps(layers),
-        'users':users
-    }
-    return render(request,'da/LayersEdited.html',context)
+    try:
+        if(request.user.superviser ):
+            data = editedLyr.objects.all()
+            layers=[]
+            # cat2= gs_catalog
+            #    cat = Catalog("http://localhost/geoserver/rest/", username="admin", password="geoserver")
+            for layer in data:
+                layers.append({layer.name+' by: '+ layer.editor.user.username:layer.layer })
+                # xlayer = cat.get_layer(layer.name)
+                # topp = cat.get_workspace("geonode")
+                # ds=cat.get_stores()[0]
+                #    new_source=ds.get_resources()[1]
+                #    xlayer.set_resource=new_source
+                # cat.save(xlayer)
+                # cat.reload()
+
+            context={
+                    'layers':json.dumps(layers),
+                        'users':users
+                    }
+            return render(request,'da/LayersEdited.html',context)
+    except:
+        ## TODO: prepare un authorized page
+        return HttpResponse('No')
+
+
 
 
 
@@ -215,7 +228,7 @@ def index(request):
                 response = wfs.getfeature(
                     typename=layername,
                     outputFormat='application/json')
-                return HttpResponse("amira")
+                return HttpResponse("No")
 
                 x = response.read()
                 x = json.loads(x)
