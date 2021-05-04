@@ -90,7 +90,8 @@ def AcceptLayer(request):
 def RejectedEdits(request):
     data=json.loads(request.body)
     try:
-        x=RejectedLyr.objects.get(name=data['name'], user__user_name=Editor.objects.get(user__username=data['user_name']))
+        x=RejectedLyr.objects.get(name=data['name'], editor=Editor.objects.get(user__username=data['user_name']))
+        print('x')
         x.layer=data['layer']
         x.save()
         msg='Not the first time to be rejected from the same user'
@@ -105,10 +106,16 @@ def RejectedEdits(request):
         msg='first time to be rejected from this user'
     #deleting it from edited layers
     try:
-        y=editedLyr.objects.get(name=data['name'] , editor=Editor.objects.get(user__username=data['user_name']))
+        print('try')
+        print(data['name'])
+        current_editor=Editor.objects.get(user__username=data['user_name'])
+        y=editedLyr.objects.get(name=data['name'] , editor=current_editor)
     except:
-        y=editedLyr.objects.get(name=data['name'] , editor=Editor.objects.get(user__username=data['prev_user']))
-
+        print('except',data['name'])
+        print(data['prev_user'])
+        print(data['name'])
+        prev_editor=Editor.objects.get(user__username=data['prev_user'])
+        y=editedLyr.objects.get(name=data['name'] , editor=prev_editor)
     y.delete()
     layEdited=editedLyr.objects.all()
     layers=[]
