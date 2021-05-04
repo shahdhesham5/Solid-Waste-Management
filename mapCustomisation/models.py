@@ -47,8 +47,8 @@ class editedLyr(models.Model):
         related_name='edited_layers'
     )
     layer=JSONField()
-    # def __str__(self):
-    #     return self.name+' edited by '+self.editor
+    def __str__(self):
+        return self.name+' edited by '+self.editor
 
 
 
@@ -69,8 +69,8 @@ class AcceptedLyr(models.Model):
                 related_name='accepted_layers'
             )
     layer=JSONField()
-    # def __str__(self):
-    #     return self.name+' Accepted by '+self.superviser
+    def __str__(self):
+        return '{} Accepted by {} '.format(self.name,self.superviser)
 
 class RejectedLyr(models.Model):
         name=models.CharField(max_length=255)
@@ -90,5 +90,5 @@ class RejectedLyr(models.Model):
                 )
         note=models.CharField(max_length=255)
         layer=JSONField()
-        # def __str__(self):
-        #     return self.name+' rejected by '+self.superviser +' to ' + self.user_name
+        def __str__(self):
+            return '{} rejected by {} to {}'.format(self.name,self.superviser , self.editor)
