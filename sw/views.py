@@ -90,10 +90,10 @@ def map(request):
 
             if 'Supervisors' in groupNames:
                 return render(request, 'sw/templates/templates/mapexample.html')
-            elif 'drivers' in groupNames :
+            elif 'Drivers' in groupNames :
                 return render(request, 'sw/templates/templates/mapdriver.html')
             else:
-                return HttpResponse(groupNames)
+                return HttpResponse("You are Not Authorised")
 
 
 

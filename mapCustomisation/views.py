@@ -55,6 +55,10 @@ def recieve(request):
     }
     return JsonResponse(context)
 
+
+
+
+
 def AcceptLayer(request):
     data=json.loads(request.body)
     try:
@@ -116,7 +120,49 @@ def RejectedEdits(request):
     }
     return  JsonResponse(context)
 
-# def AssignEdit(request):
+
+@login_required
+def assignEdit(request):
+    print (request.user)
+    try:
+        print(request.user.editor)
+        data=RejectedLyr.objects.filter(editor=request.user.editor)
+        layers=[]
+        for layer in data:
+            layers.append({layer.name+' by: '+ layer.editor.user.username:layer.layer })
+    except:
+        print(request.user)
+        layers=[]
+    context={
+        'layers':json.dumps(layers)
+    }
+    return render(request,'da/rejectedandassignedLayers.html',context)
+
+
+def resubmitedLayers(request):
+    data=json.loads(request.body)
+    try:
+        x=editedLyr.objects.get(name=data['name'] , editor=request.user.editor)
+        x.layer=data['layer']
+        x.save()
+        msg='edited'
+    except:
+        Layer=editedLyr()
+        Layer.name=data['name']
+        Layer.layer=data['layer']
+        Layer.editor = request.user.editor
+        Layer.save()
+        msg='created'
+    y=RejectedLyr.objects.get(name=data['name'] , editor=request.user.editor)
+    y.delete()
+    rest_data=RejectedLyr.objects.filter(editor=request.user.editor)
+    layers=[]
+    for layer in rest_data:
+        layers.append({layer.name+' by: '+ layer.editor.user.username:layer.layer })
+    context={
+        'layers':layers,
+        }
+    return JsonResponse(context)
 
 
 
@@ -125,9 +171,6 @@ def RejectedEdits(request):
 
 
 
-
-
-from geonode.utils import json_serializer_producer
 
 def Layers_Edited(request):
     users= User.objects.exclude(username='AnonymousUser')
@@ -172,9 +215,6 @@ def index2(request):
 
 
 
-
-
-import requests
 
 @login_required
 def index(request):
@@ -301,10 +341,5 @@ def index(request):
     }
 
     return render(request,'da/index.html',context)
-    if 1  :
-        return HttpResponse("kkkkkkkkkkkkkkkT"+"first")
-    else:
-        return HtttpResponse("n")
-
 
 #first feature of the shapefile

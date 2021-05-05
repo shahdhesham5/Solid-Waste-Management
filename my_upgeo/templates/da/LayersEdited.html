@@ -1,53 +1,15 @@
 {% extends "./index.html" %}
-{% block extra_head %}
-<title>Pengeo</title>
-{%load static%}
-      <link rel="stylesheet" href="{% static '/leaflet/leaflet.css'%}"/>
-      <script src="{% static '/leaflet/leaflet.js'%}"></script>
-      <link rel="stylesheet" href="{% static 'css/da/da.css'%}">
-      <script src="{% static 'proj4js/lib/proj4js-combined.js'%}"></script>
-      <link rel="stylesheet" href="{% static 'leaflet.table/supagrid.css'%}" />
-      <link rel="stylesheet" href="{% static 'leaflet.table/leaflet.table.css'%}" />
-      <script src="{% static 'leaflet.table/supagrid.js'%}" type="text/javascript"></script>
-      <script src="{% static 'leaflet.table/leaflet.table.js'%}" type="text/javascript"></script>
-      <style media="screen">
-          #mapid { height:500px; }
-          #wrap{
-            margin-top: 0px;
-            padding: 0px;
-          }
-          #ruleContainer{
-            padding-left: 39%;
-          }
-          #attr1{
-          margin-left: 0.4%;;
-          }
-          .result{
-            margin-left: 0px;
-          }
-          #attr1 ,#attr2 ,#layers
-            {
-             min-width: 16% !important;
-             height:2%!important;
-             border-radius: 3px !important;
-             margin-bottom: 1px !important;
-             -webkit-appearance: none !important;
-             -moz-appearance: none !important;
-             appearance: none !important;      /* Remove default arrow */
-             background-image: url(...);   /* Add custom arrow */
-          }
-      </style>
-{% endblock %}
-
 {% block middle %}
 <div class="container-fluid">
   <div class="COL-3" id='ll' width='20%'>
     <select name="attr1"  id="layers" form="carform" >
 
     </select>
+    {% block buttons%}
     <button type="button" id='acceptBtn' name="button">Accept</button>
     <button type="button" id='rejectBtn' name="button">Reject</button>
     <button type="button" id='assignBtn' name="button">Assign To other user</button>
+    {% endblock %}
   </div>
   <div id='note' style="display: none">
     <input type="text" id='noteSubmitted' name="" value="" placeholder="Reason for rejection">
@@ -68,6 +30,7 @@
 </div>
 
 <script type="text/javascript">
+  {%  block mapScript%}
   var mymap;
   var baeMap;
   var view;
@@ -104,7 +67,9 @@ function clearToRedraw(){
             loadMap(); //reload the map function
         });
       }}
+{% endblock %}
 
+{% block gettingData %}
 var layers=JSON.parse('{{layers | safe}}')
 
 function loadingEditedLayers(l){
@@ -120,14 +85,15 @@ for(let i=0;i<editedData.length;i++){
 loadingEditedLayers(layers)
 //firstkey
 
-document.getElementById('layers').addEventListener('change',function(){
+document.getElementById('layers').addEventListener('change',showLayer)
+function showLayer(){
   var selected=document.getElementById('layers').value
   var layerSelected=layers[selected][Object.keys(layers[selected])[0]]
   clearToRedraw()
   console.log(selected);
   var selectedLayer=L.geoJSON(layerSelected).addTo(mymap)
   mymap.fitBounds(selectedLayer.getBounds())
-})
+}
 
 function getCookie(name){
     let cookieValue = null;
@@ -146,7 +112,9 @@ function getCookie(name){
 }
 const csrftoken = getCookie('csrftoken');
 
+{% endblock %}
 
+{% block ButtonEvents%}
 //Accept Layer
 document.getElementById('acceptBtn').addEventListener('click',function(){
   console.log('this is layers accepted',layers);
@@ -260,7 +228,7 @@ document.getElementById('assignBtn').addEventListener('click',function(){
       })
       // loadingEditedLayers()
     })
-
+{% endblock%}
 // fetch('http://localhost/geoserver/rest/workspaces/geonode/datastores/my_upgeo_data/featuretypes',{
 // method: 'POST', // or 'PUT'
 // headers: {

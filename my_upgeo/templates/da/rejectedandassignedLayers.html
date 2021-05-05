@@ -1,0 +1,43 @@
+{% extends "./LayersEdited.html" %}
+{% block buttons%}
+<button type="button" id='submitBtn' name="button">Submit</button>
+<button type="button" id='showLayer' name="button">showLayer</button>
+{% endblock %}
+
+{% block ButtonEvents%}
+document.getElementById('showLayer').addEventListener('click',showLayer)
+
+//to submit the layer to layerEdited
+document.getElementById('submitBtn').addEventListener('click',function(){
+  console.log("kkllk")
+  console.log('this is layers accepted',layers);
+  var selected=document.getElementById('layers').value
+  var layerName=Object.keys(layers[selected])[0].split(' ')[0]
+  var user_name=Object.keys(layers[selected])[0].split(' ')[2]
+  var layerSelected=layers[selected][Object.keys(layers[selected])[0]]
+  console.log('ssssssselected',layerName,user_name);
+  fetch('{% url "resubmitedLayers"%}',{
+    method:'POST',
+    headers:{
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrftoken,
+    },
+      body:JSON.stringify({
+        'name':layerName,
+        'user_name':user_name,
+        'layer':layerSelected
+      })
+    })
+        .then(response => response.json())
+        .then(data => {
+          layers=data.layers
+          loadingEditedLayers(data.layers)
+          clearToRedraw()
+          console.log('Success:', data);
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+        })
+
+  })
+{% endblock%}
