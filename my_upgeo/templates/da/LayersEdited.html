@@ -1,4 +1,5 @@
 {% extends "./index.html" %}
+{%load static%}
 {% block middle %}
 <div class="container-fluid">
   <div class="COL-3" id='ll' width='20%'>
@@ -9,7 +10,8 @@
     <button type="button" id='acceptBtn' name="button">Accept</button>
     <button type="button" id='rejectBtn' name="button">Reject</button>
     <button type="button" id='assignBtn' name="button">Assign To other user</button>
-    {% endblock %}
+    <button type="button" id='showLayer' name="button">showLayer</button>
+
   </div>
   <div id='note' style="display: none">
     <input type="text" id='noteSubmitted' name="" value="" placeholder="Reason for rejection">
@@ -26,9 +28,23 @@
       <input type="text" id='assignedNote' name="" value="" placeholder="Reason for Reassigning">
       <input type="submit" id='assignNote' name="" value="submit Assign">
     </div>
+  {% endblock %}
   <div class='col-8' id="mapid"></div>
 </div>
+  {% block table%}
+  {% endblock%}
 
+  {% block addedscript%}
+  <link rel="stylesheet" href="{% static 'leafletDraw/leafletdraw.css' %}"/>
+  <script src="{% static 'leafletDraw/leafletdraw.js'%}"></script>
+
+
+  <script src="{% static 'leafletEditable/leafletEditable.js' %}"></script>
+  <script src="{% static 'js/da/da.js' %}"></script>
+
+  {% endblock %}
+
+{% block myscript %}
 <script type="text/javascript">
   {%  block mapScript%}
   var mymap;
@@ -115,6 +131,7 @@ const csrftoken = getCookie('csrftoken');
 {% endblock %}
 
 {% block ButtonEvents%}
+document.getElementById('showLayer').addEventListener('click',showLayer)
 //Accept Layer
 document.getElementById('acceptBtn').addEventListener('click',function(){
   console.log('this is layers accepted',layers);
@@ -252,5 +269,5 @@ document.getElementById('assignBtn').addEventListener('click',function(){
 
 
 
-
+{% endblock%}
 {% endblock %}

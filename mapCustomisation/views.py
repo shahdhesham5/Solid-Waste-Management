@@ -125,17 +125,15 @@ def RejectedEdits(request):
 def assignEdit(request):
     print (request.user)
     try:
-        print(request.user.editor)
         data=RejectedLyr.objects.filter(editor=request.user.editor)
         layers=[]
         for layer in data:
             layers.append({layer.name+' by: '+ layer.editor.user.username:layer.layer })
     except:
-        print(request.user)
         layers=[]
     context={
         'layers':json.dumps(layers)
-    }
+        }
     return render(request,'da/rejectedandassignedLayers.html',context)
 
 
@@ -214,7 +212,7 @@ def index2(request):
 
 
 
-
+import requests
 
 @login_required
 def index(request):
@@ -329,7 +327,7 @@ def index(request):
     # print (that_layer.dom.__dict__.keys())
 
 
-    # print(that_layer.keys())
+
     context={
         # "layerw":that_layer,
         "layers":all_layers,

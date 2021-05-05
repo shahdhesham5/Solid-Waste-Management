@@ -10,6 +10,6 @@ urlpatterns = [
     path("RejectedEdits",RejectedEdits,name='RejectedEdits'),
     path("assignEdit",assignEdit,name='assignEdit'),
     path("resubmitedLayers",resubmitedLayers,name='resubmitedLayers'),
-    
+
 
 ]
