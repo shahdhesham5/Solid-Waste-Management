@@ -48,7 +48,7 @@ class editedLyr(models.Model):
     )
     layer=JSONField()
     def __str__(self):
-        return self.name+' edited by '+self.editor
+        return '{} edited by {}'.format(self.name,self.editor)
 
 
 

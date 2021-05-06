@@ -1,4 +1,4 @@
-body{
+body ,#wrap{
   background-image: linear-gradient( #2b5876,#4e4376 );
 }
 /* #load{
