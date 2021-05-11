@@ -59,6 +59,34 @@
         @font-face {
           font-family: Bahij;
           src: url('{{ STATIC_URL }}static/fonts/Bahij_TheSansArabic-Bold.ttf' );
+
+        }
+        .dropdownWrapper{
+          position: relative;
+          display: inline-block;
+
+        }
+        .dropdown-menu{
+          position: absolute;
+          background-color: #05A081;
+          min-width: 160px;
+          overflow: auto;
+          padding:5px;
+          box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+          z-index: 1;
+          color:#BEE6DE
+
+        }
+        .dropdown-menu a{
+          color:#D2FBF3;
+        }
+        .dropdown-menu li{
+          padding:2px;
+          color:#C0E7DF;
+          display: flex;
+          justify-content:end
+
+
         }
       </style>
       <link href= '{{ STATIC_URL }}static/css/ar-fix.css' rel="stylesheet" />
@@ -119,44 +147,48 @@
                  <!-- <a href="#" data-toggle="modal" data-target="#SigninModal" role="button">Sign in </a> -->
             {% endif %}
             {% if user.is_authenticated %}
-            <li>
-              <!-- <a href="#" class="dropdown-toggle avatar" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> -->
-              <a class="nav-link "onclick="dropdownFun()" href="#" class="dropdown-toggle avatar " data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                <!-- <button class="dropdown-toggle "> -->
-                {% autoescape off %}{% avatar user 40 %}{% endautoescape %}
-                {% with full_name=user.first_name|add:' '|add:user.last_name %}
-                  {% if full_name.strip %}
-                    {{ full_name | truncatechars:20 }}
-                  {% else %}
-                    {{ user.username | truncatechars:20 }}
-                  {% endif %}
-                {% endwith %}
-                <i class="fa fa-angle-down fa-lg"></i>
-              </a>
-              <ul class="dropdown-menu " id='myDropdown'>
-                      <li><a href="{{ user.get_absolute_url }}">{% trans "Profile" %}</a></li>
-                      <li><a href="{% url "recent-activity" %}">{% trans "Recent Activity" %}</a></li>
-                      {% if FAVORITE_ENABLED and user.is_authenticated %}
-                      <li><a href="{% url "favorite_list" %}">{% trans "Favorites" %}</a></li>
+
+
+                <li>
+                  <div class="dropdownWrapper" >
+                  <!-- <a href="#" class="dropdown-toggle avatar" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> -->
+                  <a class="nav-link "onclick="dropdownFun()" href="#" class="dropdown-toggle avatar " data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                    <!-- <button class="dropdown-toggle "> -->
+                    {% autoescape off %}{% avatar user 40 %}{% endautoescape %}
+                    {% with full_name=user.first_name|add:' '|add:user.last_name %}
+                      {% if full_name.strip %}
+                        {{ full_name | truncatechars:20 }}
+                      {% else %}
+                        {{ user.username | truncatechars:20 }}
                       {% endif %}
-                      <li><a href="{% url "messages_inbox" %}">{% trans "Inbox" %}</a></li>
-                      {% if user.is_superuser or user.is_staff %}
-                          <li role="separator" class="divider"></li>
-                          <li><a href="{% url "admin:index" %}">{% trans "Admin" %}</a></li>
-                          {% if 'geonode.geoserver' in INSTALLED_APPS %}
-                          <li><a href="{{ OGC_SERVER.default.WEB_UI_LOCATION }}">GeoServer</a></li>
+                    {% endwith %}
+                    <i class="fa fa-angle-down fa-lg"></i>
+                  </a>
+                  <ul class="dropdown-menu " id='myDropdown'>
+                          <li><a href="{{ user.get_absolute_url }}">{% trans "Profile" %}</a></li>
+                          <li><a href="{% url "recent-activity" %}">{% trans "Recent Activity" %}</a></li>
+                          {% if FAVORITE_ENABLED and user.is_authenticated %}
+                          <li><a href="{% url "favorite_list" %}">{% trans "Favorites" %}</a></li>
                           {% endif %}
-                          {% if USE_MONITORING %}
-                          <li role="separator" class="divider"></li>
-                          <li><a href="{% url "monitoring:index" %}">{% trans "Monitoring & Analytics" %}</a></li>
+                          <li><a href="{% url "messages_inbox" %}">{% trans "Inbox" %}</a></li>
+                          {% if user.is_superuser or user.is_staff %}
+                              <li role="separator" class="divider"></li>
+                              <li><a href="{% url "admin:index" %}">{% trans "Admin" %}</a></li>
+                              {% if 'geonode.geoserver' in INSTALLED_APPS %}
+                              <li><a href="{{ OGC_SERVER.default.WEB_UI_LOCATION }}">GeoServer</a></li>
+                              {% endif %}
+                              {% if USE_MONITORING %}
+                              <li role="separator" class="divider"></li>
+                              <li><a href="{% url "monitoring:index" %}">{% trans "Monitoring & Analytics" %}</a></li>
+                              {% endif %}
                           {% endif %}
-                      {% endif %}
-                      <li role="separator" class="divider"></li>
-                      <li><a href="{% url "help" %}">{% trans "Help" %}</a></li>
-                      <li role="separator" class="divider"></li>
-                      <li><a href="{{SITEURL}}account/logout/">{% trans "Log out" %}</a></li>
-               </ul>
-              </li>
+                          <li role="separator" class="divider"></li>
+                          <li><a href="{% url "help" %}">{% trans "Help" %}</a></li>
+                          <li role="separator" class="divider"></li>
+                          <li><a href="{% url 'sw_logout' %}">{% trans "Log out" %}</a></li>
+                     </ul>
+                 </div>
+                </li>
 
           {% else %}
 

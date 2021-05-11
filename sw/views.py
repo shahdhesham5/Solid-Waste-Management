@@ -1,16 +1,19 @@
 from django.shortcuts import render,  redirect
 
 # Create your views here.
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic import TemplateView
+from django.urls import reverse, reverse_lazy
 from .decorators import allowed_users ,admin_only ,unauthenticated_user
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login as original_login, authenticate, logout
 from django.forms import inlineformset_factory
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+from django.contrib import messages
+
 from django.db import models
 
-
+User = get_user_model()
 class CreateUserForm(UserCreationForm):
 	class Meta:
 		model = User
@@ -22,21 +25,51 @@ def login(request):
 	else:
 		return render(request, 'sw/templates/templates/login.html')
 
+
+def sw_login(request):
+	if request.user.is_authenticated:
+		return redirect('new')
+	else:
+		if request.method == 'POST':
+			username = request.POST['username']
+			password = request.POST['password']
+			user = authenticate(username=username, password=password)
+
+			if user is not None:
+
+				if user.is_active:
+					original_login(request, user)
+					return redirect('new')
+			else:
+				 messages.error(request,'username or password not correct')
+				 return redirect('login')
+	return redirect('login')
+
+
+
+
+def sw_logout(request):
+	logout(request)
+	return HttpResponseRedirect(reverse_lazy('login'))
+
+
 def signup(request):
 	if request.user.is_authenticated:
-		return redirect('home')
-
+		return  HttpResponseRedirect(reverse_lazy('new'))
 	else:
 		form = CreateUserForm()
 		template_name ="sw/templates/templates/signup.html"
 		if request.method == 'POST':
+
 			form = CreateUserForm(request.POST)
 			if form.is_valid():
 				form.save()
 				user = form.cleaned_data.get('username')
+				raw_password = form.cleaned_data.get('password1')
 				messages.success(request, 'Account was created for ' + user)
-				return redirect('database')
-
+				user_created = authenticate(username=user, password=raw_password)
+				original_login(request,user_created)
+				return  HttpResponseRedirect(reverse_lazy('new'))
 		context = {'form':form}
 		return render(request, 'sw/templates/templates/signup.html', context)
 	# form=UserCreationForm()
@@ -69,7 +102,7 @@ def signup(request):
 
 def index(request):
 	if not request.user.is_authenticated:
-		return render(request, 'sw/templates/account/login.html')
+		return HttpResponseRedirect(reverse_lazy('sw_login'))
 	else:
 		return render(request, 'new.html')
 
@@ -93,7 +126,10 @@ def map(request):
             elif 'Drivers' in groupNames :
                 return render(request, 'sw/templates/templates/mapdriver.html')
             else:
-                return HttpResponse("You are Not Authorised")
+                # return HttpResponse("You are Not Authorised")
+                messages.error(request,'You are Not Authorised')
+                return render(request, 'sw/templates/templates/login.html')
+                
 
 
 

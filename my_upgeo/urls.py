@@ -54,7 +54,11 @@ url(r'^new/?$', views.index, name='new'),
    url(r'^swm/?$', views.swm, name='swm'),
    url(r'^test/?$', views.test, name='test'),
    url(r'^signup/?$', views.signup, name='signup'),
-   url(r'^login/?$', views.login, name='login')
+   url(r'^login/?$', views.login, name='login'),
+   url(r'^sw_logout/?$', views.sw_logout, name='sw_logout'),
+   url(r'^sw_login/?$', views.sw_login, name='sw_login'),
+   
+
 
 ]
 

@@ -8,8 +8,8 @@
 
  {% block body_outer %}
 
-				<div class="col-6  " style=" margin-left:11rem;margin-top:6rem;width:60rem; " >
-					    <div class="page-header" >
+				<div class="col-6 " style=" margin-left:11rem;margin-top:6rem;width:60rem; " >
+					    <div class="page-header"  style='display:flex;padding-left:-11px'>
 					        <h2 class="text-left">{% trans "Sign up" %}</h2>
 					    </div>
 					    <div class="row">
@@ -22,13 +22,24 @@
 					          <hr>
 					      {% endif %}
 					    </div>
-					    <div class="row ">
-					      <p style="margin-left:12rem">{% trans "Create a new local account" %}</p>
+					    <div class="row " style='display: flex;'>
+					      <p style="margin-left:0rem">{% trans "Create a new local account" %}</p>
 
-                <form id="signup_form" method="post" action="{% url "account_signup" %}" autocapitalize="off" {% if form.is_multipart %} enctype="multipart/form-data"{% endif %}>
+                <form id="signup_form " style='display: flex;' method="post" action="{% url "signup" %}" autocapitalize="off" {% if form.is_multipart %} enctype="multipart/form-data"{% endif %}>
                     <fieldset>
                         {% csrf_token %}
-                        {{ form|as_bootstrap }}
+                        <!-- {{ form|as_bootstrap }} -->
+                        {% for field in form.visible_fields %}
+                        <div class="field_label">
+                          {% block trans %}{{field.label}} {% endblock%}
+                        </div>
+                        <div class="">
+                          {{field}}
+                        </div>
+
+
+                        {% endfor%}
+
                         {% if redirect_field_value %}
                             <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
                         {% endif %}
@@ -51,14 +62,21 @@
             $('#id_username').focus();
         });
         var form_fields = document.getElementsByTagName('input')
-            form_fields[1].placeholder='Username..';
-            form_fields[2].placeholder='Email..';
-            form_fields[3].placeholder='Enter password...';
-            form_fields[4].placeholder='Re-enter Password...';
+            form_fields[1].placeholder="{%  trans 'Username' %}";
+            form_fields[2].placeholder="{%  trans 'Email' %}";
+            form_fields[3].placeholder="{%  trans 'Enter-password' %}";
+            form_fields[4].placeholder="{%  trans 'Confirm-password' %}";
+
+
 
 
             for (var field in form_fields){
-              form_fields[field].className += ' form-control'
-            }
+              form_fields[field].className += 'form-control'
+              }
+          var field_labels=document.getElementsByClassName('field_label')
+          for(i in field_labels ){
+            console.log(field_labels[i]);
+            field_labels[i].style.display= 'flex';
+          }
     </script>
 {% endblock %}
