@@ -40,6 +40,9 @@ except ImportError:
 
 PROJECT_NAME = 'my_upgeo'
 
+
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
 # add trailing slash to site url. geoserver url will be relative to this
 if not SITEURL.endswith('/'):
     SITEURL = '{}/'.format(SITEURL)
@@ -57,7 +60,7 @@ WSGI_APPLICATION = "{}.wsgi.application".format(PROJECT_NAME)
 LANGUAGE_CODE = os.getenv('LANGUAGE_CODE', "en")
 
 if PROJECT_NAME not in INSTALLED_APPS:
-    INSTALLED_APPS += (PROJECT_NAME, 'geoleaflet','mapCustomisation', 'sw','main',
+    INSTALLED_APPS += (PROJECT_NAME ,'geoleaflet','mapCustomisation', 'sw','main',
     'apii','Learning', )
      # 'rest_framework',
      # 'rest_framework.authtoken'
@@ -81,6 +84,30 @@ loaders = TEMPLATES[0]['OPTIONS'].get('loaders') or ['django.template.loaders.fi
 # loaders.insert(0, 'apptemplates.Loader')
 TEMPLATES[0]['OPTIONS']['loaders'] = loaders
 TEMPLATES[0].pop('APP_DIRS', None)
+
+
+
+
+MIDDLEWARE = (
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.contrib.sites.middleware.CurrentSiteMiddleware',
+    'dj_pagination.middleware.PaginationMiddleware',
+    # The setting below makes it possible to serve different languages per
+    # user depending on things like headers in HTTP requests.
+    'django.middleware.locale.LocaleMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    'django.middleware.security.SecurityMiddleware',
+
+    'oauth2_provider.middleware.OAuth2TokenMiddleware',
+    'geonode.base.middleware.MaintenanceMiddleware',
+    'geonode.base.middleware.ReadOnlyMiddleware',   # a Middleware enabling Read Only mode of Geonode
+)
 
 LOGGING = {
     'version': 1,
@@ -177,16 +204,6 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 15242880
 # DATABASES['default']['ENGINE'] = 'django.contrib.gis.db.backends.postgis'
 # Add your specific LDAP configuration after this comment:
 # https://docs.geonode.org/en/master/advanced/contrib/#configuration
-CORS_ALLOWED_ORIGINS = [
-##to enable the front end
-    "http://127.0.0.1:3000",
-    "http://127.0.0.1:8000",
-    "http://127.0.0.1:8081",
-    "http://127.0.0.1:8887",
-    "http://localhost:8887",
-    "http://localhost:80",
-
-]
 
 # DATABASES = {
 #  'default': {
