@@ -124,88 +124,90 @@
 
       <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top shadow-sm">
         <div class="container">
-          <!-- English brand -->
-          <a class="navbar-brand en-brand" href="{% url 'new' %}">
-            <img src= '{{ STATIC_URL }}static/images/tanmia.jpg'  alt="logo" style="width: 7rem;">
-          </a>
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
+            <!-- English brand -->
+            <a id='en-brand' class="navbar-brand en-brand" href="{% url 'new' %}">
+              <img src= '{{ STATIC_URL }}static/images/tanmia.jpg'  alt="logo" style="width: 7rem;">
+            </a>
 
-          <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav ar-nav ml-auto">
-              <li class="nav-item active">
-                <a class="nav-link" href="{% url 'new' %}">الرئيسية</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link modules" href="new#modules"">مكونات المنصة</a>
-              </li>
-              <li class="nav-item">
-            {% if not user.is_authenticated and ACCOUNT_OPEN_SIGNUP and not READ_ONLY_MODE %}
-              <li><a class="nav-link" href="{% url "signup" %}">{% trans "Register" %}</a></li>
-                <li><a class="nav-link" href="{% url 'login' %}" data-toggle="modal" data-target="{% url 'login' %}" role="button" >{% trans "Sign in" %} </a></li>
-                 <!-- <a href="#" data-toggle="modal" data-target="#SigninModal" role="button">Sign in </a> -->
-            {% endif %}
-            {% if user.is_authenticated %}
+            <button id='collapsebtn' class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" >
+                  <span class="navbar-toggler-icon"></span>
+            </button>
 
+            <div class="collapse navbar-collapse" id="navbarSupportedContent" >
+                  <ul class="navbar-nav ar-nav ml-auto">
+                  {% block tabs %}
+                    <li class="nav-item active">
+                      <a class="nav-link" href="{% url 'new' %}">الرئيسية</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link modules" href="new#modules"">مكونات المنصة</a>
+                    </li>
+                    <li class="nav-item">
+                  {% if not user.is_authenticated and ACCOUNT_OPEN_SIGNUP and not READ_ONLY_MODE %}
+                    <li><a class="nav-link" href="{% url "signup" %}">{% trans "Register" %}</a></li>
+                      <li><a class="nav-link" href="{% url 'login' %}" data-toggle="modal" data-target="{% url 'login' %}" role="button" >{% trans "Sign in" %} </a></li>
+                       <!-- <a href="#" data-toggle="modal" data-target="#SigninModal" role="button">Sign in </a> -->
+                  {% endif %}
+                  {% if user.is_authenticated %}
+                      <li>
+                        <div class="dropdownWrapper" >
+                        <!-- <a href="#" class="dropdown-toggle avatar" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> -->
+                        <a class="nav-link "onclick="dropdownFun()" href="#" class="dropdown-toggle avatar " data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                          <!-- <button class="dropdown-toggle "> -->
+                          {% autoescape off %}{% avatar user 40 %}{% endautoescape %}
+                          {% with full_name=user.first_name|add:' '|add:user.last_name %}
+                            {% if full_name.strip %}
+                              {{ full_name | truncatechars:20 }}
+                            {% else %}
+                              {{ user.username | truncatechars:20 }}
+                            {% endif %}
+                          {% endwith %}
+                          <i class="fa fa-angle-down fa-lg"></i>
+                        </a>
+                        <ul class="dropdown-menu " id='myDropdown'>
+                                <li><a href="{{ user.get_absolute_url }}">{% trans "Profile" %}</a></li>
+                                <li><a href="{% url "recent-activity" %}">{% trans "Recent Activity" %}</a></li>
+                                {% if FAVORITE_ENABLED and user.is_authenticated %}
+                                <li><a href="{% url "favorite_list" %}">{% trans "Favorites" %}</a></li>
+                                {% endif %}
+                                <li><a href="{% url "messages_inbox" %}">{% trans "Inbox" %}</a></li>
+                                {% if user.is_superuser or user.is_staff %}
+                                    <li role="separator" class="divider"></li>
+                                    <li><a href="{% url "admin:index" %}">{% trans "Admin" %}</a></li>
+                                    {% if 'geonode.geoserver' in INSTALLED_APPS %}
+                                    <li><a href="{{ OGC_SERVER.default.WEB_UI_LOCATION }}">GeoServer</a></li>
+                                    {% endif %}
+                                    {% if USE_MONITORING %}
+                                    <li role="separator" class="divider"></li>
+                                    <li><a href="{% url "monitoring:index" %}">{% trans "Monitoring & Analytics" %}</a></li>
+                                    {% endif %}
+                                {% endif %}
+                                <li role="separator" class="divider"></li>
+                                <li><a href="{% url "help" %}">{% trans "Help" %}</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a href="{% url 'sw_logout' %}">{% trans "Log out" %}</a></li>
+                           </ul>
+                       </div>
+                      </li>
 
-                <li>
-                  <div class="dropdownWrapper" >
-                  <!-- <a href="#" class="dropdown-toggle avatar" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> -->
-                  <a class="nav-link "onclick="dropdownFun()" href="#" class="dropdown-toggle avatar " data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                    <!-- <button class="dropdown-toggle "> -->
-                    {% autoescape off %}{% avatar user 40 %}{% endautoescape %}
-                    {% with full_name=user.first_name|add:' '|add:user.last_name %}
-                      {% if full_name.strip %}
-                        {{ full_name | truncatechars:20 }}
-                      {% else %}
-                        {{ user.username | truncatechars:20 }}
-                      {% endif %}
-                    {% endwith %}
-                    <i class="fa fa-angle-down fa-lg"></i>
-                  </a>
-                  <ul class="dropdown-menu " id='myDropdown'>
-                          <li><a href="{{ user.get_absolute_url }}">{% trans "Profile" %}</a></li>
-                          <li><a href="{% url "recent-activity" %}">{% trans "Recent Activity" %}</a></li>
-                          {% if FAVORITE_ENABLED and user.is_authenticated %}
-                          <li><a href="{% url "favorite_list" %}">{% trans "Favorites" %}</a></li>
-                          {% endif %}
-                          <li><a href="{% url "messages_inbox" %}">{% trans "Inbox" %}</a></li>
-                          {% if user.is_superuser or user.is_staff %}
-                              <li role="separator" class="divider"></li>
-                              <li><a href="{% url "admin:index" %}">{% trans "Admin" %}</a></li>
-                              {% if 'geonode.geoserver' in INSTALLED_APPS %}
-                              <li><a href="{{ OGC_SERVER.default.WEB_UI_LOCATION }}">GeoServer</a></li>
-                              {% endif %}
-                              {% if USE_MONITORING %}
-                              <li role="separator" class="divider"></li>
-                              <li><a href="{% url "monitoring:index" %}">{% trans "Monitoring & Analytics" %}</a></li>
-                              {% endif %}
-                          {% endif %}
-                          <li role="separator" class="divider"></li>
-                          <li><a href="{% url "help" %}">{% trans "Help" %}</a></li>
-                          <li role="separator" class="divider"></li>
-                          <li><a href="{% url 'sw_logout' %}">{% trans "Log out" %}</a></li>
-                     </ul>
-                 </div>
-                </li>
+                {% else %}
 
-          {% else %}
-
-              {% endif %}
-            </ul>
-
-
-          </div>
+                    {% endif %}
+                  </ul>
 
 
 
-          <!-- Arbic brand -->
+            </div>
 
-          <a class="navbar-brand ar-brand d-none col-3" href="{% url 'new' %}">
+            <!-- Arbic brand -->
 
-            <img src='{{ STATIC_URL }}static/images/tanmia.jpg'  alt="logo" style="width: 6rem;">
-          </a>
+            <a id='ar-brand'class="navbar-brand ar-brand d-none col-3" href="{% url 'new' %}">
+              <img src='{{ STATIC_URL }}static/images/tanmia.jpg'  alt="logo" style="width: 6rem;">
+            </a>
+
+          {%endblock%}
+
 
         </div>
       </nav>
@@ -237,7 +239,23 @@
                       }
                     }
                   }
+        //fixing the toggler
+        var cbtn=0
+        document.getElementById('collapsebtn').addEventListener('click',function(){
+          if (cbtn==0){
+            document.getElementById('navbarSupportedContent').style.display='block'
+            document.getElementById('ar-brand').classList.add('d-none')
+            document.querySelector('.en-brand').classList.remove('d-none')
+            cbtn+=1
+          }else{
+            document.getElementById('navbarSupportedContent').style.display='none'
+            document.getElementById('ar-brand').classList.remove('d-none')
+            document.querySelector('.en-brand').classList.add('d-none')
+            cbtn-=1
+          }
 
+        })
+    
 
 
         // Logout
@@ -254,6 +272,7 @@
         }
 
       </script>
+
   {%endblock%}
 
 

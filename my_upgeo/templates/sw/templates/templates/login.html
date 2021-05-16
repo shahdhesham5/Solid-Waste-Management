@@ -5,9 +5,7 @@
 
 {% block head_title %}{% trans "Log in" %}{% endblock %}
  {% block body_outer %}
-
-
-  <div class="col-md-5"style="margin-left:13rem;margin-top:11rem;">
+  <div class="col-sm-12 col-md-5"style="margin-left:13rem;margin-top:11rem;">
     <div class="login_head  rounded-top p-3" style="background-color:#05A081;width:90%;margin-left:16px;">
       <h3 class="text-white text-center m-0 ">تسجيل الدخول</h3>
     </div>
@@ -23,12 +21,12 @@
         <input type="submit" name="" class="btn btn-primary btn-block mt-4"  value="{% trans 'Sign In'%}">
 
       </form>
+      {% if messages %}
       <div class="alert alert-success">
-        <a class="close"  href="#" data-dismiss="alert">×</a>
-        <span id="msg">   </span>
-
-            </div>
-
+          <a class="close"  href="#" data-dismiss="alert">×</a>
+          <span id="msg">   </span>
+      </div>
+     {% endif %}
     </div>
 
   </div>
@@ -37,10 +35,14 @@
   {% endblock %}
   {% block extra_script %}
   <script>
-    {% for message in messages %}
-    document.getElementById('msg').innerHTML='{{message}}'
 
-   {% endfor %}
+
+        {% for message in messages %}
+        console.log('kl');
+        document.getElementById('msg').innerHTML='{{message}}'
+
+       {% endfor %}
+
 
     function login() {
       const loginForm = new FormData(document.getElementById('loginForm'));
