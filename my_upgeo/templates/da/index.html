@@ -145,18 +145,14 @@
 var protocol='{{  request.build_absolute_uri }}'.split(':')[0]
 var host='{{ request.META.HTTP_HOST }}'
 var geoLayers=JSON.parse('{{ geolayers| safe }}')
-console.log(typeof(geoLayers));
-console.log(geoLayers);
+
 
 var lays='{{ layers | safe }}'
 var layerName=document.getElementById('layers').value
 var temp = geoLayers[layerName]
-console.log('temp',temp);
-console.log('geoLayers',geoLayers);
-console.log('lays',lays);
+
 if(!temp){
   // for(let i=0;i<lays.length;i++){
-  console.log('{{layers.last}}');
   var listOfLayers=[]
   {% for layer in layers%}
   var layName= '{{layer.name}}'
@@ -529,7 +525,6 @@ function PageLoad(){
   })
 
   var clearRules=document.getElementById('clearRule')
-    // var rules=document.getElementsByClassName('rule')
   clearRules.addEventListener('click',function(){
     var rules=document.getElementsByClassName('rule')
     while(rules.length > 0) {
@@ -549,6 +544,7 @@ function PageLoad(){
       editingContainer.style.display = "block"
       showbtn.value='Stop Editing'
       temp=geoLayers[layerName]
+      mymap.fitBounds(L.geoJson(temp).getBounds());
       addLayer(temp)
       addAttr(layerName)
       b()
@@ -556,7 +552,6 @@ function PageLoad(){
     }else{
       editingContainer.style.display="none"
       showbtn.value='Edit'
-
   }
   })
 
@@ -589,7 +584,6 @@ function PageLoad(){
 
   // initiate the basemao and overlay layers in the controller
   var baemap={'base':baeMap}
-
   var overlayMaps = {};
 
 
@@ -599,8 +593,7 @@ function PageLoad(){
 
 
   function addLayer(temp){
-    console.log(temp);
-  var geolayer= L.geoJSON(temp,{
+    var geolayer= L.geoJSON(temp,{
     onEachFeature: onEachFeature
   })
   }
@@ -676,10 +669,10 @@ function PageLoad(){
 
      layerName=document.getElementById('layers').value
      temp = geoLayers[layerName]
-     console.log(temp);
-      addLayer(temp)
-      addAttr(layerName)
-      b()
+     mymap.fitBounds(L.geoJson(temp).getBounds());
+     addLayer(temp)
+     addAttr(layerName)
+     b()
     }
     )
 
@@ -878,7 +871,7 @@ function PageLoad(){
      var BBOX = sw.x + "," + sw.y + "," + ne.x + "," + ne.y;
      var WIDTH = mymap.getSize().x;
      var HEIGHT = mymap.getSize().y;
-     console.log(WIDTH,HEIGHT);
+  
 
   var count=0
   overlayMaps={}
