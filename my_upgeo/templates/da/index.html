@@ -146,7 +146,7 @@
 
 var geoLayers=JSON.parse('{{ geolayers| safe }}')
 console.log(typeof(geoLayers));
-
+console.log(geoLayers);
 
 var lays='{{ layers | safe }}'
 var layerName=document.getElementById('layers').value
@@ -161,7 +161,7 @@ if(!temp){
   {% for layer in layers%}
   var layName= '{{layer.name}}'
   listOfLayers.push('{{layer.name}}')
-  var fetching=fetch('http://localhost/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName='+"{{layer.name}}"+'&maxFeatures=50&srsName=EPSG:4326&outputFormat=json')
+  var fetching=fetch('https://localhost/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName='+"{{layer.name}}"+'&maxFeatures=50&srsName=EPSG:4326&outputFormat=json')
                  .then(response => response.json())
                  .then(function(data){
                   geoLayers['{{layer.name}}']=data
