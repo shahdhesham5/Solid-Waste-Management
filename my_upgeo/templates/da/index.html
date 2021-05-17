@@ -142,8 +142,8 @@
 // initiate the basemao and overlay layers in the controller
 // get the layer info from backend
 
-
-
+var protocol='{{  request.build_absolute_uri }}'.split(':')[0]
+var host='{{ request.META.HTTP_HOST }}'
 var geoLayers=JSON.parse('{{ geolayers| safe }}')
 console.log(typeof(geoLayers));
 console.log(geoLayers);
@@ -161,7 +161,7 @@ if(!temp){
   {% for layer in layers%}
   var layName= '{{layer.name}}'
   listOfLayers.push('{{layer.name}}')
-  var fetching=fetch('https://localhost/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName='+"{{layer.name}}"+'&maxFeatures=50&srsName=EPSG:4326&outputFormat=json')
+  var fetching=fetch(protocol+'://'+host+'/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName='+"{{layer.name}}"+'&maxFeatures=50&srsName=EPSG:4326&outputFormat=json')
                  .then(response => response.json())
                  .then(function(data){
                   geoLayers['{{layer.name}}']=data
