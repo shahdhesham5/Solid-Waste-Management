@@ -103,7 +103,6 @@ MIDDLEWARE = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
     'django.middleware.security.SecurityMiddleware',
-
     'oauth2_provider.middleware.OAuth2TokenMiddleware',
     'geonode.base.middleware.MaintenanceMiddleware',
     'geonode.base.middleware.ReadOnlyMiddleware',   # a Middleware enabling Read Only mode of Geonode
@@ -184,7 +183,7 @@ ALLOWED_HOSTS=['*']
 
 
 
-# max_request_size_to_be_5Mb
+# max_request_size_to_be_15Mb
 DATA_UPLOAD_MAX_MEMORY_SIZE = 15242880
 
 

@@ -21,12 +21,12 @@
 from django.conf.urls import url, include
 from django.views.generic import TemplateView
 
-from geonode.urls import urlpatterns
+from .my_urls import urlpatterns
 from geonode.monitoring import register_url_event
 from django.urls import path
-from main import views as main
+
 urlpatterns += [
- url(r'^main/?$', main.main, name='main'),
+ path('',include('main.urls'))
 ]
 
 
@@ -57,15 +57,7 @@ url(r'^new/?$', views.index, name='new'),
    url(r'^login/?$', views.login, name='login'),
    url(r'^sw_logout/?$', views.sw_logout, name='sw_logout'),
    url(r'^sw_login/?$', views.sw_login, name='sw_login'),
-   
+
 
 
 ]
-
-homepage = register_url_event()(TemplateView.as_view(template_name='site_index.html'))
-
-urlpatterns = [
-    url(r'^gig/?$',
-        homepage,
-        name='home'),
- ] + urlpatterns

@@ -6989,8 +6989,9 @@ article.tab-pane {
 .navbar-nav .fa-angle-down {
   margin-left: 10px;
 }
+
 .navbar-brand {
-  background: url("../img/logo.png");
+  background: url("../../static/images/logo.png");
   background-repeat: no-repeat;
   background-position: center;
   background-size: contain;

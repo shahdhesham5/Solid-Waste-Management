@@ -1,0 +1,56 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.js"></script>
+	<style>
+		#map { width: 50%; height: 500px; }
+	</style>
+</head>
+<body>
+	<div id="map"></div>
+	<script>
+		var map = L.map('map').setView([30.4,31], 8,);
+		L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    		attribution: '&copy; OpenStreetMap contributors'
+		}).addTo(map);
+		// L.tileLayer('https://maps.aerisapi.com/[CLIENT_ID]_[CLIENT_SECRET]/radar,radar-global,satellite-water-vapor,admin-dk/{z}/{x}/{y}/current.png', {
+		// 	subdomains: '1234',
+		// 	attribution: "<a href='https://www.aerisweather.com/'>&copy;AerisWeather</a>",
+		// }).addTo(map);
+
+// 	 var wmsLayer = L.tileLayer.wms('http://ows.mundialis.de/services/service?', {
+//     layers: 'SRTM30-Colored-Hillshade'
+// }).addTo(map);
+L.tileLayer.wms("http://localhost/geoserver/geonode/wms?", {
+ layers: 'line_water',
+ transparent: true,
+ opacity: 0.4
+})
+
+var po;
+
+fetch('http://localhost/geoserver/geonode/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=geonode%3Aline_water&maxFeatures=50&outputFormat=application%2Fjson')
+	.then((response)=>response.json())
+	.then((data)=>
+	 {
+		 po=data
+		 console.log(data);
+   L.geoJson(data).addTo(map)
+	 for(let i=0;i< data.features.length;i++){
+		 var line= data.features[i]
+
+		 var diameter=line.properties.Diameter
+		 var name = line.properties.Markaz_Nam+line.id
+     // console.log(diameter,name);
+
+	 }
+ });
+
+
+	// console.log(data);
+
+	</script>
+</body>
+</html>
