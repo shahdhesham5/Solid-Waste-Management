@@ -33,7 +33,7 @@ urlpatterns += [
 urlpatterns += [
     path("dd/",include('mapCustomisation.urls'),name='dd'),
     path('apii/',include('apii.urls')),
-    path("geoleaflet",include('geoleaflet.urls')),
+    # path("geoleaflet/",include('geoleaflet.urls')),
     path("Learning",include('Learning.urls')),
 
 ]

@@ -2,19 +2,17 @@ from django.shortcuts import render
 from django.http import HttpResponse,HttpResponseRedirect
 from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate ,login as auth_login
-from django.urls import reverse
+from django.contrib import messages
+
+from django.urls import reverse ,reverse_lazy
 import json
 User = get_user_model()
 
 # Create your views here.
 def main(request):
-    print('entered')
-    if(request.user.username ):
-        print(request.user)
-
+    if request.user.is_authenticated :
         return render(request,'main/main.html')
     else:
-        print(request.user)
         return render(request,'main/login.html')
         return HttpResponse('login')
 
@@ -27,10 +25,11 @@ def login(request):
         if user is not None:
             auth_login(request, user)
             return HttpResponseRedirect(reverse('main'))
-        context={
-            'message':"user or passwd is wrong"
-        }
-        return   render(request,'main/login.html',context)
+
+        else:
+            print('kkkkkkkkk')
+            messages.error(request,'username or password not correct')
+            return HttpResponseRedirect(reverse_lazy('main'))
 
 
     return HttpResponse('h')

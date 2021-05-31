@@ -60,7 +60,7 @@ WSGI_APPLICATION = "{}.wsgi.application".format(PROJECT_NAME)
 LANGUAGE_CODE = os.getenv('LANGUAGE_CODE', "en")
 
 if PROJECT_NAME not in INSTALLED_APPS:
-    INSTALLED_APPS += (PROJECT_NAME ,'geoleaflet','mapCustomisation', 'sw','main',
+    INSTALLED_APPS += (PROJECT_NAME ,'jazzmin','mapCustomisation', 'sw','main',
     'apii','Learning', )
      # 'rest_framework',
      # 'rest_framework.authtoken'
@@ -306,3 +306,7 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 15242880
 #         "format": "image/png8",
 #         "restUrl": "/gs/rest"
 #     }
+#customising admin page
+from . import django_jazzmin_settings
+JAZZMIN_SETTINGS=django_jazzmin_settings.JAZZMIN_SETTINGS
+JAZZMIN_UI_TWEAKS=django_jazzmin_settings.JAZZMIN_UI_TWEAKS

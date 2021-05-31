@@ -2,3 +2,4 @@
 -e git+https://github.com/GeoNode/django-mapstore-adapter.git@master#egg=django_mapstore_adapter
 -e git+https://github.com/GeoNode/geonode.git#egg=GeoNode
 
+

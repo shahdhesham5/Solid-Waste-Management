@@ -6,6 +6,8 @@
     <meta charset="utf-8">
     <title></title>
     <link rel="stylesheet" href="{% static 'main/css/main.css'%}">
+    <link rel="stylesheet" href='{% static "bootstrap/dist/css/bootstrap.min.css"%}'>
+    <script src='{% static "bootstrap/dist/js/bootstrap.min.js"%}'></script>
     <style media="screen">
 
     </style>
@@ -26,11 +28,12 @@
             <input type="password" name="password" value="">
             <label>Password</label>
           </div>
-          <div class="err-msg">
-            {% if message%}
-            <h4>{{message}}</h4>
-            {% endif%}
-          </div>
+          <!-- <div class="err-msg " id='err-msg'> -->
+
+
+
+
+          <!-- </div> -->
 
 
 
@@ -46,7 +49,12 @@
         <!-- <input type="submit" name="" value="Submit"> -->
       </form>
 
-
+      {% if messages %}
+      <div id='err-msg'class="alert alert-danger">
+        <a class="close"  id='close' href="#" data-dismiss="alert">×</a>
+          <span id="msg">   </span>
+      </div>
+     {% endif %}
     </div>
     <div class="logo-img">
       <img src="{% static 'static/images/logo.png'%}" alt="logo" width="50 %">
@@ -61,6 +69,15 @@
 
         form.submit();
       })
+
+
+      {% for message in messages %}
+          document.getElementById('msg').innerHTML='{{message}}'
+     {% endfor %}
+
+     document.getElementById('close').onclick=function(){
+  document.getElementById('err-msg').remove()
+}
     </script>
   </body>
 </html>
