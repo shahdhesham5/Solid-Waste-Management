@@ -61,7 +61,7 @@ LANGUAGE_CODE = os.getenv('LANGUAGE_CODE', "en")
 
 if PROJECT_NAME not in INSTALLED_APPS:
     INSTALLED_APPS += (PROJECT_NAME ,'jazzmin','mapCustomisation', 'sw','main',
-    'apii','Learning', )
+    'apii','Learning', 'geoleaflet')
      # 'rest_framework',
      # 'rest_framework.authtoken'
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
