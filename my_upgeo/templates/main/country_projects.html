@@ -1,0 +1,39 @@
+{% extends './countries.html'%}
+
+
+  {% block title%} {{country.location}} {% endblock%}
+  {% block pageTitle%}{{country.location}} Projects {% endblock%}
+  {% block content%}
+
+  <div class="row">
+  {% for project in projects %}
+  <div class="card" style="width: 18rem;">
+    <!-- <img src="..." class="card-img-top" alt="..."> -->
+    <div class="card-body">
+      <h5 class="card-title">{{ project.name}}</h5>
+        <tr class='my-3'>
+            <td width=20%>Project Location:</td>
+            <td width=20%>
+              {{project.project_location}}
+            </td>
+        </tr>
+
+      <a href="{% url 'project_details' project.id%}" class="btn btn-primary my-3">Check progress</a>
+
+    </div>
+  </div>
+  {% endfor%}
+    <a href="{% url 'main' %}" class="btn btn-primary my-3">ALL </a>
+  </div>
+  {% endblock%}
+
+
+
+
+
+country projects
+{% for project in projects %}
+{{ project }}
+{{project.project_url}}
+{{project.id}}
+{% endfor%}

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+{% load static %}
+  <head>
+    <meta charset="utf-8">
+    <title>{% block title%} countries {% endblock%}</title>
+    <link href="{% static 'bootstrap/dist/css/bootstrap.min.css' %}" rel="stylesheet" >
+    <script src="{% static 'bootstrap/dist/js/bootstrap.bundle.min.js' %}" ></script>
+    <script src="{% static 'bootstrap/dist/umd/popper.min.js' %}" ></script>
+    <script src="{% static 'bootstrap/dist/js/bootstrap.min.js' %}"></script>
+    <style media="screen">
+      body{
+        background-image: linear-gradient(to right, #374360, #354262, #334164, #304065, #2e3f67, #2b3d68, #283b68, #253969, #203569, #1b3268, #162e68, #102a67);
+      }
+      .btn{
+        background-color:#4F618C;
+      }
+      .btn:hover ,.nav-link:hover{
+        background-color:#4c73ce!important
+      }
+      .card{
+        background:#ccc
+      }
+
+    </style>
+
+
+  </head>
+  <body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-dark px-5" style='background:#202D4C; '>
+    <a class="navbar-brand " >
+      <img   src="{% static 'static/images/logo.png'%}"
+            width="100px"
+            alt=""
+            loading="lazy"
+            style="margin-top: -1px;"
+      />
+    </a>
+      <ul class="nav nav-pills" >
+
+              <li class="nav-item " style="">
+                <a class="nav-link active" aria-current="page" href="{% url 'mainLogout' %}" style='background-color:#4F618C;color:white;'>Log Out</a>
+              </li>
+              <!-- <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">Dropdown</a>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="#">Action</a></li>
+                  <li><a class="dropdown-item" href="#">Another action</a></li>
+                  <li><a class="dropdown-item" href="#">Something else here</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="#">Separated link</a></li>
+                </ul>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Link</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+              </li> -->
+            </ul>
+</nav>
+<div class="container-fluid"  style='height:900%'>
+
+      <div class="container" style="padding:1%;height:100%">
+        <div class="row " style='padding:.5%'>
+          <div class="col-3">
+
+          </div>
+          <div class="col text-center" style='background:#202D4C;padding:.5%;border-radius:5%;color:white'>
+             {% block pageTitle%}Countries {% endblock%}
+          </div>
+          <div class="col-3">
+
+          </div>
+
+        </div>
+        {% block content%}
+        <div class="row">
+          {% for country in countries%}
+            <div class="card" style="width: 18rem; background:#ccc" >
+              <!-- <img src="..." class="card-img-top" alt="..."> -->
+              <div class="card-body">
+                <h5 class="card-title">{{ country.location}}</h5>
+                <p class="card-text">Check the projects here</p>
+                <a href="{% url 'country_projects' country.id%}" class="btn btn-primary " style='background-color:#4F618C'>Check Projects</a>
+              </div>
+            </div>
+          {% endfor %}
+
+        </div>
+        {% endblock%}
+      </div>
+
+
+    </div>
+    <footer class="bg-light fixed-bottom text-center text-lg-start">
+   <!-- Copyright -->
+   <div class="text-center p-3 text-light" style="background-color:#202D4C;">
+     <!-- ©GIG -->
+     <img src="{% static 'static/images/logo.png'%}" alt="logo" height="1%" width="10%" >
+     <!-- <a class="text-dark" href="https://mdbootstrap.com/">MDBootstrap.com</a> -->
+   </div>
+   <!-- Copyright -->
+ </footer>
+  </body>
+</html>
