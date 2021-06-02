@@ -388,7 +388,8 @@
               </div>
             </li>
             {% if not user.is_authenticated and ACCOUNT_OPEN_SIGNUP and not READ_ONLY_MODE %}
-              <li><a href="{% url "account_signup" %}">{% trans "Register" %}</a></li>
+            <!-- cancelling sign up -->
+              <!-- <li><a href="{% url "account_signup" %}">{% trans "Register" %}</a></li> -->
             {% endif %}
             {% if user.is_authenticated %}
             <li>

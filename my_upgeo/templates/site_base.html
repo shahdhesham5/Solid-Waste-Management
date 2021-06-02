@@ -4,6 +4,10 @@
 {% endblock %}
 
 {% block extra_tab %}
+
+<li>
+   <a href="{% url 'main'%}">Main</a>
+</li>
 {% if user.is_authenticated %}
     <li>
        <a href="{{ PROJECT_ROOT }}/geoleaflet">Geoleaflet</a>

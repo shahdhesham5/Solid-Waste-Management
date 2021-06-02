@@ -146,14 +146,15 @@
                   <ul class="navbar-nav ar-nav ml-auto">
                   {% block tabs %}
                     <li class="nav-item active">
-                      <a class="nav-link" href="{% url 'new' %}">الرئيسية</a>
+                      <a class="nav-link" href="{% url 'main' %}">الرئيسية</a>
                     </li>
                     <li class="nav-item">
-                      <a class="nav-link modules" href="new#modules"">مكونات المنصة</a>
+                      <a class="nav-link modules" href="{% url 'new' %}">مكونات المنصة</a>
                     </li>
                     <li class="nav-item">
                   {% if not user.is_authenticated and ACCOUNT_OPEN_SIGNUP and not READ_ONLY_MODE %}
-                    <li><a class="nav-link" href="{% url "signup" %}">{% trans "Register" %}</a></li>
+                  <!-- cancelling  signup -->
+                    <!-- <li><a class="nav-link" href="{% url "signup" %}">{% trans "Register" %}</a></li> -->
                       <li><a class="nav-link" href="{% url 'login' %}" data-toggle="modal" data-target="{% url 'login' %}" role="button" >{% trans "Sign in" %} </a></li>
                        <!-- <a href="#" data-toggle="modal" data-target="#SigninModal" role="button">Sign in </a> -->
                   {% endif %}

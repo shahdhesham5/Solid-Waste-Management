@@ -5,6 +5,9 @@ from django.contrib.auth import (authenticate ,
                                  login as auth_login,
                                  logout )
 from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.decorators import login_required
 
 from django.urls import reverse ,reverse_lazy
 import json
@@ -13,15 +16,15 @@ from .models import (Project_Team,
                     Project_Country,
                     Project,
                     Project_task)
+
+
 # Create your views here.
 def main(request):
     if request.user.is_authenticated :
         try:
             project_teams=request.user.project_teams.all()
-            print('project_teams',len(project_teams))
             for team in project_teams:
                 countries=team.project_locations.all()
-                print('country',len(countries))
             context={
                     'countries':countries
                     }
@@ -29,7 +32,7 @@ def main(request):
             context={
                 'countries':[]
                     }
-            
+
 
 
         return render(request,'main/countries.html',context)
@@ -69,19 +72,39 @@ def login(request):
         password=request.POST['password']
         user = authenticate(username=userName, password=password)
         if user is not None:
+            if user.last_login is None:
+                auth_login(request, user)
+                return HttpResponseRedirect(reverse('password_change'))
             auth_login(request, user)
             return HttpResponseRedirect(reverse('main'))
 
         else:
-            print('kkkkkkkkk')
             messages.error(request,'username or password not correct')
             return HttpResponseRedirect(reverse_lazy('main'))
 
 
-    return HttpResponse('h')
-    pass
+    return render(request,'main/login.html')
+
 
 
 def mainLogout(request):
     logout(request)
     return HttpResponseRedirect(reverse_lazy('main'))
+
+
+
+
+
+
+@login_required(login_url=reverse_lazy('mainLogin'))
+def password_change(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(user=request.user, data=request.POST)
+        if form.is_valid():
+            form.save()
+            update_session_auth_hash(request, form.user)
+            return HttpResponseRedirect(reverse_lazy('main'))
+        else:
+            messages.error(request,'password is in correct')
+            return HttpResponseRedirect(reverse('password_change'))
+    return render(request,'main/change-password.html')
