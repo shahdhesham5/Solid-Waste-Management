@@ -89,6 +89,9 @@ img{
   letter-spacing: 4px
 }
 
+#submit{
+  color: white !important;
+}
 .login-box a:hover {
   background: #03e9f4;
   color: #fff;

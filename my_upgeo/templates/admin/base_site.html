@@ -1,1 +1,16 @@
 {% extends 'admin/my_base.html' %}
+{% block extrahead %}
+<script>
+  (function($) {
+    $(document).ready(function() {
+      $(".add-related, .change-related").attr(
+        "onclick",
+        "event.preventDefault();grp.onclickRelatedWorkaround(this)"
+      )
+    });
+    grp.onclickRelatedWorkaround = function(el) {
+      if ($(el).attr("href") != null) { showAddAnotherPopup(el) }
+    }
+  })(grp.jQuery);
+</script>
+{% endblock %}

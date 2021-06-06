@@ -33,7 +33,7 @@
     <meta Http-Equiv="Pragma-directive: no-cache">
     <meta Http-Equiv="Cache-directive: no-cache">
 
-    <title>{% block title %}{{ SITE_NAME }}{% endblock %}</title>
+    <title>{% block title %}GIG PORTAL{% endblock %}</title>
 
     <link rel="shortcut icon" href= '{{ STATIC_URL }}static/geonode/img/favicon.ico'  />
 
@@ -195,7 +195,7 @@
                                 <li role="separator" class="divider"></li>
                                 <li><a href="{% url "help" %}">{% trans "Help" %}</a></li>
                                 <li role="separator" class="divider"></li>
-                                <li><a href="{% url 'sw_logout' %}">{% trans "Log out" %}</a></li>
+                                <li><a href="{% url 'mainLogout' %}">{% trans "Log out" %}</a></li>
                            </ul>
                        </div>
                       </li>

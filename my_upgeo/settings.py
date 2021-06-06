@@ -59,9 +59,11 @@ WSGI_APPLICATION = "{}.wsgi.application".format(PROJECT_NAME)
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = os.getenv('LANGUAGE_CODE', "en")
 
+my_apps=(PROJECT_NAME ,'jazzmin','mapCustomisation', 'sw','main',
+'apii','Learning', 'geoleaflet', )
+geonode_apps=INSTALLED_APPS
 if PROJECT_NAME not in INSTALLED_APPS:
-    INSTALLED_APPS += (PROJECT_NAME ,'jazzmin','mapCustomisation', 'sw','main',
-    'apii','Learning', 'geoleaflet')
+    INSTALLED_APPS = my_apps+geonode_apps
      # 'rest_framework',
      # 'rest_framework.authtoken'
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
@@ -95,6 +97,7 @@ MIDDLEWARE = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.contrib.sites.middleware.CurrentSiteMiddleware',
     'dj_pagination.middleware.PaginationMiddleware',
+
     # The setting below makes it possible to serve different languages per
     # user depending on things like headers in HTTP requests.
     'django.middleware.locale.LocaleMiddleware',
