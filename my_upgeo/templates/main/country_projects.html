@@ -7,7 +7,7 @@
 
   <div class="row">
   {% for project in projects %}
-  <div class="card" style="width: 18rem;">
+  <div class="card col-4 m-3" style="width: 18rem;">
     <!-- <img src="..." class="card-img-top" alt="..."> -->
     <div class="card-body">
       <h5 class="card-title">{{ project.name}}</h5>
@@ -23,7 +23,10 @@
     </div>
   </div>
   {% endfor%}
-    <a href="{% url 'main' %}" class="btn btn-primary my-3">ALL </a>
+  <div class="row">
+      <a href="{% url 'main' %}" class="btn btn-primary my-3">ALL </a>
+  </div>
+
   </div>
   {% endblock%}
 

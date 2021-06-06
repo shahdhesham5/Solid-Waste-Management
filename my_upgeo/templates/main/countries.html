@@ -79,9 +79,9 @@
         {% block content%}
         <div class="row">
           {% for country in countries%}
-            <div class="card" style="width: 18rem; background:#ccc" >
+            <div class="card mx-4" style="width: 18rem; background:#ccc;margin:2px" >
               <!-- <img src="..." class="card-img-top" alt="..."> -->
-              <div class="card-body">
+              <div class="card-body ">
                 <h5 class="card-title">{{ country.location}}</h5>
                 <p class="card-text">Check the projects here</p>
                 <a href="{% url 'country_projects' country.id%}" class="btn btn-primary " style='background-color:#4F618C'>Check Projects</a>
