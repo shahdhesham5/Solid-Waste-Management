@@ -26,7 +26,7 @@ from geonode.monitoring import register_url_event
 from django.urls import path
 
 urlpatterns += [
- path('',include('main.urls'))
+ path('',include('mainpage.urls'))
 ]
 
 

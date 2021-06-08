@@ -59,7 +59,7 @@ WSGI_APPLICATION = "{}.wsgi.application".format(PROJECT_NAME)
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = os.getenv('LANGUAGE_CODE', "en")
 
-my_apps=(PROJECT_NAME ,'jazzmin','mapCustomisation', 'sw','main',
+my_apps=(PROJECT_NAME ,'jazzmin','mapCustomisation', 'sw','mainpage',
 'apii','Learning', 'geoleaflet', )
 geonode_apps=INSTALLED_APPS
 if PROJECT_NAME not in INSTALLED_APPS:
