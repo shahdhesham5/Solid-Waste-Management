@@ -5,9 +5,11 @@ class Add(models.Model):
     name = models.CharField(max_length=255)
 
 
-# class AddG(models.Model):
-#     name = models.CharField(max_length=255)
-#     point = models.PointField(srid=4326)
+class AddG(models.Model):
+    name = models.CharField(max_length=255)
+    point = models.PointField(srid=4326)
+    def __str__(self):
+        return self.name
 
 
 class Hs(models.Model):

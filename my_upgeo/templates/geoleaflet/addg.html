@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>ADD G</title>
+
+  </head>
+  {% for point in points %}
+  {{ point }}
+  {%endfor%}
+  <body>
+    <script type="text/javascript">
+      {% for point in points%}
+          console.log();
+      {% endfor %}
+    </script>
+  </body>
+</html>

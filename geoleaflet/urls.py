@@ -10,4 +10,5 @@ path('',
     name='geoleaflet'),
 path('/map',geoleaflet.leaflet_index_map,name='geoleaflet_map'),
 path('/dashboard',geoleaflet.leaflet_index_dashboard,name='geoleaflet_dashboard'),
+path('addg',geoleaflet.addg,name='addg'),
 ]

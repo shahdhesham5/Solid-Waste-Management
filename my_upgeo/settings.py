@@ -58,12 +58,12 @@ WSGI_APPLICATION = "{}.wsgi.application".format(PROJECT_NAME)
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = os.getenv('LANGUAGE_CODE', "en")
-
-my_apps=(PROJECT_NAME ,'jazzmin','mapCustomisation', 'sw','mainpage',
+prev_apps=()
+my_apps=(PROJECT_NAME ,'mapCustomisation', 'sw','mainpage',
 'apii','Learning', 'geoleaflet', )
 geonode_apps=INSTALLED_APPS
 if PROJECT_NAME not in INSTALLED_APPS:
-    INSTALLED_APPS = my_apps+geonode_apps
+    INSTALLED_APPS = prev_apps+geonode_apps+my_apps
      # 'rest_framework',
      # 'rest_framework.authtoken'
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
@@ -175,11 +175,25 @@ if LDAP_ENABLED and 'geonode_ldap' not in INSTALLED_APPS:
     INSTALLED_APPS += ('geonode_ldap',)
 
 
+# REST_FRAMEWORK = {
+
+# }
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.DjangoModelPermissions',
-    )
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+    ],
+        'DEFAULT_PERMISSION_CLASSES': (
+                    'rest_framework.permissions.DjangoModelPermissions',
+        ),
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'dynamic_rest.renderers.DynamicBrowsableAPIRenderer',
+    ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
+
 ALLOWED_HOSTS=['*']
 
 
@@ -188,6 +202,7 @@ ALLOWED_HOSTS=['*']
 
 # max_request_size_to_be_15Mb
 DATA_UPLOAD_MAX_MEMORY_SIZE = 15242880
+
 
 
 # DATABASES ['new']={

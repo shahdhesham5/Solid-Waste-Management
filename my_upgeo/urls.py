@@ -20,14 +20,32 @@
 
 from django.conf.urls import url, include
 from django.views.generic import TemplateView
-
-from .my_urls import urlpatterns
+from geonode.urls import urlpatterns as geonode_patterns
+# from .my_urls import urlpatterns
 from geonode.monitoring import register_url_event
+from django.conf.urls.i18n import i18n_patterns
+from django.contrib.auth.decorators import login_required
+from django.contrib import admin
+
+
+
+
 from django.urls import path
 
-urlpatterns += [
- path('',include('mainpage.urls'))
+
+
+url_patterns = [
+ path('',include('mainpage.urls')),
+ url(r'^gig_admin/', admin.site.urls, name="admin"),
+ url(r'^GIGExplorer$',
+     login_required(TemplateView.as_view(template_name='my_index.html')),
+     name='home'),
+
+  url(r'^admin/$', include('mainpage.urls'))
+
 ]
+urlpatterns =url_patterns+geonode_patterns
+
 
 
 urlpatterns += [

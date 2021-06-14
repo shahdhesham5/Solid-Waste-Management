@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from .models import *
 # import leafmap
 
 import json
@@ -16,3 +17,11 @@ def leaflet_index_map(request):
 
 def leaflet_index_dashboard(request):
     return render(request,'geoleaflet/dashboard.html')
+
+
+def addg(request):
+    points=AddG.objects.all()
+    context={
+        'points':points
+    }
+    return render (request,'geoleaflet/addg.html',context)
