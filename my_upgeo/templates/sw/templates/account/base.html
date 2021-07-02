@@ -1,0 +1,25 @@
+"{% extends "../base_new.html" %}
+
+{% block middle %}
+<div class="container-fluid" style="width:100%; margin-top:-10px">
+			<div class="row">
+				<div class="col-5">
+					  {% block body_outer %}{% endblock %}
+
+				</div>
+		 		<div class="col-7 "style="background-color:#05A081; padding-top: 11rem;padding-bottom: 18rem; margin-top:-40px;" >
+					<img class="d-block mx-auto rounded" src='{{ STATIC_URL }}static/images/tanmia.jpg' alt="idsc" >
+				</div>
+		</div>
+</div>
+
+{% endblock %}
+
+{% block extra_script %}
+    {{ block.super }}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#id_username').focus();
+        });
+    </script>
+{% endblock %}

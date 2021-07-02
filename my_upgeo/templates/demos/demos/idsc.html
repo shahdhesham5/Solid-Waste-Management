@@ -1,0 +1,558 @@
+{% extends '../base.html' %}
+{% load static %}
+
+{% block content %}
+<main class="container-fluid">
+  <div class="mt-2">
+
+    <div class="row">
+      <!-- gov scale -->
+      <div class="govScale col-3">
+        <div class="bg-whites">
+          <img class="d-block mx-auto rounded" src="{% static 'demos/images/idsc_logo.png' %}" alt="idsc" style="height: 6rem;">
+        </div>
+
+        <div class="details bg-darker rounded shadow p-3 mt-4 mb-3">
+          <div class="form-group mb-4">
+            <select class="form-control" id="cities" style="min-height: 3.5rem;">
+              <option value="" selected disabled></option>
+            </select>
+          </div>
+
+          <div class="row">
+            <div class="col-10 pl-0">
+              <p class="lead">عدد الحالات المصابة:</p>
+            </div>
+            <div class="col-2 pr-0">
+              <p id="Infected" class="font-weight-bold text-warning h3"></p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-10 pl-0">
+              <p class="lead">عدد الوفيات:</p>
+            </div>
+            <div class="col-2 pr-0">
+              <p id="Deathes" class="font-weight-bold text-danger h3"></p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-10 pl-0">
+              <p class="lead">عدد حالات الشفاء:</p>
+            </div>
+            <div class="col-2 pr-0">
+              <p id="Recovered" class="font-weight-bold text-success h3"></p>
+            </div>
+          </div>
+
+          <hr class="bg-light" style="opacity: .3;">
+
+          <div class="row">
+            <div class="col-10 pl-0">
+              <p class="lead">اجمالى الحالات:</p>
+            </div>
+            <div class="col-2 pr-0">
+              <p id="Confirmed_" class="font-weight-bold h3"></p>
+            </div>
+          </div>
+
+          <div class="row mt-3">
+            <div class="col-8 pl-0">
+              <p>نسبة الوفيات من عدد المصابين:</p>
+            </div>
+            <div class="col-3 pr-0 text-left">
+              <p class="indicator1 font-weight-bold h5 pt-1"></p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-8 pl-0">
+              <p>نسبة حالات الشفاء من عدد المصابين:</p>
+            </div>
+            <div class="col-3 pr-0 text-left">
+              <p class="indicator2 font-weight-bold h5 pt-1"></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded bg-darker shadow p-3">
+          <canvas id="govPieChart" width="400" height="300"></canvas>
+        </div>
+
+        <div class="mt-5">
+          <img class="d-block mx-auto" src="{% static 'demos/images/logo.png' %}" alt="GIG" style="width: 80%;">
+        </div>
+      </div>
+
+      <!-- middle map -->
+      <div class="col-6 p-0">
+        <div class="bg-darker rounded grey-border bg-title p-2 py-3">
+          <h4 class="text-center font-weight-bold mb-2">
+            (COVID-19) التقرير اليومى عن فيروس كــورونــا
+            <br>
+            فى جمهورية مصر العربية
+          </h4>
+        </div>
+
+        <div class="control text-right my-3" style="margin-top: 1.2rem !important;">
+          <button class="showHeatmap btn btn-primary d-nones">
+            توزيع الحالات المصابة على مستوى الجمهورية
+          </button>
+
+          <button class="showGov btn btn-primary d-nones">
+            تقسيم المحافظات
+          </button>
+        </div>
+
+        <div id="map" class="rounded grey-border"></div>
+
+        <div class="bg-lighter mt-3 p-3">
+          <select class="form-control" id="hospitals" style="min-height: 3.5rem;direction: rtl;">
+            <option value="" selected disabled>عرض المستشفيات</option>
+            <option value="hide">اخفاء المستشفيات</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- egypt scale -->
+      <div class="egyScale col-3">
+
+        <div class="bg-darker rounded grey-border p-2 py-3 bg-title" style="height: 6rem;">
+          <h6 class="text-center font-weight-bold">
+            بيانات على مستوى الجمهورية
+          </h6>
+          <p class="text-center m-0 mt-3" style="font-size: 0.9rem;">
+            <span class="">تاريـــــخ التحديث </span>
+            <span class="text-center datetime"></span>
+          </p>
+        </div>
+
+        <div class="row mt-2">
+          <div class="col-12 text-center mt-2">
+            <div class="rounded bg-darker shadow dark-border p-2">
+              <p class="mb-1">اجمالى عدد الحالات المصابة</p>
+              <h2 class="total_infected font-weight-bold text-warning infected"></h2>
+            </div>
+          </div>
+          <div class="col-12 text-center mt-2">
+            <div class="rounded bg-darker shadow dark-border p-2">
+              <p class="mb-1">اجمالى عدد الوفيات</p>
+              <h2 class="total_died font-weight-bold text-danger dead"></h2>
+            </div>
+          </div>
+          <div class="col-12 text-center mt-2">
+            <div class="rounded bg-darker shadow dark-border p-2">
+              <p class="mb-1">اجمالى عدد حالات الشفاء</p>
+              <h2 class="total_recoverd font-weight-bold text-success recovered"></h2>
+            </div>
+          </div>
+          <div class="col-12 text-center mt-2">
+            <div class="rounded bg-darker shadow dark-border p-2">
+              <p class="mb-1">نسبة الوفيات من عدد المصابين</p>
+              <h3 class="indicator1 font-weight-bold"></h3>
+            </div>
+          </div>
+          <div class="col-12 text-center mt-2">
+            <div class="rounded bg-darker shadow dark-border p-2">
+              <p class="mb-1">نسبة حالات الشفاء من عدد المصابين</p>
+              <h3 class="indicator2 font-weight-bold"></h3>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded bg-darker shadow p-3 mt-2">
+          <canvas id="egyBarChart" width="400" height="300"></canvas>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <p class="text-center m-0">© 2020 Globe Imagine for Geoinformatics All Rights Reserved</p>
+</main>
+{% endblock %}
+
+
+
+{% block js %}
+<!-- Some general variables -->
+<script>
+  let polyLayer;
+  let heatmapLayer;
+  let pointsLayer;
+  let aqsamLayer;
+
+
+  //  Cities & Hospitals
+  const cities = document.getElementById('cities');
+  const hospitals = document.getElementById('hospitals');
+
+
+  // Hospital names in Arabic
+  const hos_name = {
+    Quarantine: 'مستشفيات العزل',
+    Central_Lab: 'المعامل المركزية',
+    Sucbected: 'مستشفيات الفزز والاشتباه',
+    Polic_Hospital: 'مستشفيات الشرطة',
+    UNIV: 'المستشفيات الجامعية',
+  }
+
+
+  // styling each point on map
+  const geojsonMarkerOptions = {
+    radius: 8,
+    fillColor: "#ff7800",
+    color: "#000",
+    weight: 1,
+    opacity: 1,
+    fillOpacity: 0.8
+  };
+</script>
+
+<!-- Map script -->
+<script>
+  // Update datetime
+  var currentdate = new Date();
+  var datetime = `${currentdate.getDate()}/${currentdate.getMonth()+1}/${currentdate.getFullYear()}`;
+  document.querySelector('.datetime').innerText = datetime;
+
+
+  // Map configuration
+  const map = L.map('map').setView({lat: 27.293058545685895, lng: 30.55908188223839}, 6);
+  L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
+    maxZoom: 20,
+    attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+  }).addTo(map);
+
+
+  // Map events
+  // map.on('click', e => console.log(e.latlng))
+  map.on('zoomend', e => {
+    const zoomlevel = map.getZoom();
+    if (zoomlevel < 9) {
+      aqsamLayer.remove();
+    } else {
+      aqsamLayer.addTo(map)
+    };
+  });
+
+
+
+  // Update the details section
+  function showFeature(props) {
+    const details = document.querySelector('.details');
+
+    const Infected = props.Confirmed_ - (props.Deathes + props.Recovered);
+    details.querySelector('#Infected').textContent = Infected;
+
+    for (key in props) {
+      const element = details.querySelector(`#${key}`);
+      if (element) {
+        element.innerText = props[key];
+      }
+    }
+
+    cities.value = props.GOV_CODE;
+
+    calculateIndicators()
+  };
+
+  // Show heatmap
+  function showHeatmap() {
+    let infected = [];
+    for (layer in pointsLayer._layers) {
+      pointsLayer._layers[layer].options.fillOpacity= 0.4;
+      infected.push(pointsLayer._layers[layer].feature.properties.Confirmed_);
+    };
+
+
+    const infectedMinMax = [Math.min(...infected), Math.max(...infected)];
+    // 255, 247, 247
+    // 255, 0, 0
+    const G_B_range = [247, 0]
+
+    const scale = (num, in_min, in_max, out_min, out_max) => {
+      return (num - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+    };
+
+    for (hlayer in heatmapLayer._layers) {
+      for (player in pointsLayer._layers) {
+        if (heatmapLayer._layers[hlayer].feature.properties.GOV_CODE == pointsLayer._layers[player].feature.properties.GOV_CODE) {
+          const num = pointsLayer._layers[player].feature.properties.Confirmed_;
+          const colorDeg = scale(num, infectedMinMax[0], infectedMinMax[1], G_B_range[0], G_B_range[1]);
+          heatmapLayer._layers[hlayer].options.color = `rgb(255,${Math.ceil(colorDeg)},${Math.ceil(colorDeg)})`;
+        }
+
+      }
+    };
+
+  }
+
+  // Update the chart
+  function updateChart(props) {
+    const Infected = props.Confirmed_ - (props.Deathes + props.Recovered);
+
+    const data = [props.Deathes, Infected, props.Recovered];
+    govPieChart.data.datasets[0].data = data;
+    govPieChart.update();
+  }
+
+  // append chhoice
+  function appendChoice(props) {
+    cities.innerHTML += `<option value="${props.GOV_CODE}">${props.GOV_NAME}</option>`;
+  }
+
+
+
+  // listen for city change
+  cities.addEventListener('change', e => {
+    for (layer in pointsLayer._layers) {
+      if (pointsLayer._layers[layer].feature.properties.GOV_CODE == e.target.value) {
+        const feature = pointsLayer._layers[layer].feature;
+        showFeature(feature.properties)
+        updateChart(feature.properties)
+      }
+    }
+
+  })
+
+
+
+
+  // Get Gov boundaries
+  axios.get("{% static 'demos/json/poly.geojson' %}").then(res => {
+    polyLayer = L.geoJSON(res.data, {
+      onEachFeature: (feature, layer) => {
+        // Click event
+        layer.on('click', e => {
+          let props;
+          for (layer in pointsLayer._layers) {
+            if (pointsLayer._layers[layer].feature.properties.GOV_CODE == feature.properties.GOV_CODE) {
+              props = pointsLayer._layers[layer].feature.properties
+            }
+          }
+
+          showFeature(props);
+          updateChart(props);
+        })
+      }
+    });
+
+
+    heatmapLayer = L.geoJSON(res.data, {
+      onEachFeature: (feature, layer) => {
+        // Click event
+        layer.on('click', e => {
+          let props;
+          for (layer in pointsLayer._layers) {
+            if (pointsLayer._layers[layer].feature.properties.GOV_CODE == feature.properties.GOV_CODE) {
+              props = pointsLayer._layers[layer].feature.properties
+            }
+          }
+
+          showFeature(props);
+          updateChart(props);
+        })
+      }
+    });
+
+    // add poly by default
+    polyLayer.addTo(map);
+
+    showHeatmap()
+    initMapEvents()
+  })
+
+  // Get Qism boundaries
+  axios.get("{% static 'demos/json/Qism_Markaz.geojson' %}").then(res => {
+    aqsamLayer = L.geoJSON(res.data, {
+      style: {
+        color: '#fff',
+        fill: false,
+        weight: 1
+      }
+    })
+
+  })
+
+
+
+  // Get the Gov points
+  axios.get("{% url 'GeoJSON' %}").then(res => {
+    pointsLayer = L.geoJSON(res.data, {
+      pointToLayer:  (feature, latlng) => {
+        appendChoice(feature.properties)
+        return L.circleMarker(latlng, geojsonMarkerOptions);
+      },
+
+    });
+
+    initMapEvents()
+    calcTotal()
+  })
+
+
+
+
+
+  // Hospitals
+  let hospitalLayers = [];
+  hospitals.addEventListener('change', e => {
+    hospitalLayers.forEach(layer => layer.remove());
+
+    hospitalLayers.forEach(layer => {
+      if (e.target.value == layer.name) {
+        layer.addTo(map)
+      }
+    })
+  })
+
+  // Get all hospitals
+  axios.get("{% url 'hospital' %}").then(res => {
+    const hospitalList = res.data.data;
+    for (hospital in hospitalList) {
+      const layer = L.geoJSON(hospitalList[hospital], {
+        pointToLayer:  (feature, latlng) => {
+          return L.circleMarker(latlng, geojsonMarkerOptions);
+        },
+        onEachFeature: (feature, layer) => {
+          layer.on('click', e => {
+          })
+
+          const popupContent = `
+            <h5>${feature.properties.Name}</h5>
+          `;
+
+          layer.bindPopup(popupContent);
+        }
+      });
+
+      layer.name = hospitalList[hospital].name;
+      hospitals.innerHTML += `<option value="${layer.name}">${hos_name[layer.name]}</option>`;
+      hospitalLayers.push(layer);
+    }
+  })
+
+
+
+  // Init map events
+  function initMapEvents() {
+    document.querySelectorAll('.btn').forEach(btn => btn.classList.remove('d-none'))
+
+    document.querySelector('.showGov').addEventListener('click', e => {
+      polyLayer.addTo(map);
+      heatmapLayer.remove();
+      pointsLayer.remove();
+    });
+
+    document.querySelector('.showHeatmap').addEventListener('click', e => {
+      polyLayer.remove();
+      heatmapLayer.addTo(map);
+    });
+  }
+
+  // Calc total for Egy
+  function calcTotal() {
+    let total_infected = 0;
+    let total_recoverd = 0;
+    let total_died = 0;
+
+    for (layer in pointsLayer._layers) {
+      total_infected += pointsLayer._layers[layer].feature.properties.Confirmed_;
+      total_recoverd += pointsLayer._layers[layer].feature.properties.Recovered;
+      total_died += pointsLayer._layers[layer].feature.properties.Deathes;
+    }
+
+    // Add it to UI
+    document.querySelector('.total_infected').innerHTML = total_infected;
+    document.querySelector('.total_recoverd').innerHTML = total_recoverd;
+    document.querySelector('.total_died').innerHTML = total_died;
+
+    // update chart
+    egyBarChart.data.datasets[0].data = [total_recoverd, total_infected, total_died]
+    egyBarChart.update();
+
+    calculateIndicators()
+  }
+
+  // Calculate indicators
+  function calculateIndicators() {
+    // Egy indicators
+    const egyScale = document.querySelector('.egyScale');
+
+    const egy_infected = parseInt(egyScale.querySelector('.infected').innerHTML);
+    const egy_dead = parseInt(egyScale.querySelector('.dead').innerHTML);
+    const egy_recovered = parseInt(egyScale.querySelector('.recovered').innerHTML);
+
+    egyScale.querySelector('.indicator1').innerHTML = `${(egy_dead / egy_infected * 100).toFixed(1)} %`;
+    egyScale.querySelector('.indicator2').innerHTML = `${(egy_recovered / egy_infected * 100).toFixed(1)} %`;
+
+
+    // Gov indicators
+    const govScale = document.querySelector('.govScale');
+
+    let gov_infected = parseInt(govScale.querySelector('#Confirmed_').innerHTML);
+    const gov_dead = parseInt(govScale.querySelector('#Deathes').innerHTML);
+    const gov_recovered = parseInt(govScale.querySelector('#Recovered').innerHTML);
+
+    if (gov_infected == 0) gov_infected = 1
+
+    if (!isNaN(gov_infected)) {
+      govScale.querySelector('.indicator1').innerHTML = `${Math.ceil(gov_dead / gov_infected * 100)} %`;
+      govScale.querySelector('.indicator2').innerHTML = `${Math.ceil(gov_recovered / gov_infected * 100)} %`;
+    }
+  }
+
+</script>
+
+<!-- Chart script -->
+<script>
+  // per gov chart
+  const govPie = document.getElementById('govPieChart').getContext('2d');
+  const govPieChart = new Chart(govPie, {
+    type: 'pie',
+    data: {
+      labels: ['وفاة', 'اصابة', 'شفاء'],
+      datasets: [{
+        data: [0, 0, 0],
+        backgroundColor: ['rgba(255, 7, 0, 0.8)', 'rgba(255, 255, 0, 0.8)', 'rgba(0, 255, 35, 0.8)'],
+        borderColor: ['rgba(255, 7, 0, 1)', 'rgba(255, 255, 0, 1)', 'rgba(0, 255, 35, 1)']
+      }],
+
+    },
+    options: {
+      legend: {
+        position: 'bottom',
+        labels: {
+          fontColor: 'rgb(255, 255, 255)',
+          fontSize: 15,
+          fontFamily: "'Droid Arabic Kufi'"
+        }
+      }
+    }
+  });
+
+
+  // egy chart
+  const egyBar = document.getElementById('egyBarChart').getContext('2d');
+  const egyBarChart = new Chart(egyBar, {
+    type: 'bar',
+    data: {
+      labels: ['شفاء', 'اصابة', 'وفاة'],
+      datasets: [{
+        data: [0, 0, 0],
+        label: ['شفاء', 'اصابة', 'وفاة'],
+        backgroundColor: ['rgba(0, 255, 35, 0.8)', 'rgba(255, 255, 0, 0.8)', 'rgba(255, 7, 0, 0.8)'],
+        borderColor: ['rgba(0, 255, 35, 1)', 'rgba(255, 255, 0, 1)', 'rgba(255, 7, 0, 1)']
+      }],
+    },
+    options: {
+      legend: {
+        display: false
+      }
+    }
+
+  });
+</script>
+{% endblock %}

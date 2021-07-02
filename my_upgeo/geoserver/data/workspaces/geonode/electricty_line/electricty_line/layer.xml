@@ -1,0 +1,16 @@
+<layer>
+  <name>electricty_line</name>
+  <id>LayerInfoImpl--5759f847:17769c3034d:-7ffe</id>
+  <type>VECTOR</type>
+  <defaultStyle>
+    <id>StyleInfoImpl-6d1899ce:1767134fab9:-7ffe</id>
+  </defaultStyle>
+  <resource class="featureType">
+    <id>FeatureTypeInfoImpl--5759f847:17769c3034d:-7fff</id>
+  </resource>
+  <attribution>
+    <logoWidth>0</logoWidth>
+    <logoHeight>0</logoHeight>
+  </attribution>
+  <dateCreated>2021-02-03 21:18:48.605 UTC</dateCreated>
+</layer>

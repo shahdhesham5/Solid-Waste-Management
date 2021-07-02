@@ -1,0 +1,44 @@
+// Get some conf from main
+@import 'main.scss';
+
+
+// Top section
+#drawer-menu-button, #mapstore-navbar-container {
+  top: 1.5rem !important;
+}
+
+#mapstore-navbar-container {
+  right: .4rem;
+}
+
+// Search container
+#map-search-bar {
+  left: auto !important;
+  right: 4rem !important;
+
+  .input-group, input {
+    @extend .rounded;
+  }
+}
+
+
+.msgapi {
+
+  .btn-primary {
+    @extend .btn, .btn-primary, .rounded;
+  }
+  
+  
+  
+  .mapToolbar {
+    box-shadow: none;
+  }
+  
+  
+  
+}
+
+
+#mapstore-globalspinner {
+  background: $primary !important;
+}

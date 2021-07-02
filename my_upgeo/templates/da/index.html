@@ -1,0 +1,904 @@
+{% extends "base.html" %}
+{% block extra_head %}
+    <title>Pengeo</title>
+    {%load static%}
+    <link rel="stylesheet" href="{% static '/leaflet/leaflet.css'%}"/>
+    <script src="{% static '/leaflet/leaflet.js'%}"></script>
+    <link rel="stylesheet" href="{% static 'css/da/da.css'%}">
+    <script src="{% static 'proj4js/lib/proj4js-combined.js'%}"></script>
+    <link rel="stylesheet" href="{% static 'leaflet.table/supagrid.css'%}" />
+    <link rel="stylesheet" href="{% static 'leaflet.table/leaflet.table.css'%}" />
+    <script src="{% static 'leaflet.table/supagrid.js'%}" type="text/javascript"></script>
+    <script src="{% static 'leaflet.table/leaflet.table.js'%}" type="text/javascript"></script>
+    <style media="screen">
+        #mapid { height:500px; }
+        #wrap{
+          margin-top: 0px;
+          padding: 0px;
+        }
+        #ruleContainer{
+          padding-left: 39%;
+        }
+        #attr1{
+        margin-left: 0.4%;;
+        }
+        .result{
+          margin-left: 0px;
+        }
+        #attr1 ,#attr2 ,#layers
+          {
+           min-width: 16% !important;
+           height:2%!important;
+           border-radius: 3px !important;
+           margin-bottom: 1px !important;
+           -webkit-appearance: none !important;
+           -moz-appearance: none !important;
+           appearance: none !important;      /* Remove default arrow */
+           background-image: url(...);   /* Add custom arrow */
+        }
+        body{
+          background-image: linear-gradient( #2b5876,#4e4376 );
+        }
+  </style>
+  {% endblock %}
+
+
+
+  {% block middle %}
+{% block buttons%}
+<input type='button' id='hideshow' value='Edit'>
+
+<input type="button" id='EditLayer' name="" value="Edit Layer">
+<input type="button" id='Refresh' name="" value="refresh Layer">
+{% if request.user.editor  %}
+<input type="button" id="postFeature" name="" value="post Feature">
+{% endif%}
+{% endblock %}
+
+<div class="container " id='EditingLayerContainer' ></div>
+<div class="container-fluid " id='editingContainer' style="display:none">
+          <input type="button" id="addRule" value="Add Rule">
+          <input type="button" id="clearRule" value="clear Rules">
+           <div id="chooseLayer">
+             <label for="attr1"><span class='label'style="margin-right:21px">Choose layer:</span></label>
+             <select name="attr1"  id="layers" form="carform" >
+               {% for item in  layers%}
+
+               <option value="{{item.name}}">{{item.name}} </option>
+               {% endfor%}
+             </select>
+           </div>
+           <div id="chooseLayerattr">
+            <label  for="attr1"><span class='label'>Choose Attribute:</span></label>
+              <select name="attr1" id="attr1" form="carform" >
+                {% for item in geolayers.1.features.1.properties.keys %}
+                <option value="{{item}}">{{item}}</option>
+                {% endfor%}
+              </select>
+              <select name="attr2" id="attr2" form="carform" >
+                {% for item in geolayers.1.features.1.properties.keys %}
+                <option value="{{item}}">{{item}}</option>
+                {% endfor%}
+              </select>
+               <input type="number" id="result" value='0'> %
+               <input type="color" id="colorpicker" value="#0000ff">
+               <div id='ruleContainer'>
+
+               </div>
+              </div>
+
+  </div>
+  {% block map%}
+  <div id='load'></div>
+  <div id="mapid"></div>
+  {% endblock%}
+  {% block table%}
+  <div class="container" id='featureTable'>
+
+    <table id='Table' >
+      <thead id='th'>
+
+      </thead>
+    </table>
+
+  </div>
+  <div id="mydiv" style="display:none">
+  <!-- Include a header DIV with the same name as the draggable DIV, followed by "header" -->
+  <div id="mydivheader">Add Feature Properties</div>
+      <div id="movingTable">
+
+      </div>
+      <div id="mydiv2">
+
+      </div>
+
+  </div>
+{% endblock %}
+ <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script> -->
+ {% block addedscript%}
+ <link rel="stylesheet" href="{% static 'leafletDraw/leafletdraw.css' %}"/>
+ <script src="{% static 'leafletDraw/leafletdraw.js'%}"></script>
+
+
+ <script src="{% static 'leafletEditable/leafletEditable.js' %}"></script>
+ <script src="{% static 'js/da/da.js' %}"></script>
+
+{% endblock %}
+{% block myscript%}
+<script type="text/javascript">
+
+
+// import the Leaflet.Editable.js to be able to add and update the coordinates of the polygon
+// use da.js to make the add feature dragabble
+// then we get the data and save it in geolayers dictionary key is the name of layer and value is the layer itself
+//start the csrftoken
+//Add the spinner till map loads
+//Edit Layer function [you can edit layer and export it as geojson]
+// then we get a copy of layer as layerToEdit
+//Add rules to change the style
+//enableEditing
+//initiate map
+//initiate basemap
+// initiate the basemao and overlay layers in the controller
+// get the layer info from backend
+
+var protocol='{{  request.build_absolute_uri }}'.split(':')[0]
+var host='{{ request.META.HTTP_HOST }}'
+var geoLayers=JSON.parse('{{ geolayers| safe }}')
+
+
+var lays='{{ layers | safe }}'
+var layerName=document.getElementById('layers').value
+var temp = geoLayers[layerName]
+
+if(!temp){
+  // for(let i=0;i<lays.length;i++){
+  var listOfLayers=[]
+  {% for layer in layers%}
+  var layName= '{{layer.name}}'
+  listOfLayers.push('{{layer.name}}')
+  var fetching=fetch(protocol+'://'+host+'/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName='+"{{layer.name}}"+'&maxFeatures=50&srsName=EPSG:4326&outputFormat=json')
+                 .then(response => response.json())
+                 .then(function(data){
+                  geoLayers['{{layer.name}}']=data
+                })
+
+{% endfor %}
+
+
+
+// }
+window.onload = async () => {
+      let someData = await fetching;
+      PageLoad()
+
+  };
+  }else{
+  PageLoad()
+}
+
+
+
+
+
+
+
+function getCookie(name){
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+const csrftoken = getCookie('csrftoken');
+
+
+//spinner
+function spinner(x,y){
+  x.onreadystatechange = function () {
+  var state = x.readyState
+  if (state == 'interactive') {
+       x.getElementById('mapid').style.visibility="hidden";
+   }else if (state == 'complete') {
+      setTimeout(function(){
+         x.getElementById('interactive');
+         x.getElementById(y).style.visibility="hidden";
+         x.getElementById('mapid').style.visibility="visible";
+      },1000);
+  }
+  }
+  }
+spinner(document,'load')
+
+
+function PageLoad(){
+
+
+  //EditingLayer
+  var EditLayer=document.getElementById('EditLayer')
+  EditLayer.addEventListener('click',function(){
+    document.getElementById('EditingLayerContainer').innerHTML='<div class="">'+
+    '<label for="attr1"><span class="label" style="margin-right:21px">Choose layer:</span></label>'+
+    '<select name="attr1" id="layersToEdit" form="carform" >'+
+    '    {% for item in  layers%}'+
+    '  <option value="{{item.name}}">{{item.name}} </option>'+
+    '           {% endfor%}'+
+    '</select>'+
+    '<button type="button" id="EditLayerbtn" name="button"> Edit</button>'+
+    '<input type="button" id="addFeature" name="" value="Add Feature">'+
+    '<input type="button" id="delFeature" name="" value="Delete Feature">'+
+    '</div>'
+    addEventToEditBtn()
+    })
+
+
+    function addEventToEditBtn(){
+    var Editbtn=document.getElementById("EditLayerbtn")
+    Editbtn.addEventListener('click',function(){
+      clearToRedraw()
+      loadingData()
+    })
+  }
+
+
+
+  //The Editing part
+  function loadingData(){
+      var layerToEditm= geoLayers[document.getElementById('layersToEdit').value];
+      //get copy of layer
+      var layerToEdit={
+        ...layerToEditm
+      }
+      function getFeatureEdited(feature,layer){
+
+        layer.on('click',function(){
+            for (let i=1;i<document.getElementsByTagName('tr').length;i++){
+            for (let j=0;j<document.getElementsByTagName('tr')[9].cells.length;j++){
+              document.getElementsByTagName('tr')[i].cells[j].style.backgroundColor='white'
+            }
+          if(document.getElementsByTagName('tr')[i].cells[0].firstElementChild.value==feature.properties.fid){
+          document.getElementsByTagName('tr')[i].scrollIntoView({
+                      behavior: 'smooth',
+                      block: 'center'
+                  });
+          for (let j=0;j<document.getElementsByTagName('tr')[9].cells.length;j++){
+            document.getElementsByTagName('tr')[i].cells[j].style.backgroundColor='green'
+          }
+        }
+      }
+        })
+      }
+    mymap.fitBounds(L.geoJson(layerToEdit).getBounds());
+    var myFeature=L.geoJSON(layerToEdit,{
+        onEachFeature:getFeatureEdited
+      }).addTo(mymap)
+
+      var attributes=Object.keys(layerToEdit.features[0].properties)
+      //get layer features
+      var layerFeatures=layerToEdit.features
+      var attrValues=layerToEdit.features[0].properties
+      console.log(attrValues);
+      document.getElementById('th').innerHTML=''
+      document.getElementById('Table').innerHTML="<tr id='th'> </tr>"
+      for (key in attributes){
+        document.getElementById('th').innerHTML+='<th>'+attributes[key]+'</th>'
+       '<tr>'+attrValues[attributes[key]]+'</tr>'
+      }
+      for (feature in layerFeatures){
+        var feat='<tr>'
+        for (key in attributes){
+            feat+='<td> <input class="inputs" type="text" data="'+feature+'" value='+layerFeatures[feature].properties[attributes[key]]+' /> </td>'
+              }
+          feat +='</tr>'
+
+        document.getElementById('Table').innerHTML+=feat
+      }
+      var AddedFeatures={}
+      //Add New Feature
+    document.getElementById('addFeature').addEventListener('click',xc)
+      function xc(){
+        document.getElementById('mydiv').style.display='block'
+        var oldFeature=layerToEdit.features[0]
+        var newFeature=  JSON.parse(JSON.stringify(oldFeature));
+        document.getElementById('movingTable').innerHTML=''
+        var Thead="<tr >"
+        for (key in attributes){
+          Thead+='<th>'+attributes[key]+'</th>'
+          '<tr>'+attrValues[attributes[key]]+'</tr>'
+        }
+        Thead+="</tr>"
+        var feat='<tr>'
+        for (key in attributes){
+              feat+='<td> <input class="newInputs" type="'+typeof(oldFeature.properties[attributes[key]])+'" data="" value="" /> </td>'
+              }
+           feat +='</tr>'
+       document.getElementById('movingTable').innerHTML+='<table >'+Thead+feat+'</table>'
+       document.getElementById('mydiv2').innerHTML='<button type="button" id="draw"name="button">Add Polygon</button>'
+       if(newFeature.geometry.type=="MultiLineString"){
+         document.getElementById('draw').innerHTML="Add PolyLine"
+       }
+       document.getElementById('draw').addEventListener('click',function(){
+         if(newFeature.geometry.type=="MultiPolygon"){
+        mymap.editTools.stopDrawing()
+            mymap.editTools.startPolygon();
+          }else{
+            document.getElementById('draw').innerHTML="Add PolyLine"
+             mymap.editTools.startPolyline()
+
+          }
+            newFeature.geometry.coordinates[0]=[[],]
+            let coordinates=[]
+
+          mymap.on('editable:drawing:end',function xyz(e){
+              coordinates=[...e.layer._latlngs]
+              //get coordinates of drawn layer and make it suitable to add to the real layer
+              if(newFeature.geometry.type=="MultiPolygon"){
+              for (let k=0;k<coordinates[0].length;k++){
+                    newFeature.geometry.coordinates[0][0].push([parseFloat(coordinates[0][k].lng.toFixed(6)),parseFloat(coordinates[0][k].lat.toFixed(6))])
+              }
+            }else{
+              newFeature.geometry.coordinates[0]=[]
+              for (let k=0;k<coordinates.length;k++){
+                    newFeature.geometry.coordinates[0].push([parseFloat(coordinates[k].lng.toFixed(6)),parseFloat(coordinates[k].lat.toFixed(6))])
+              }
+            }
+              for(let i=0;i<attributes.length;i++){
+                if(typeof(oldFeature.properties[attributes[i]])=='string'){
+                newFeature.properties[attributes[i]]=document.getElementsByClassName('newInputs')[i].value
+              }else{
+                newFeature.properties[attributes[i]]=parseFloat(document.getElementsByClassName('newInputs')[i].value)
+              }
+
+              }
+
+              mymap.editTools.stopDrawing()
+
+              cNewFeature=JSON.parse(JSON.stringify(newFeature))
+              layerToEdit.features.push(cNewFeature)
+              var addfeat='<tr>'
+              for (key in attributes){
+                  addfeat+='<td> <input class="inputs" type="text" data="'+cNewFeature+'" value='+cNewFeature.properties[attributes[key]]+' /> </td>'
+                    }
+                addfeat +='</tr>'
+              document.getElementById('Table').innerHTML+=addfeat
+
+              mymap.off('editable:drawing:end',xyz)
+              document.getElementById('mydiv').style.display='none'
+              // mymap.eachLayer(function(layer) {
+                //           if (!!layer.toGeoJSON) {
+                //                mymap.removeLayer(layer);
+                //           }
+                //
+                //            });
+
+              clearToRedraw()
+              loadingData()
+               L.geoJSON(layerToEdit,{
+                      onEachFeature:getFeatureEdited
+                    }).addTo(mymap)
+
+
+            })
+          })
+      }
+      // delet
+      document.getElementById('delFeature').addEventListener('click',function(){
+        document.getElementById('delFeature').style.background='red'
+      clearToRedraw()
+
+
+        L.geoJSON(layerToEdit,{
+               onEachFeature:(feature,layer)=>{
+                 layer.on('click',function(e){
+                   console.log(e.target.feature);
+                   layer.remove(e.target.feature)
+                   let arr=layerToEdit.features
+                    for( var i = 0; i < arr.length; i++){
+                      if ( arr[i] === e.target.feature) {
+                         arr.splice(i, 1);
+                      }
+                    }
+                    loadingData()
+                    document.getElementById('delFeature').style.backgroundImage='linear-gradient(  #bbd2c5, #536976,#292e49  )';
+                   console.log(layerToEdit);
+                 })
+               }
+             }).addTo(mymap)
+
+      })
+      // console.log("kj",inputs.length);
+  function Misk(){
+      var inputs=document.getElementsByClassName('inputs')
+      for (let i=0;i<inputs.length;i++){
+         inputs[i].addEventListener('change',function xx(e){
+            //get the edited attribute
+            var EditedAttr=attributes[i%attributes.length];
+            var EFeature=layerFeatures[this.attributes.data.value]
+            if(typeof(layerFeatures[this.attributes.data.value].properties[EditedAttr])=='number'){
+                layerFeatures[this.attributes.data.value].properties[EditedAttr]=parseFloat(inputs[i].value)
+            }else{
+                layerFeatures[this.attributes.data.value].properties[EditedAttr]=inputs[i].value
+            }
+         latLong = []
+             // mymap.removeLayer(myFeature)
+             if (layerFeatures[this.attributes.data.value].geometry.type=='MultiPolygon'){
+               layerFeatures[this.attributes.data.value].geometry.coordinates[0].forEach(function(locationArray){
+                      locationArray.forEach(function(location){
+                          latLong.push([location[1] , location[0]]);
+                      });
+                     });
+                var Epolygon = L.polygon(latLong,{
+                 style:{fillColor:'red'}
+               }).addTo(mymap);
+                  }else{
+                    // latLong=layerFeatures[this.attributes.data.value].geometry.coordinates[0]
+                    console.log('important',layerFeatures[this.attributes.data.value].geometry.coordinates[0]);
+                    layerFeatures[this.attributes.data.value].geometry.coordinates[0].forEach(function(location){
+                                   latLong.push([location[1] , location[0]]);
+
+                          });
+                    console.log("polyline",latLong);
+                    var Epolygon = L.polyline(latLong,{
+                      style:{color:'red'}
+                    }).addTo(mymap);
+                  }
+               Epolygon.editing.enable();
+               Epolygon.on('dblclick',function(){
+                 if(EFeature.geometry.type=='MultiPolygon'){
+                   EFeature.geometry.coordinates[0][0]=[]
+                   for(let i=0;i<Epolygon._latlngs[0].length;i++){
+                     EFeature.geometry.coordinates[0][0].push([Epolygon._latlngs[0][i].lng,Epolygon._latlngs[0][i].lat])
+                        }
+                      }else{
+                          EFeature.geometry.coordinates[0]=[]
+                          for(let i=0;i<Epolygon._latlngs.length;i++){
+                              EFeature.geometry.coordinates[0].push([Epolygon._latlngs[i].lng,Epolygon._latlngs[i].lat])
+                              }
+
+                              }
+                clearToRedraw()
+                L.geoJSON(layerToEdit,{
+                  onEachFeature:getFeatureEdited
+                }).addTo(mymap)
+
+
+                     })
+               latLong = [];
+
+
+        })
+      }
+
+  }
+      Misk()
+
+
+
+    }
+  if (document.getElementById('postFeature')){
+  document.getElementById('postFeature').addEventListener('click',postFeature)
+}
+    function postFeature(){
+            fetch("{% url 'recieve' %}", {
+            method: 'POST', // or 'PUT'
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': csrftoken,
+                    },
+                    body: JSON.stringify({
+                                  'name':document.getElementById('layersToEdit').value,
+                                  'layer':geoLayers[document.getElementById('layersToEdit').value]
+                                }),
+                  })
+                  .then(response => response.json())
+                  .then(data => {
+                    console.log('Success:', data);
+                  })
+                  .catch((error) => {
+                    console.error('Error:', error);
+                  });
+          }
+
+  // adding Rule
+  var addRule = document.getElementById('addRule')
+  var ruleContainer=document.getElementById('ruleContainer')
+
+  addRule.addEventListener('click',function(){
+
+  ruleContainer.innerHTML+="<div class='rule'>"+"<select name='attra' class='attra' form='carform' ><option value='2'>2</option></select>"+
+                                "<select name='attrb' class='attrb' form='carform' ><option value='1'>1</option></select>"+
+                                '<input type="number" class="result" value="0"> %'+
+                                '<input type="color" class="colorpicker" value="#0000ff">'+"</div>"
+    addAttr(layerName)
+    addLayer(temp)
+    b()
+    formattingLayers()
+
+  })
+
+  var clearRules=document.getElementById('clearRule')
+  clearRules.addEventListener('click',function(){
+    var rules=document.getElementsByClassName('rule')
+    while(rules.length > 0) {
+      rules[0].remove();
+  }
+
+  })
+
+
+
+
+  // enableEditing
+  var showbtn=document.getElementById('hideshow')
+  var editingContainer=document.getElementById('editingContainer')
+  showbtn.addEventListener('click',function(){
+    if(editingContainer.style.display=="none"){
+      editingContainer.style.display = "block"
+      showbtn.value='Stop Editing'
+      temp=geoLayers[layerName]
+      mymap.fitBounds(L.geoJson(temp).getBounds());
+      addLayer(temp)
+      addAttr(layerName)
+      b()
+
+    }else{
+      editingContainer.style.display="none"
+      showbtn.value='Edit'
+  }
+  })
+
+
+
+
+  //initiate map;
+  var mymap;
+  var baeMap;
+  var view;
+  var zoom;
+  function loadMap(){
+  if (view){
+    console.log(zoom);
+     mymap = L.map('mapid',{editable: true}).setView([view.lat, view.lng],zoom);
+  }else{
+      mymap = L.map('mapid',{editable: true}).setView([51.505, -0.09], 4);
+  }
+  baeMap=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(mymap);
+  isMap = true;
+  }
+  loadMap()
+  //initiate base map
+  var baeMap=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(mymap);
+  var LayerList='{list:'+'{{layers}}'+',}'
+
+  // initiate the basemao and overlay layers in the controller
+  var baemap={'base':baeMap}
+  var overlayMaps = {};
+
+
+  // get the layer info from backend
+  var layerName=document.getElementById('layers').value
+
+
+
+  function addLayer(temp){
+    var geolayer= L.geoJSON(temp,{
+    onEachFeature: onEachFeature
+  })
+  }
+
+  var attr1 = document.getElementById('attr1')
+  var attr2 = document.getElementById('attr2')
+  var attra=document.getElementsByClassName('attra')
+  var attrb=document.getElementsByClassName('attrb')
+
+  function addAttr(layerName){
+
+    attr1.innerHTML=""
+    attr2.innerHTML=""
+    if (attra.length>0){
+      for(j=0;j<attra.length;j++){
+      attra[j].innerHTML=""
+      attrb[j].innerHTML=""
+    }
+    }
+    var activeLayer=geoLayers[layerName]
+    // if(!activeLayer){
+    //   fetch('http://localhost/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName='+layerName+'&maxFeatures=50&outputFormat=json')
+    //                .then(response => response.json())
+    //                .then(function(activeLayer){
+    //                  var keyList=Object.keys(activeLayer.features[1].properties);
+    //                  var items=""
+    //                  for (let i=0;i<keyList.length;i++){
+    //                      attr1.innerHTML  += "<option value="+keyList[i]+">"+keyList[i]+"{{item}}</option>"
+    //                      attr2.innerHTML  += "<option value="+keyList[i]+">"+keyList[i]+"{{item}}</option>"
+    //                      if (attra.length>0){
+    //                      for(j=0;j<attra.length;j++){
+    //                        attra[j].innerHTML  += "<option value="+keyList[i]+">"+keyList[i]+"{{item}}</option>"
+    //                        attrb[j].innerHTML  += "<option value="+keyList[i]+">"+keyList[i]+"{{item}}</option>"
+    //                      }
+    //                      }
+    //                  }
+    //
+    //                   });
+    // }
+    var keyList=Object.keys(activeLayer.features[1].properties);
+    var items=""
+    for (let i=0;i<keyList.length;i++){
+        attr1.innerHTML  += "<option value="+keyList[i]+">"+keyList[i]+"{{item}}</option>"
+        attr2.innerHTML  += "<option value="+keyList[i]+">"+keyList[i]+"{{item}}</option>"
+        if (attra.length>0){
+        for(j=0;j<attra.length;j++){
+          attra[j].innerHTML  += "<option value="+keyList[i]+">"+keyList[i]+"{{item}}</option>"
+          attrb[j].innerHTML  += "<option value="+keyList[i]+">"+keyList[i]+"{{item}}</option>"
+        }
+        }
+    }
+
+
+  }
+
+
+
+
+
+
+
+  function showFeatureInfo(feature,layer){
+    if (feature.properties ) {
+
+        layer.bindPopup('<div>'+feature.id+'</div>'  );
+
+    }
+  }
+
+
+
+  document.getElementById('layers').addEventListener('change',function(){
+
+     layerName=document.getElementById('layers').value
+     temp = geoLayers[layerName]
+     mymap.fitBounds(L.geoJson(temp).getBounds());
+     addLayer(temp)
+     addAttr(layerName)
+     b()
+    }
+    )
+
+    function clearToRedraw(){
+        //Check if map is loaded, if false then load else remove everything and reload it
+        if(isMap != true){
+            loadMap();
+        }else{
+            //For each layer on the map remove everything and clear variables
+            mymap.eachLayer(function(layer){
+                view= mymap.getCenter();
+                zoom=mymap.getZoom();
+                mymap.remove();
+                if (!!layer.toGeoJSON) {
+
+                  mymap.removeLayer(layer);
+                } //clear the pointManager array of points
+                isMap = false;
+                loadMap(); //reload the map function
+            });
+          }}
+
+  function b(){
+
+    mymap.eachLayer(function(layer) {
+       if (!!layer.toGeoJSON) {
+
+         mymap.removeLayer(layer);
+       }
+
+      });
+
+
+    var geolayer=L.geoJSON(temp,{
+          onEachFeature: onEachFeature
+        }).addTo(mymap);
+      }
+
+
+  function formattingLayers(){
+    if(attra.length>0){
+      for (let j=0;j<attra.length;j++){
+        document.getElementsByClassName('attra')[j].addEventListener('change',b)
+        document.getElementsByClassName('attrb')[j].addEventListener('change',b)
+        document.getElementsByClassName('colorpicker')[j].addEventListener('change',b)
+        document.getElementsByClassName('result')[j].addEventListener('change',b)
+        document.getElementsByClassName('attra')[j].style.display='none'
+        document.getElementsByClassName('attrb')[j].style.display='none'
+    }
+  }
+  }
+
+
+  document.getElementById('attr1').addEventListener('change',b)
+  document.getElementById('attr2').addEventListener('change',b)
+  document.getElementById('colorpicker').addEventListener('change',b)
+  document.getElementById('result').addEventListener('change',b)
+  //
+  function zoomTo(s){
+    console.log(s.sourceTarget.feature);
+    s.sourceTarget.feature.properties.STATE_NAME="Mohamed"
+    console.log(s.sourceTarget.feature.geometry.coordinates[0]);
+    mymap.fitBounds(s.sourceTarget.feature.geometry.coordinates[0])
+    mymap.setMaxZoom(8);
+  console.log(  mymap.getBoundsZoom(s.sourceTarget.feature.geometry.coordinates[0]))
+
+  }
+  function highlightFeature(e) {
+     var layer = e.target;
+     latLong = []
+      layer.feature.geometry.coordinates[0].forEach(function(locationArray){
+
+            locationArray.forEach(function(location){
+
+                latLong.push([location[1] , location[0]]);
+            });
+           });
+
+
+
+           console.log("down",Epolygon);
+
+           var Epolygon = L.polygon(latLong).addTo(mymap);
+           console.log("Epolygon",Epolygon);
+           // Epolygon.enableEdit();
+           Epolygon.editing.enable();
+           Epolygon.on('click',function(){
+             console.log(Epolygon);
+           })
+           latLong = [];
+
+  }
+
+  var selectedFeature = null;
+   var Epolygon =null;
+  function onEachFeature(feature, layer) {
+
+        // editableLayers.addLayer(layer);
+
+
+        // layer.on('click', function(e){
+        //   if (e.target.feature.geometry.type=='MultiPolygon'){
+        //   document.getElementById('featureTable').innerHTML=e.target.feature.properties['STATE_NAME']
+        //   highlightFeature(e)
+        //   }else{
+        //
+        //       if(selectedFeature)
+        //            selectedFeature.editing.disable();
+        //
+        //       selectedFeature = e.target;
+        //       e.target.editing.enable();
+        //
+        //     }
+        //  });
+       // document.getElementById('featureTable').innerHTML+='<div>' +'</div>'+
+       //    '<button type="button" name="button" onclick="zoomTo('+layer+')" >ZoomTOFeatue</button>'
+
+      // does this feature have a property named popupContent?
+      // for states layer
+      if (feature.geometry.type=='MultiPolygon'){
+      if (feature.properties ) {
+            layer.bindPopup('<div>'+feature.properties.mhfz+'</div>'+document.getElementById('attr1').value+":"
+                 +feature.properties[document.getElementById('attr1').value]
+                 +'<div>'+document.getElementById('attr2').value+":"+feature.properties[document.getElementById('attr2').value]+'</div>'
+                 +'<div>'+"percentage" +':'+100*(feature.properties[document.getElementById('attr1').value]/feature.properties[document.getElementById('attr2').value]).toFixed(4)+' % </div>'
+        );
+
+      }
+      if (feature.properties && feature.properties[document.getElementById('attr1').value]/
+      feature.properties[document.getElementById('attr2').value] > document.getElementById('result').value/100)
+      {
+          layer.setStyle({ fillColor :document.getElementById('colorpicker').value, opacity: 0.5, weight: 5 })
+      }  else if (feature.properties) {
+
+          layer.setStyle({fillColor :'green'})
+      }
+      if(attra.length>0){
+        for(j=0;j<attra.length;j++){
+         document.getElementsByClassName('attra')[j].value=document.getElementById('attr1').value
+         document.getElementsByClassName('attrb')[j].value=document.getElementById('attr2').value
+         if (feature.properties && feature.properties[document.getElementsByClassName('attra')[j].value]/
+          feature.properties[document.getElementsByClassName('attrb')[j].value] > document.getElementsByClassName('result')[j].value/100)
+          {
+              layer.setStyle({ fillColor :document.getElementsByClassName('colorpicker')[j].value, opacity: 0.5, weight: 5 })
+          }
+        }
+      }
+                      }
+
+    else if((feature.geometry.type=='MultiLineString')){
+      // for other layersGeojson
+      if (feature.properties ) {
+            // console.log(feature.geometry.coordinates[0].length);
+            layer.bindPopup('<div>'+ feature.properties.Markaz_Nam +" "+feature.properties.fid+'</div>'
+                          +'<div>'+document.getElementById('attr1').value+':'+feature.properties[document.getElementById('attr1').value]+"</div>"
+                          +'<div>'+document.getElementById('attr2').value+':'+feature.properties[document.getElementById('attr2').value]+"</div>"
+                          +'<div>'+"percentage" +':'+100*(feature.properties[document.getElementById('attr1').value]/
+                                feature.properties[document.getElementById('attr2').value]).toFixed(4)+' % </div>'
+                        )
+
+
+
+
+        }if (feature.properties && feature.properties[document.getElementById('attr1').value]
+        /feature.properties[document.getElementById('attr2').value] > document.getElementById('result').value/100)
+        {
+             layer.setStyle({ stroke:true,color :document.getElementById('colorpicker').value, opacity: 0.7, weight: 5 })
+        }
+        if(attra.length>0){
+          for(j=0;j<attra.length;j++){
+               document.getElementsByClassName('attra')[j].value=document.getElementById('attr1').value
+               document.getElementsByClassName('attrb')[j].value=document.getElementById('attr2').value
+               if (feature.properties && feature.properties[document.getElementsByClassName('attra')[j].value]/
+                feature.properties[document.getElementsByClassName('attrb')[j].value] > document.getElementsByClassName('result')[j].value/100)
+                {
+                    layer.setStyle({  stroke:true,color  :document.getElementsByClassName('colorpicker')[j].value, opacity: 0.5, weight: 5 })
+                }
+              }
+            }
+
+
+
+  }
+  }
+  // function zoomTo(e){
+  //   console.log(e);
+  //   lalo = L.GeoJSON.coordsToLatLng(e[0])
+  //   mymap.setView(lalo, 18);
+  // }
+  // overlayMaps['statess']=layersGeojson
+     // console.log(overlayMaps);
+
+     // set parameters needed for GetFeatureInfo WMS request
+     var sw = mymap.options.crs.project(mymap.getBounds().getSouthWest());
+     var ne = mymap.options.crs.project(mymap.getBounds().getNorthEast());
+     var BBOX = sw.x + "," + sw.y + "," + ne.x + "," + ne.y;
+     var WIDTH = mymap.getSize().x;
+     var HEIGHT = mymap.getSize().y;
+  
+
+  var count=0
+  overlayMaps={}
+  function addLayerController(){
+     {% for layer in layers %}
+     overlayMaps[ '{{layer.name}}' ] =L.geoJSON(geoLayers[ '{{layer.name}}' ],  {
+         onEachFeature:showFeatureInfo
+       })
+     {% endfor %}
+  }
+
+  addLayerController()
+  var layerControl=L.control.layers( baemap,overlayMaps).addTo(mymap);
+  // Refresh
+  document.getElementById('Refresh').addEventListener('click',function(){
+    addLayerController()
+    mymap.removeControl(layerControl)
+    L.control.layers( baemap,overlayMaps).addTo(mymap);
+  })
+
+
+
+
+
+}
+
+</script>
+{% endblock %}
+{% endblock %}
+</html>

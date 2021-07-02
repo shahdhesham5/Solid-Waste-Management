@@ -1,0 +1,56 @@
+{% extends './countries.html'%}
+
+
+{% block title%} {{project.name}} {% endblock%}
+{% block pageTitle%} {{project.name}}  {% endblock%}
+{% block content%}
+<div class="row">
+
+<div class="card" style="width: 100%;">
+  <!-- <img src="..." class="card-img-top" alt="..."> -->
+  <div class="card-body">
+    <table>
+      <tr class='my-3'>
+          <td width=20%>Project Location:</td>
+          <td width=20%>
+             <a href="{% url 'country_projects' project.project_location.id %}">{{project.project_location}}</a>          
+          </td>
+      </tr>
+      <tr class='my-3'>
+          <td width=20%>Project Progress:</td>
+          <td width=80%>
+            <div class="progress">
+                <div
+                  class="progress-bar progress-bar-striped progress-bar-animated"
+                  role="progressbar"
+                  aria-valuenow="{{ progress}}"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  style="width: {{ progress}}%;background-color:#253969"
+                ></div>
+              </div>
+
+          </td>
+      </tr>
+      <tr class='my-2'>
+          <td width=20%> Project cover :</td>
+          <td width=80%><img src="{{MEDIA_URL}}/{{project.project_cover}}" alt="" width=20% height=10%> </td>
+      </tr>
+      <tr class='my-3'>
+          <td width=20%> Project Tasks :</td>
+          <td width=80%>
+                  {% for task in tasks%}
+                  {{task}}-
+                  {% endfor%}
+          </td>
+      </tr>
+    </table>
+
+
+
+
+    <a href="{{project.project_url}}" class="btn btn-primary my-3">Check Project</a>
+  </div>
+</div>
+</div>
+{% endblock%}

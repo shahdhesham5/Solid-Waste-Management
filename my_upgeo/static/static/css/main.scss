@@ -1,0 +1,280 @@
+// theme color
+$theme-colors: (
+  "primary": #05A081,
+  "dark": #232A34,
+  "secondary": #232A34,
+  "light": #F5F5F5
+);
+
+$primary: #05A081;
+$secondary: #232A34;
+$light: #F5F5F5;
+
+@import "./src/scss/bootstrap.scss";
+
+
+
+
+body {
+  font-family: 'Montserrat', sans-serif;
+  background: #fff;
+  padding-top: 6rem;
+
+  img {
+    max-width: 100%;
+  }
+
+
+  .bold {
+    @extend .font-weight-bold;
+  }
+
+  .bolder {
+    font-weight: 800 !important;
+  }
+
+  .pointer {
+    cursor: pointer;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @extend .font-weight-bold;
+  }
+}
+
+
+
+
+// Global classes
+.white_overlay {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: rgba(255, 255, 255, 0.97);
+}
+
+
+.dark_overlay {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.85);
+}
+
+
+// Home page
+.home {
+
+  .landing {
+
+    .landing_overlay {
+      @extend .dark_overlay;
+
+      .landing_btns {
+        padding-top: 3rem;
+      }
+    }
+
+    .landing_overlay > div {
+      padding-top: 10rem;
+    }
+
+  }
+
+
+  video {
+    min-width: 100vw;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  .scrolldown {
+    position: absolute;
+    top: 90vh;
+    left: 47vw;
+    z-index: 100;
+    width: 5rem;
+    cursor: pointer;
+    opacity: .6;
+  }
+
+
+  .onMap {
+    .onMap_overlay {
+      @extend .white_overlay;
+      padding-top: 10rem;
+    }
+  }
+
+
+  .advantages {
+    img {
+      max-width: 25rem;
+    }
+  }
+
+
+  .doMore {
+    width: 100%;
+    min-height: 90vh;
+    background: $primary;
+
+
+    .doMore_cards {
+      margin-top: 5rem;
+
+      .doMore_card {
+        transition: 0.6s;
+        background-color: #019577;
+        cursor: default;
+
+        &:hover {
+          transform: scale(1.08);
+          border-radius: 1rem;
+          color: $secondary;
+          svg {
+            color: $primary;
+          }
+          background-color: #fff;
+        }
+      }
+    }
+  }
+  
+
+  .model_link {
+    &:hover {
+      text-decoration: none !important;
+    }
+
+    .module {
+      height: 100%;
+      padding: 6rem 3rem 6rem 3rem;
+      cursor: pointer;
+      transition-duration: .5s;
+  
+      &:hover {
+        background: $primary;
+        color: #fff;
+      }
+    }
+  }
+
+
+}
+
+
+// Solid waste managment
+.swm_home {
+  padding-top: 4.5rem;
+  
+  aside {
+    min-height: 95vh;
+    a {
+      &:hover {
+        text-decoration: none;
+        background: lighten($secondary, 5%);
+      }
+    }
+    
+    
+    a.active {
+      background: lighten($secondary, 5%);
+    }
+  }
+
+
+  .swm_details {
+    .system_manager {
+      max-width: 77rem;
+      margin: 0 auto;
+
+
+      .sm_card {
+        max-width: 22rem;
+        margin: 1rem auto !important;
+      }
+    }
+
+
+    .swm_list li {
+      cursor: pointer;
+      transition-duration: 0.6s;
+
+      &:hover {
+        transform: translate(-6px, 0);
+        color: $primary;
+
+        &::before {
+          transform: rotate(360deg);
+        }
+      }
+
+    }
+  }
+}
+
+
+
+// Login
+.login {
+  padding-top: 20rem;
+
+  main {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: rgba(#000, .7 );
+    z-index: 10000;
+
+
+    .login_card {
+      max-width: 35rem;
+      margin-top: 27vh;
+    }
+  }
+}
+
+
+
+
+// Navbar
+.navbar {
+  .nav-link {
+    font-size: 1.2rem;
+  }
+}
+
+
+// Footer
+footer {
+  min-height: 40vh;
+
+  .social_links a {
+    color: #fff !important;
+    opacity: .6;
+    transition-duration: .5s;
+
+    svg {
+      transition-duration: .5s;
+    }
+
+    &:hover {
+      opacity: 1;
+      svg {
+        transform: scale(1.1);
+      }
+    }
+  }
+
+
+}

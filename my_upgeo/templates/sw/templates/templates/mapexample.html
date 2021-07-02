@@ -1,0 +1,854 @@
+{% extends "../base_new.html" %}
+{% load i18n %}
+{% load static from staticfiles %}
+{% load base_tags %}
+
+{% block title %} GIG - {{ block.super }} {% endblock %}
+
+{% block body_class %}swm_home{% endblock %}
+
+
+{% block extra_head %}
+
+<!-- importing leaflet  -->
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/js/all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/simplebar/5.1.0/simplebar.min.js"></script>
+
+
+
+
+<!-- importing the routing machine -->
+   <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+    <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+    <link rel="stylesheet" href="{{ STATIC_URL }}node_modules/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+
+  <!-- adding some style  -->
+    <style>
+      #map {
+        width: 100% ;//100vw;
+        height:100vh;
+      }
+
+      img {
+        -webkit-transform-origin: 20% 40%;
+                transform-origin: 20% 40%;
+      }
+
+      .mapControl {
+        position: absolute;
+        top: 5vh;
+        right: 14vw;
+        z-index: 1000;
+      }
+
+      .mapControl .card {
+        width: 22rem;
+        /* min-height: 14rem; */
+        margin-right:68px;
+
+      }
+      .leaflet-control {
+          pointer-events: visiblePainted;
+          pointer-events: auto ;
+          text-align: left;
+
+      }
+      .leaflet-control-layers {
+        display: flex;
+      }
+      .leaflet-control-layers-list{
+        display: grid;
+      }
+        ul {
+          padding: 0;
+
+        }
+        .toggler{
+          height:20px;
+          margin-bottom:65px;
+          margin-right:150px;
+          margin-top:0.4px;
+          opacity:60%;
+        }
+
+#bins {
+  overflow-x: auto;
+    white-space: nowrap;
+}
+
+    </style>
+
+{% endblock %}
+
+
+{% block middle %}
+      <main style="min-height: 100vh;">
+        <div id="map"></div>
+
+
+
+        <section class="mapControl p-3">
+               <div class="card    toggler">
+                 <button class="text-center goTo btn btn-primary btn-block mt-3 p-3 mb-5 "style="margin-bottom:-140px;" onclick="Toggling()"> Control panal </button>
+               </div>
+            <div id="myDIV">
+                <!-- First card -->
+                <div class="card bg-white shadow p-3">
+
+
+                  <button class="goTo btn btn-primary btn-block mt-2" id="animation"">Animater</button>
+
+                        <select class="mdb-select md-form colorful-select dropdown-danger horizontal-scrollable" style='overflow-y:scroll' id="bins" multiple searchable="Search here..">
+                          <option value="" disabled selected>select Bins</option>
+                        </select>
+                        <button id="binsubmit" class="btn-save btn btn-primary btn-sm " style="width:100%">Get Selected bins</button>
+                        <select class="mdb-select md-form colorful-select dropdown-danger" id="dumbSite" multiple searchable="Search here..">
+                          <option value="" disabled selected>select Dumb Site</option>
+                        </select>
+                        <button id="dumbsubmit" class="btn-save btn btn-primary btn-sm " style="width:100%">Get Selected Dumb Site</button>
+
+
+                  <button class="goTo btn btn-primary btn-block mt-2" id="showRoute"">Show Route</button>
+                  <button class="goTo btn btn-primary btn-block mt-2" id="followRoute"">Follow Route</button>
+                  <button class="goTo btn btn-primary btn-block mt" data-city="nozha">Go to El nozha</button>
+                  <button class="goTo btn btn-primary btn-block" data-city="madenati">Go to Madenati</button>
+                </div>
+
+                <!-- Second card -->
+                <div class="card bg-white shadow mt-2 p-3">
+                  <h4 class="mb-4"><i class="fas fa-info-circle text-primary mr-3"></i>Car info</h4>
+                  <p class="lead m-0"><span class="text-muted">Car ID:</span> 45823</p>
+                  <p class="lead m-0">
+                    <span class="text-muted">Capacity:</span>
+                    <span>10,000</span> ton
+                  </p>
+                  <div class="row">
+                    <div class="col">
+                      <p class="lead m-0">
+                        <span class="text-muted">Load:</span>
+                        <span class="counter" data-target="5000">0</span> ton
+                      </p>
+                    </div>
+                    <div class="col">
+                      <p class="lead m-0">
+                        <span class="text-muted">Full:</span>
+                        <span class="percentage">0</span>%
+                      </p>
+                    </div>
+                  </div>
+                  <hr>
+                  <p class="lead m-0"><span class="text-muted">Driver ID:</span> 45823</p>
+                  <p class="lead m-0"><span class="text-muted">Driver name:</span> SomeGuy</p>
+                  <p class="lead m-0"><span class="text-muted">Shift:</span> 8am - 4pm</p>
+                </div>
+
+                <!-- Third card -->
+                <div class="card bg-white shadow mt-2 p-3">
+                  <h4 class="mb-4"><i class="fas fa-file-alt text-primary mr-3"></i>Car logs</h4>
+                  <div class="pb-3" data-simplebar>
+                    <ul class="list-group"></ul>
+                  </div>
+              </div>
+        </div>
+
+
+        </section>
+      </main>
+{% endblock middle %}
+
+
+{% block extra_script %}
+
+<!-- adding leaflet js  -->
+          <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
+          <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+          integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+          crossorigin=""/>
+          <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+          integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+          crossorigin=""></script>
+
+
+
+<!-- Load Esri Leaflet from CDN to add controls -->
+          <script src="https://unpkg.com/esri-leaflet@2.4.1/dist/esri-leaflet.js"
+          integrity="sha512-xY2smLIHKirD03vHKDJ2u4pqeHA7OQZZ27EjtqmuhDguxiUvdsOuXMwkg16PQrm9cgTmXtoxA6kwr8KBy3cdcw=="
+          crossorigin=""></script>
+
+
+<!-- Load Esri Leaflet Geocoder from CDN To get address when clicking -->
+          <link rel="stylesheet" href="https://unpkg.com/esri-leaflet-geocoder@2.3.2/dist/esri-leaflet-geocoder.css"
+            integrity="sha512-IM3Hs+feyi40yZhDH6kV8vQMg4Fh20s9OzInIIAc4nx7aMYMfo+IenRUekoYsHZqGkREUgx0VvlEsgm7nCDW9g=="
+            crossorigin="">
+          <script src="https://unpkg.com/esri-leaflet-geocoder@2.3.2/dist/esri-leaflet-geocoder.js"
+            integrity="sha512-8twnXcrOGP3WfMvjB0jS5pNigFuIWj4ALwWEgxhZ+mxvjF5/FBPVd5uAxqT8dd2kUmTVK9+yQJ4CmTmSg/sXAQ=="
+            crossorigin=""></script>
+
+<!-- load esri for routing -->
+          <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+          <script src="{{ STATIC_URL }}lrm-esri/dist/lrm-esri.js"></script>
+<!-- importing geocoder      -->
+          <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+          <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>s
+
+
+<!-- loading the animation and the ant path and the data -->
+          <script src= '{{ STATIC_URL }}static/js/MovingMarker.js'></script>
+          <script src= '{{ STATIC_URL }}static/js/rotatedMarker.js'></script>
+          <script src= '{{ STATIC_URL }}static/js/leaflet-ant-path.es6.js'></script>
+          <script src= '{{ STATIC_URL }}static/js/data.js' ></script>
+          <!-- <script src= '{{ STATIC_URL }}static/js/main.js' %}"></script> -->
+
+
+
+<script>
+
+  //Toggle Button
+      document.getElementById("myDIV").style.display = "none";
+      function Toggling() {
+          var x = document.getElementById("myDIV");
+          if (x.style.display === "none") {
+           x.style.display = "block";
+          } else {
+           x.style.display = "none";
+          }
+        }
+
+
+      // Thousand comma separator
+      function numberWithCommas(x) {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      }
+
+      // Count up func
+      function countUp(element, max, speed) {
+        const target = max;
+        const inc = target / speed;
+        if (+element.innerText.replace(',', '') < target) {
+          element.innerText = Math.ceil(+element.innerText.replace(',', '') + inc);
+          setTimeout(() => countUp(element, max, speed), 1);
+        } else {
+          element.innerText = numberWithCommas(+target);
+        }
+      };
+
+
+      function incCounters(max) {
+        document.querySelectorAll('.counter').forEach(counter => {
+          countUp(counter, max, 300)
+        });
+      };
+
+
+      function incPercentage(max, capacity) {
+        document.querySelectorAll('.percentage').forEach(percentage => {
+          const value = (max / capacity) * 100;
+          countUp(percentage, value, 100)
+        })
+      }
+
+
+
+      // Logs
+      const logs = [
+        {
+          date: '18 Mar, 2020 14:03:37',
+          carid: '#45823',
+          msg: 'loaded 3000 ton'
+        },
+        {
+          date: '18 Mar, 2020 14:03:37',
+          carid: '#45823',
+          msg: 'loaded 2000 ton'
+        },
+        {
+          date: '18 Mar, 2020 14:03:37',
+          carid: '#45823',
+          msg: 'loaded 2000 ton'
+        },
+        {
+          date: '18 Mar, 2020 14:03:37',
+          carid: '#45823',
+          msg: 'loaded 2000 ton'
+        },
+      ]
+
+      function appendLog(i) {
+        const data = logs[i];
+        document.querySelector('.list-group').innerHTML += `
+        <li class="list-group-item p-2" style="min-width: 28rem;">
+          <div class="row m-0">
+            <div class="col-5 p-0">${data.date}</div>
+            <div class="col-3 p-0">${data.carid}</div>
+            <div class="col-4 p-0">${data.msg}</div>
+          </div>
+        </li>`
+      }
+
+
+
+
+</script>
+
+
+<script>
+
+// Configuring Leaflet JS
+      const cities = {
+          nozha: [30.111944096830296, 31.398968696594242],
+          madenati: [30.08974158031625, 31.632041931152347]
+      }
+
+      const map = L.map('map').setView(cities.nozha, 15);
+
+      // OpenStreetMap Tile
+      // L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      //     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      // }).addTo(map);
+
+
+      // Mapbox Tile
+      var gray = L.layerGroup()
+      var baselayer = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+          attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+          maxZoom: 18,
+          id: 'mapbox/streets-v11',
+          tileSize: 512,
+          zoomOffset: -1,
+          accessToken: 'pk.eyJ1IjoibXVoYW1lZHlvdXNzZWYiLCJhIjoiY2s3cnBhdG00MGVtajNucWQyeDZhanVqdiJ9.ejPNZfqzS3AY0ctYG_4zeg'
+      }).addTo(map);
+      var esrilayer=  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
+        })
+
+
+
+          var states = L.esri.featureLayer({
+            url: 'https://sampleserver6.arcgisonline.com/arcgis/rest/services/Census/MapServer/3',
+            style: function (feature) {
+              return { color: '#bada55', weight: 2 };
+            }
+          });
+
+          // var map = L.map('map', {
+          //   center: [39, -97.5],
+          //   zoom: 4,
+          //   layers: [gray, states]
+          // });
+
+          var baseLayers = {
+            Grayscale: gray,
+            Streetmap: L.esri.basemapLayer('Streets'),
+            EsriMap     :  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
+              }),
+            baseMap :  L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+                attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+                maxZoom: 18,
+                id: 'mapbox/streets-v11',
+                tileSize: 512,
+                zoomOffset: -1,
+                accessToken: 'pk.eyJ1IjoibXVoYW1lZHlvdXNzZWYiLCJhIjoiY2s3cnBhdG00MGVtajNucWQyeDZhanVqdiJ9.ejPNZfqzS3AY0ctYG_4zeg'
+            }),
+            Topography :L.esri.basemapLayer('Topographic'),
+            imagerymap :L.esri.basemapLayer('Imagery')
+          };
+
+          var overlays = {
+            'U.S. States': states
+          };
+
+
+          // https://leafletjs.com/reference.html#control-layers
+          L.control.layers(baseLayers).addTo(map);
+
+
+
+       var geocodeService = L.esri.Geocoding.geocodeService();
+
+       map.on('click', function (e) {
+         geocodeService.reverse().latlng(e.latlng).run(function (error, result) {
+           if (error) {
+             return;
+           }
+           L.popup()  .setLatLng(result.latlng).setContent("<H6 class='font-italic text-primary text-center'>"
+           +result.address.Match_addr+"</H6>").openOn(map);
+           // L.marker().bindPopup(result.address.Match_addr).openPopup();
+         });
+       });
+
+
+
+      // search The map
+      var arcgisOnline = L.esri.Geocoding.arcgisOnlineProvider();
+      L.esri.Geocoding.geosearch({
+        providers: [
+          arcgisOnline,
+          L.esri.Geocoding.mapServiceProvider({
+            label: 'States and Counties',
+            url: 'https://sampleserver6.arcgisonline.com/arcgis/rest/services/Census/MapServer',
+            layers: [2, 3],
+            searchFields: ['NAME', 'STATE_NAME']
+          })
+        ]
+      }).addTo(map);
+
+
+
+      // Custom marker
+      const carIcon = L.icon({
+          iconUrl:  '{{ STATIC_URL }}static/images/img/truck-solid.svg' ,
+          iconSize:     [40, 40],
+      });
+
+      carMarker = L.marker([30.08981584453616, 31.630325317382816], {icon: carIcon, rotationAngle: 50}).addTo(map);
+      carMarker.bindPopup("Hey, i'm a Car")
+
+
+
+
+
+
+      // Playing around
+
+      // map.locate().on('locationfound', e => map.flyTo([e.latlng.lat, e.latlng.lng]))
+
+      document.querySelectorAll('.goTo').forEach(btn => {
+          btn.addEventListener('click', e => {
+              const city = btn.dataset.city;
+              map.flyTo(cities[city])
+          })
+      })
+
+
+
+
+
+      // Create some bins
+      const BinIcon = L.Icon.extend({
+          options: {
+              iconSize: [25, 25]
+          }
+      })
+
+
+      const fullBinIcon = new BinIcon({iconUrl: '{{ STATIC_URL }}static/images/img/trash-full.svg' });
+      const semifullBinIcon = new BinIcon({iconUrl:'{{ STATIC_URL }}static/images/img/trash-semifull.svg' });
+      const emptyBinIcon = new BinIcon({iconUrl: '{{ STATIC_URL }}static/images/img/trash-empty.svg' });
+      const collectionIcon = L.icon({iconUrl: '{{ STATIC_URL }}/static/images/img/garbage.svg' , iconSize: [40, 40]})
+
+      // getting list of dumbSite [[lat,lng],[lat,lng]]
+      var selectedDumb=[];
+            for(j=0;j<dumbSite.length;j++){
+                console.log(dumbSite[j]);
+              geocodeService.reverse().latlng(dumbSite[j]).run(function (error, result) {
+                if (error) {
+                  return console.log(error);
+                }
+                // console.log(result.latlng);
+                console.log(result.address.Match_addr);
+                document.getElementById('dumbSite').innerHTML+=("<option class='text-right' value='"+result.latlng+"'>"+result.address.Match_addr+"</option>")
+
+                document.getElementById('dumbsubmit').onclick = function() {
+                    var selectedDumb2= [];
+                    for (var option of document.getElementById('dumbSite').options) {
+                      if (option.selected) {
+                        dumbItem=[parseFloat(option.value.split("(")[1].split(",")[0]),parseFloat(option.value.split("(")[1].split(",")[1])]
+                        L.marker(dumbItem,{icon: collectionIcon}).addTo(map)
+                        selectedDumb2.push(dumbItem);
+                        console.log(selectedDumb2);
+                      }
+                    }
+                  selectedDumb=selectedDumb2
+                  }
+
+
+    })}
+
+
+// getting list of bin [[lat,lng],[lat,lng]]
+var selectedbin=[];
+// var testBin=[];
+//      for (i in binBox.features){
+//        console.log(binBox.features[i]['geometry']['coordinates']);
+//        L.marker([binBox.features[i]['geometry']['coordinates'][1],binBox.features[i]['geometry']['coordinates'][0]]).addTo(map)
+//       testBin.push([binBox.features[i]['geometry']['coordinates'][1],binBox.features[i]['geometry']['coordinates'][0]]);
+//        console.log(binBox.features[i]['properties']['FID']);
+//      }
+//      map.fitBounds(testBin)
+// using geojson
+console.log(binBox.features.length);
+
+      for(i=0;i<binBox.features.length;i++){
+        document.getElementById('bins').innerHTML+=("<option class='text-left'  value='"+[binBox.features[i].geometry.coordinates[1],binBox.features[i].geometry.coordinates[0]]+"'>"+binBox.features[i].properties.district+" " + binBox.features[i].properties.OBJECTID+"</option>")
+
+
+    }
+    document.getElementById('binsubmit').onclick = function() {
+         var selectedbin2 = [];
+         for (var option of document.getElementById('bins').options) {
+           if (option.selected) {
+             binItem=[parseFloat(option.value.split(",")),parseFloat(option.value.split(",")[1])]
+                       //[parseFloat(option.value.split("(")[1].split(",")[0]),parseFloat(option.value.split("(")[1].split(",")[1].slice(1,-1))]
+             console.log(binItem);
+             L.marker(binItem,{icon: fullBinIcon}).addTo(map)
+             selectedbin2.push(binItem);
+           }
+         }
+         selectedbin=selectedbin2
+       }
+
+    console.log(document.getElementById('bins').options.length)
+
+    // using geocode service
+    // for(i=0;i<binBox.features.length;i++){
+        // console.log(carRoute[i]);
+      // geocodeService.reverse().latlng([binBox.features[i]['geometry']['coordinates'][1],binBox.features[i]['geometry']['coordinates'][0]]).run(function (error, result) {
+      //   if (error) {
+      //     return (console.log(error));;
+      //
+      //   }
+      //   // console.log(result.latlng);
+      //   document.getElementById('bins').innerHTML+=("<option class='text-left'  value='"+result.latlng+"'>"+result.address.Match_addr+"</option>")
+      //
+      //   document.getElementById('binsubmit').onclick = function() {
+      //       var selectedbin2 = [];
+      //       for (var option of document.getElementById('bins').options) {
+      //         if (option.selected) {
+      //           binItem=[parseFloat(option.value.split("(")[1].split(",")[0]),parseFloat(option.value.split("(")[1].split(",")[1].slice(1,-1))]
+      //           L.marker(binItem,{icon: fullBinIcon}).addTo(map)
+      //           selectedbin2.push(binItem);
+      //         }
+      //       }
+      //       selectedbin=selectedbin2
+      //       console.log(document.getElementById('bins').options.length);
+      //     }
+      //
+      //       })}
+
+
+
+
+// Starting the animation youssef
+document.getElementById("animation").onclick=function(){
+      // Add bins to the map
+      let bins = [];
+      garbageBins.forEach((bin, index) => {
+          if (bin.length == 0) return bins.push({});
+
+          if (index%2 > 0) {
+              binMarker = L.marker(bin, {icon: fullBinIcon}).addTo(map);
+              binMarker.percentage = 100;
+          } else {
+              binMarker = L.marker(bin, {icon: semifullBinIcon}).addTo(map);
+              binMarker.percentage = 50;
+          }
+
+
+          // attach event
+          binMarker.on('click', e => console.log(e.target));
+
+          // Set the z-index
+          binMarker.setZIndexOffset(1000);
+
+          // Bind popup
+          binMarker.bindPopup(`<p class="m-0">Bin ID: 4896</p><p class="m-0">Percentage: ${binMarker.percentage}%</p>`);
+
+          // Append to the array
+          bins.push(binMarker);
+      });
+
+
+      // Open popup for first bin
+      // bins[1].openPopup()
+
+
+
+
+
+
+
+
+      // Add car route on map
+      // const polyline = L.polyline(carRoute).addTo(map);
+      // console.log(polyline)
+
+
+      // Using the antPath
+      const options = {
+          "delay": 400,
+          "dashArray": [
+              10,
+              20
+          ],
+          "weight": 5,
+          "color": "#ff0004",
+          "pulseColor": "#FFFFFF",
+          "paused": false,
+          "reverse": false,
+          "hardwareAccelerated": true
+      }
+
+      antPolyline = L.polyline.antPath(carRoute, options);
+      antPolyline.addTo(map);
+
+
+
+      // Animate marker plugin
+      const myMovingMarkerOptions = {
+          icon: carIcon,
+          // loop: true,
+          // rotationAngle: 55,
+          rotationOrigin: 'center'
+      }
+      var myMovingMarker = L.Marker.movingMarker(carRoute, 8*1000, myMovingMarkerOptions).addTo(map);
+
+      myMovingMarker.start();
+      myMovingMarker.addStation(1, 1000)
+      myMovingMarker.addStation(5, 1000)
+      myMovingMarker.addStation(8, 1000)
+
+
+
+      let station = false;
+
+      myMovingMarker.addEventListener('move', e => {
+
+          // Update the bin status when marker in station
+          if (e.oldLatLng == e.latlng) updateBinStatus();
+
+
+          // Check if the marker finshed the path
+          if (e.latlng == myMovingMarker._latlngs[myMovingMarker._latlngs.length-1]) {
+              setTimeout(stepTwo, 100);
+          }
+
+
+          for (let i = 1; i < carRoute.length -1; i++ ) {
+              if (e.latlng.lat == carRoute[i][0]) {
+                  station = true;
+                  return
+              }
+
+          }
+
+          station = false;
+      })
+
+
+
+      // Setting up some vars and check on them every 600ms
+      let currentBin
+      let capacity = 10000;
+      let max_load = 3000;
+      let log_index = 0
+
+
+      setInterval(() => {
+          if (station) {
+              incCounters(max_load);
+              incPercentage(max_load, capacity);
+              appendLog(log_index)
+
+              let bin  = bins[myMovingMarker._currentIndex + 1];
+              bin._popup.setContent(`<p class="m-0">Bin ID: 4896</p><p class="m-0">Percentage: 0%</p>`)
+
+              max_load += 2000;
+              log_index ++;
+          }
+      }, 600);
+
+
+
+      // Update bin status
+      function updateBinStatus(type='EMPTY') {
+          setTimeout(() => {
+              let bin  = bins[myMovingMarker._currentIndex + 1];
+              // Check for empty obj
+              if (Object.keys(bin).length === 0 && bin.constructor === Object || bin == undefined) return;
+
+              switch(type) {
+                  case 'FULL':
+                      bin.setIcon(fullBinIcon);
+                      return
+                  case 'SEMIFULL':
+                      bin.setIcon(semifullBinIcon);
+                      return
+                  case 'EMPTY':
+                      bin.setIcon(emptyBinIcon);
+                      return
+              };
+          }, 600);
+      }
+
+
+
+
+      // Step two
+      function stepTwo() {
+          // Move to this location
+          map.flyTo({lat: 30.118236377740057, lng: 31.407122611999515}, 16);
+
+          // remove old stuff
+          myMovingMarker.remove();
+          antPolyline.remove();
+
+
+          // add the collection point
+          const collectionIcon = L.icon({iconUrl: '{{ STATIC_URL }}/static/images/img/garbage.svg' , iconSize: [40, 40]});
+
+
+          // Add collection bin
+          collectionBin = L.marker({lat: 30.123117723686967, lng: 31.402616500854496}, {icon: collectionIcon}).addTo(map);
+
+          const newRoute = [
+              [30.122941405505085, 31.399194002151493],
+              [30.122783646864974, 31.402611136436466]
+          ];
+
+          const newMovingMarker = L.Marker.movingMarker(newRoute, 6*1000, myMovingMarkerOptions).addTo(map);
+          newMovingMarker.start();
+
+
+
+          newMovingMarker.addEventListener('move', e => {
+              // the new marker stoped
+              if (e.latlng == newMovingMarker._latlngs[newMovingMarker._latlngs.length - 1]) {
+                  incCounters(0);
+                  appendLog(3);
+              }
+          })
+
+
+
+
+
+
+      }
+
+          }
+
+// Routing through the bin places and getting the coordinate array of route
+var coordinateArray=[];
+var stations=[]
+document.getElementById("showRoute").onclick=function(){
+  console.log(selectedbin);
+  var RoutePoints=selectedbin.concat(selectedDumb)
+  console.log(RoutePoints);
+            // adding the markers
+            const waypoints =[];
+            for(i=0;i<RoutePoints.length;i++){
+              waypoints.push(L.latLng(RoutePoints[i][0],RoutePoints[i][1]))
+            }
+        //     console.log(waypoints);
+        var RouteControl=  L.Routing.control({
+             waypoints:waypoints,
+             // router: changing the router backend,
+             geocoder:L.Control.Geocoder.nominatim(),
+             waypointNameFallback: function(latLng) {
+                  function zeroPad(n) {
+                      n = Math.round(n);
+                      return n < 10 ? '0' + n : n;
+                  }
+                  function sexagesimal(p, pos, neg) {
+                      var n = Math.abs(p),
+                          degs = Math.floor(n),
+                          mins = (n - degs) * 60,
+                          secs = (mins - Math.floor(mins)) * 60,
+                          frac = Math.round((secs - Math.floor(secs)) * 100);
+                      return (n >= 0 ? pos : neg) + degs + '°' +
+                          zeroPad(mins) + '\'' +
+                          zeroPad(secs) + '.' + zeroPad(frac) + '"';
+                  }
+
+                  return sexagesimal(latLng.lat, 'N', 'S') + ' ' + sexagesimal(latLng.lng, 'E', 'W');
+              },
+              createMarker:  function(i, wp, nWps) {
+                              if (i === 0 || i === nWps - 1) {
+                                  return null// L.marker(wp.latLng, {icon: emptyBinIcon });
+                              } else {
+                                  return null //L.marker(wp.latLng, {icon: fullBinIcon });
+                              }
+                          },
+              style:	{color: 'black', opacity: 0.15, weight: 9},
+              reverseWaypoints: true,
+        	    showAlternatives: true,
+              lineOptions: {
+              styles: [{color: 'red', opacity: 0.35, weight: 10}]
+            },
+              altLineOptions: {
+                		styles: [
+                			{color: 'black', opacity: 0.15, weight: 9},
+                			{color: 'white', opacity: 0.8, weight: 6},
+                			{color: 'blue', opacity: 0.5, weight: 2}
+                		]
+        	        }
+           }).addTo(map);
+           RouteControl.on('routeselected', function moving(e) {
+            var routeSel = e.route;
+            // Do something with the route here
+            markerRoute=[]
+            for (i=0;i<routeSel.coordinates.length;i++){
+              markerRoute.push([routeSel.coordinates[i]["lat"],routeSel.coordinates[i]["lng"]]);
+            }
+            coordinateArray=markerRoute
+    });
+    stations=RoutePoints
+
+}
+   // Moving the marker on the route
+
+  document.getElementById("followRoute").onclick=function(){
+                  // here is the line you draw (if you want to see the animated marker path on the map)
+                  var myPolyline = L.polyline(coordinateArray);
+                  // myPolyline.addTo(map);
+                  // if you want to put a marker at the beginning and at the end of the path :
+                  // here is the moving marker (6 seconds animation)
+                  var myMovingMarker = L.Marker.movingMarker(coordinateArray, 15000, {
+                      autostart: false,
+                      icon: carIcon,
+
+                  });
+                  // console.log([ carRoute[0][0][0:8],carRoute[0][1][0:8] ]);
+                  routeIndex=[]
+                  console.log(carRoute);
+                  for(i=0;i<stations.length;i++){
+                    for(j=0;j<markerRoute.length;j++){
+                      // console.log(carRoute[i]);
+                      if (stations[i][0].toFixed(4)==markerRoute[j][0].toFixed(4) && stations[i][1].toFixed(4)==markerRoute[j][1].toFixed(4) ){
+                        routeIndex.push(j)
+                      }
+                    }
+                  }
+                  console.log(routeIndex);
+                  map.addLayer(myMovingMarker);
+
+
+                  myMovingMarker.start();
+
+                  for (i=0;i<routeIndex.length;i++){
+                    myMovingMarker.addStation(routeIndex[i], 1000)
+
+
+                  };
+
+
+
+              };
+
+
+
+</script>
+
+      <script>
+        document.querySelectorAll('h4').forEach(e => {e.style.direcetion = 'ltr'; e.style.textAlign = 'left'})
+        document.querySelectorAll('p').forEach(e => {e.style.direcetion = 'ltr'; e.style.textAlign = 'left'})
+        document.querySelectorAll('ul').forEach(e => {e.style.direcetion = 'ltr'; e.style.textAlign = 'left'})
+        document.querySelectorAll('li').forEach(e => {e.style.direcetion = 'ltr'; e.style.textAlign = 'left'})
+      </script>
+
+{% endblock extra_script %}

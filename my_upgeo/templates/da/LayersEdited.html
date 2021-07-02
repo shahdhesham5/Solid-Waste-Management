@@ -1,0 +1,273 @@
+{% extends "./index.html" %}
+{%load static%}
+{% block middle %}
+<div class="container-fluid">
+  <div class="COL-3" id='ll' width='20%'>
+    <select name="attr1"  id="layers" form="carform" >
+
+    </select>
+    {% block buttons%}
+    <button type="button" id='acceptBtn' name="button">Accept</button>
+    <button type="button" id='rejectBtn' name="button">Reject</button>
+    <button type="button" id='assignBtn' name="button">Assign To other user</button>
+    <button type="button" id='showLayer' name="button">showLayer</button>
+
+  </div>
+  <div id='note' style="display: none">
+    <input type="text" id='noteSubmitted' name="" value="" placeholder="Reason for rejection">
+    <input type="submit" id='submitNote' name="" value="submit Rejection">
+  </div>
+    <div id='assign' style="display: none">
+      New User:<select class="" id="assignedUser" name="">
+        {% for user in users %}
+          {% if user.editor%}
+            <option value="{{user.username}}">{{ user.username}}</option>
+          {% endif%}
+        {% endfor %}
+      </select>
+      <input type="text" id='assignedNote' name="" value="" placeholder="Reason for Reassigning">
+      <input type="submit" id='assignNote' name="" value="submit Assign">
+    </div>
+  {% endblock %}
+  <div class='col-8' id="mapid"></div>
+</div>
+  {% block table%}
+  {% endblock%}
+
+  {% block addedscript%}
+  <link rel="stylesheet" href="{% static 'leafletDraw/leafletdraw.css' %}"/>
+  <script src="{% static 'leafletDraw/leafletdraw.js'%}"></script>
+
+
+  <script src="{% static 'leafletEditable/leafletEditable.js' %}"></script>
+  <script src="{% static 'js/da/da.js' %}"></script>
+
+  {% endblock %}
+
+{% block myscript %}
+<script type="text/javascript">
+  {%  block mapScript%}
+  var mymap;
+  var baeMap;
+  var view;
+  var zoom;
+function loadMap(){
+      if (view){
+        console.log(zoom);
+         mymap = L.map('mapid',{editable: true}).setView([view.lat, view.lng],zoom);
+      }else{
+          mymap = L.map('mapid',{editable: true}).setView([51.505, -0.09], 4);
+      }
+      baeMap=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(mymap);
+      isMap = true;
+      }
+
+loadMap()
+function clearToRedraw(){
+    //Check if map is loaded, if false then load else remove everything and reload it
+    if(isMap != true){
+        loadMap();
+    }else{
+        //For each layer on the map remove everything and clear variables
+        mymap.eachLayer(function(layer){
+            view= mymap.getCenter();
+            zoom=mymap.getZoom();
+            mymap.remove();
+            if (!!layer.toGeoJSON) {
+
+              mymap.removeLayer(layer);
+            } //clear the pointManager array of points
+            isMap = false;
+            loadMap(); //reload the map function
+        });
+      }}
+{% endblock %}
+
+{% block gettingData %}
+var layers=JSON.parse('{{layers | safe}}')
+
+function loadingEditedLayers(l){
+// console.log('this is Layers:' ,editedData);
+editedData=[...l]
+document.getElementById('layers').innerHTML=''
+for(let i=0;i<editedData.length;i++){
+  var layerName=Object.keys(editedData[i])[0]
+  L.geoJSON(editedData[i][Object.keys(editedData[i])]).addTo(mymap)
+  document.getElementById('layers').innerHTML+=' <option value="'+i+'"> '+ layerName +' </option>'
+}
+}
+loadingEditedLayers(layers)
+//firstkey
+
+document.getElementById('layers').addEventListener('change',showLayer)
+function showLayer(){
+  var selected=document.getElementById('layers').value
+  var layerSelected=layers[selected][Object.keys(layers[selected])[0]]
+  clearToRedraw()
+  console.log(selected);
+  var selectedLayer=L.geoJSON(layerSelected).addTo(mymap)
+  mymap.fitBounds(selectedLayer.getBounds())
+}
+
+function getCookie(name){
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+const csrftoken = getCookie('csrftoken');
+
+{% endblock %}
+
+{% block ButtonEvents%}
+document.getElementById('showLayer').addEventListener('click',showLayer)
+//Accept Layer
+document.getElementById('acceptBtn').addEventListener('click',function(){
+  console.log('this is layers accepted',layers);
+  var selected=document.getElementById('layers').value
+  var layerName=Object.keys(layers[selected])[0].split(' ')[0]
+  var user_name=Object.keys(layers[selected])[0].split(' ')[2]
+  var layerSelected=layers[selected][Object.keys(layers[selected])[0]]
+  console.log('ssssssselected',layerName,user_name);
+  fetch('{% url "AcceptLayer"%}',{
+    method:'POST',
+    headers:{
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrftoken,
+    },
+      body:JSON.stringify({
+        'name':layerName,
+        'user_name':user_name,
+        'layer':layerSelected
+      })
+    })
+        .then(response => response.json())
+        .then(data => {
+          layers=data.layers
+          loadingEditedLayers(data.layers)
+          clearToRedraw()
+          console.log('Success:', data);
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+        })
+  // loadingEditedLayers()
+  })
+
+  //Reject Layer
+  document.getElementById('rejectBtn').addEventListener('click',function(){
+    document.getElementById('note').style.display='block'
+    document.getElementById('submitNote').addEventListener('click',function(e){
+      console.log('this is layers rej',layers);
+
+    e.preventDefault()
+    var selected=document.getElementById('layers').value
+    var layerName=Object.keys(layers[selected])[0].split(' ')[0]
+    var user_name=Object.keys(layers[selected])[0].split(' ')[2].split(':')[0]
+    var layerSelected=layers[selected][Object.keys(layers[selected])[0]]
+
+    console.log('ssssssselected',layerName,user_name);
+    fetch('{% url "RejectedEdits"%}',{
+      method:'POST',
+      headers:{
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrftoken,
+      },
+        body:JSON.stringify({
+          'name':layerName,
+          'user_name':user_name,
+          'layer':layerSelected,
+          'note':document.getElementById('noteSubmitted').value
+        })
+      })
+          .then(response => response.json())
+          .then(data => {
+            layers=data.layers
+            loadingEditedLayers(data.layers)
+            console.log('Success:', data);
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+          })
+      document.getElementById('noteSubmitted').value=''
+      document.getElementById('note').style.display='none'
+      })
+    // loadingEditedLayers()
+    })
+
+document.getElementById('assignBtn').addEventListener('click',function(){
+  document.getElementById('assign').style.display='block'
+  document.getElementById('assignNote').addEventListener('click',function(e){
+    console.log('this is layers assigned',layers);
+    e.preventDefault()
+    var selected=document.getElementById('layers').value
+    var layerName=Object.keys(layers[selected])[0].split(' ')[0]
+    var user_name=Object.keys(layers[selected])[0].split(' ')[2].split(':')[0]
+    var layerSelected=layers[selected][Object.keys(layers[selected])[0]]
+    console.log('ssssssselected',layerName,user_name);
+    fetch('{% url "RejectedEdits"%}',{
+      method:'POST',
+      headers:{
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrftoken,
+      },
+        body:JSON.stringify({
+          'name':layerName,
+          'user_name':document.getElementById('assignedUser').value,
+          'layer':layerSelected,
+          'note':document.getElementById('assignedNote').value,
+          'prev_user': user_name
+        })
+      })
+          .then(response => response.json())
+          .then(data => {
+            layers=data.layers
+            loadingEditedLayers(data.layers)
+            console.log('Success:', data);
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+          })
+          document.getElementById('assignedNote').value=''
+          document.getElementById('assign').style.display='none'
+
+      })
+      // loadingEditedLayers()
+    })
+{% endblock%}
+// fetch('http://localhost/geoserver/rest/workspaces/geonode/datastores/my_upgeo_data/featuretypes',{
+// method: 'POST', // or 'PUT'
+// headers: {
+//   'Content-Type': 'application/json',
+//   'X-CSRFToken': csrftoken,
+//         },
+//         body: JSON.stringify(layers[0][layerName]),
+//       })
+//       .then(response => response.json())
+//       .then(data => {
+//         console.log('Success:', data);
+//       })
+//       .catch((error) => {
+//         console.error('Error:', error);
+//       })
+// console.log(geoLayers[0]);
+// console.log(geoLayers);
+
+
+</script>
+
+
+
+{% endblock%}
+{% endblock %}

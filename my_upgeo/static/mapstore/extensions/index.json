@@ -1,0 +1,7 @@
+{
+    "PengExtension": {
+        "bundle": "/static/mapstore/extensions/PengExtension/index.js",
+        "translations": "/static/mapstore/extensions/PengExtension/translations",
+        "assets": "/static/mapstore/extensions/PengExtension/assets"
+    }
+}

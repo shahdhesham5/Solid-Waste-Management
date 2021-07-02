@@ -1,0 +1,70 @@
+{% extends "sw/templates/account/base.html" %}
+{% load i18n %}
+{% load bootstrap_tags %}
+{% load account socialaccount %}
+
+{% block head_title %}{% trans "Log in" %}{% endblock %}
+ {% block body_outer %}
+  <div class="col-sm-12 col-md-5"style="margin-left:13rem;margin-top:11rem;">
+    <div class="login_head  rounded-top p-3" style="background-color:#05A081;width:90%;margin-left:16px;">
+      <h3 class="text-white text-center m-0 ">تسجيل الدخول</h3>
+    </div>
+    <div class="login_content p-4">
+      <form id="loginForm" action="{% url 'sw_login' %}" method='POST' class="my-4">
+        {% csrf_token %}
+        <div class="form-group">
+          <input type="text" class="form-control ar-rtl" id="username" name="username" placeholder="{% trans 'Username' %}">
+        </div>
+        <div class="form-group">
+          <input type="password" class="form-control ar-rtl" id="password" name="password" placeholder="{% trans 'password'%}">
+        </div>
+        <input type="submit" name="" class="btn btn-primary btn-block mt-4"  value="{% trans 'Sign In'%}">
+
+      </form>
+      {% if messages %}
+      <div class="alert alert-success">
+          <a class="close"  href="#" data-dismiss="alert">×</a>
+          <span id="msg">   </span>
+      </div>
+     {% endif %}
+    </div>
+
+  </div>
+
+
+  {% endblock %}
+  {% block extra_script %}
+  <script>
+
+
+        {% for message in messages %}
+        console.log('kl');
+        document.getElementById('msg').innerHTML='{{message}}'
+
+       {% endfor %}
+
+
+    function login() {
+      const loginForm = new FormData(document.getElementById('loginForm'));
+
+      const data = {
+        username: loginForm.get('username'),
+        password: loginForm.get('password')
+      }
+
+      $.ajax({
+        url: "{% url 'account_ajax_login' %}",
+        headers: {'X-CSRFToken': '{{ csrf_token }}'},
+        method: 'post',
+        data,
+        success: () => location.reload()
+
+      })
+  }
+  </script>
+
+
+  {% endblock extra_script %}
+ {% block content %}
+
+{% endblock %}

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    {% load static %}
+
+    <meta charset="utf-8">
+    <title></title>
+    <link rel="stylesheet" href="{% static 'main/css/main.css'%}">
+    <link rel="stylesheet" href='{% static "bootstrap/dist/css/bootstrap.min.css"%}'>
+    <script src='{% static "bootstrap/dist/js/bootstrap.min.js"%}'></script>
+    <style media="screen">
+     body{
+       background-image: linear-gradient(to right, #374360, #354262, #334164, #304065, #2e3f67, #2b3d68, #283b68, #253969, #203569, #1b3268, #162e68, #102a67);
+
+     }
+    </style>
+  </head>
+  <body >
+    <div class="bg container">
+
+      {% block form %}
+      <div class=" login-box">
+        <h2> GIG Portal</h2>
+        <form class="" id='loginForm' action='{% url "mainLogin"%}' method="post">
+          {% csrf_token %}
+          <div class="user-box">
+            <input type="text" name="userName" value="">
+            <label>Username</label>
+          </div>
+          <div class="user-box">
+              <input type="password" name="password" value="">
+              <label>Password</label>
+            </div>
+            <a  id='submit'>
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+                Login
+              </a>
+
+          <!-- <input type="submit" name="" value="Submit"> -->
+        </form>
+
+        {% if messages %}
+        <div id='err-msg'class="alert alert-danger">
+          <a class="close"  id='close' href="#" data-dismiss="alert">×</a>
+            <span id="msg">   </span>
+        </div>
+       {% endif %}
+      </div>
+      {% endblock%}
+
+    <div class="logo-img">
+      <img src="{% static 'static/images/logo.png'%}" alt="logo" width="50 %">
+    </div>
+    </div>
+    <script type="text/javascript">
+      var form= document.getElementById('loginForm')
+      document.getElementById('submit').addEventListener('click',()=>{
+
+        form.submit();
+      })
+
+      {% for message in messages %}
+          document.getElementById('msg').innerHTML='{{message}}'
+     {% endfor %}
+
+     document.getElementById('close').onclick=function(){
+  document.getElementById('err-msg').remove()
+}
+    </script>
+  </body>
+</html>

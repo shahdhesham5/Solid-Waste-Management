@@ -1,0 +1,25 @@
+
+
+
+
+
+# steps to customise admin page
+docker exec -it django4my_upgeo bash
+then 
+pip install django-jazzmin
+
+then 
+docker restart django4my_upgeo
+and 
+after that add its configurations in a file 
+django-jazzmin-settings.py
+then in the settings.py
+#customising admin page
+from . import django_jazzmin_settings
+JAZZMIN_SETTINGS=django_jazzmin_settings.JAZZMIN_SETTINGS
+JAZZMIN_UI_TWEAKS=django_jazzmin_settings.JAZZMIN_UI_TWEAKS
+
+
+
+#also add the templates of jazzmin into templates and also the static files
+admin/my_base.html

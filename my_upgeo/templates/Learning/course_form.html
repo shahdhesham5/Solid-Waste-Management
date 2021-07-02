@@ -1,0 +1,15 @@
+{%  load bootstrap_tags %}
+
+
+
+<form method="post">{% csrf_token %}
+    <div class="">
+      {{ form.name.label  }}
+      {{ form.name}}
+    </div>
+
+
+
+  
+    <input type="submit" value="Save">
+</form>

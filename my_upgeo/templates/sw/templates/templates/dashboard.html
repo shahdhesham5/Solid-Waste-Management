@@ -1,0 +1,88 @@
+{% extends "../base_new.html" %}
+{%block title%} GIG {%endblock%}
+{% block extra_head %}
+<style media="screen">
+
+  .swm_list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .swm_list li {
+    padding-right: 1.2rem;
+    position: relative;
+  }
+  .swm_list li:before {
+    width: .7rem;
+    display: block;
+    content: url('{{ STATIC_URL }}static/images/angle-left-solid.svg' );
+    position: absolute;
+    right: -.1rem;
+    top: .6rem;
+    transition-duration: 0.4s;
+    transform-origin: center;
+  }
+</style>
+  {% endblock %}
+
+    {% block middle %}
+    <div class="row m-0">
+      <aside class="swm_aside col-lg-2 col-md-3 col-sm-4 bg-secondary text-white p-2 py-5">
+        <img class='d-block mx-auto mb-4' src='{{ STATIC_URL }}static/icons/dashboard.svg 'style="width: 4rem;" alt="dashboard">
+        <h5 class="text-center mb-5 ar-rtl"> تطبيق لوحة القيادة والتحكم</h5>
+      </aside>
+        <!-- content -->
+          <div class="subModuleDetail system_manager mx-auto mb-5" style="max-width: 80rem;">
+            <div class="sys_components shadow-sm mt-5">
+              <h4 class="bg-primary text-white rounded-top p-3">الوظائف الرئيسية / الإمكانيات</h4>
+              <div class="p-3 py-4">
+                <ul class="ar-rtl swm_list">
+                  <li class="h5 py-2">عرض المعلومات والمؤشرات المختلفة التى تهم متخذ القرار</li>
+                  <li class="h5 py-2">قياس الآداء على المستويات المختلفة</li>
+                  <li class="h5 py-2">الإطلاع على كل مايتم فى اى وقت من خلال اجهزة الحواسب او الهواتف المحمولة</li>
+                </ul>
+              </div>
+            </div>
+            <div class="sys_components shadow-sm mt-5">
+              <h4 class="bg-primary text-white rounded-top p-3">المستخدمین</h4>
+              <div class="p-3 py-4">
+                <ul class="ar-rtl swm_list">
+                  <li class="h5 py-2">مدير النظام</li>
+                  <li class="h5 py-2">المشرف/المدير</li>
+                  <li class="h5 py-2">متخذو القرار على المستويات المختلفة</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+        </section>
+      </div>
+
+
+    {%endblock%}
+
+    {% block extra_script %}
+    <script>
+      if (ar) {
+        // SWM
+        document.querySelector('.swm_aside').classList.add('order-12')
+
+      }
+
+
+      document.querySelectorAll('.subModule').forEach(subModule => {
+        subModule.addEventListener('click', e => {
+          // update selected
+          document.querySelectorAll('.subModule').forEach(item => item.classList.remove('active'));
+          subModule.classList.add('active')
+
+          // Display the sub module details
+          document.querySelectorAll('.subModuleDetail').forEach(item => item.classList.add('d-none'))
+          document.querySelector(`.${subModule.dataset.module}`).classList.remove('d-none')
+        })
+      })
+
+
+
+    </script>
+    {% endblock extra_script %}
