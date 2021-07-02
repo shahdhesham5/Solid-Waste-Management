@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block content %}
+<div class="row m-0" style="height: 100vh;">
+  <div class="col-5 bg-white text-dark" style="padding-top: 5rem;">
+    <h1 class="text-center">Reset password</h1>
+    <form method="POST" class="mx-auto mt-5" style="max-width: 30rem;">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" class="form-control" id="username" name="username" value="{{user.username}}" required minlength="5">
+      </div>
+      <div class="form-group">
+        <label for="oldPassword">Old Password</label>
+        <input type="password" class="form-control" id="oldPassword" name="oldPassword" required minlength="4">
+      </div>
+      <div class="form-group">
+        <label for="newPassword">New Password</label>
+        <input type="password" class="form-control" id="newPassword" name="newPassword" required minlength="4">
+      </div>
+      <div class="form-group">
+        <label for="newPassword2">Confirm new Password</label>
+        <input type="password" class="form-control" id="newPassword2" name="newPassword2" required minlength="4">
+      </div>
+      <button type="submit" class="btn btn-block btn-primary mb-1">Reset password</button>
+      <a href="{% url 'login' %}">Login</a>
+    </form>
+  </div>
+  <div class="col-7" style="margin-top: 35vh;">
+    <img class="d-block mx-auto rounded" src="{% static 'demos/images/idsc_logo.png' %}" alt="idsc" style="width: 16rem;">
+  </div>
+</div>
+{% endblock %}
+
+
+{% block js %}
+<script>
+  document.querySelector('form').addEventListener('submit', e => {
+    e.preventDefault()
+    formData = new FormData(e.target);
+    if (formData.get('newPassword') != formData.get('newPassword2')) return alert('New passwords must match')
+    e.target.submit()
+  })
+</script>
+{% endblock %}

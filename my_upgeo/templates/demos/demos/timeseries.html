@@ -1,0 +1,248 @@
+{% extends '../base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+  .fixedHeader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 15vh;
+    background-color: #161616;
+  }
+
+</style>
+
+
+
+<main class="container-fluid" style="padding-top: 15vh;">
+  <!-- Time series -->
+  <div class="fixedHeader p-3">
+    <div class="row">
+      <div class="col">
+        <div class="row mx-auto" style="max-width: 30rem;">
+          <div class="col">
+            <div class="form-group m-0">
+              <label for="date">From</label>
+              <input type="date" class="date form-control" id="date" value="2020-04-01" min="2020-02-14">
+            </div>
+          </div>
+          <div class="col">
+            <div class="form-group m-0">
+              <label for="date">To</label>
+              <input type="date" class="date form-control" id="date" value="2020-04-22" min="2020-02-14">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col"><h4 class="text-center mt-4">السلاسل الزمنية</h4></div>
+
+    </div>
+
+  </div>
+
+  <div class="bg-lighter mt-3 p-3 container">
+    <p class="text-right">السلسلة الزمنية التراكميه</p>
+    <canvas id="timeseriesAccumulativeLines" class="mt-5" width="400" height="160"></canvas>
+    <p class="text-right">السلسلة الزمنية اليومية</p>
+    <canvas id="timeseriesDailyLines" class="mt-5" width="400" height="160"></canvas>
+  </div>
+
+  <p class="text-center m-0">© 2020 Globe Imagine for Geoinformatics All Rights Reserved</p>
+</main>
+{% endblock %}
+
+
+
+{% block js %}
+
+
+<!-- Chart script -->
+<script>
+  // Dates
+  const dates = document.querySelectorAll('.date')
+
+  // Times series
+  const timeseriesStyles = {
+    pointBorderColor: 'white',
+    pointRadius: 4,
+    fill: false,
+    pointHoverRadius: 8,
+  };
+
+
+  const timeseriesDailyLines = document.getElementById('timeseriesDailyLines').getContext('2d');
+  const timeseriesDailyChart = new Chart(timeseriesDailyLines, {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [
+        // Infected
+        {
+          data: ["ghah"],
+          borderColor: 'rgb(255, 255, 0)',
+          pointBackgroundColor: 'rgba(255, 255, 0, 0.8)',
+          label: 'اصابة',
+          ...timeseriesStyles
+        },
+        // Dead
+        {
+          data: ["ss"],
+          borderColor: 'rgb(255, 7, 0)',
+          pointBackgroundColor: 'rgba(255, 7, 0, 0.8)',
+          label: 'وفاة',
+          ...timeseriesStyles
+        },
+        // Recoverd
+        {
+          data: ["mmmm"],
+          borderColor: 'rgb(0, 255, 35)',
+          pointBackgroundColor: 'rgba(0, 255, 35, 0.8)',
+          label: 'شفاء',
+          ...timeseriesStyles
+        },
+      ],
+    },
+
+    options: {
+      legend: {
+        position: 'bottom',
+        labels: {
+          fontColor: 'rgb(255, 255, 255)',
+          fontSize: 15,
+          fontFamily: "'Droid Arabic Kufi'"
+        }
+      }
+    }
+
+  });
+
+
+  const timeseriesAccumulativeLines = document.getElementById('timeseriesAccumulativeLines').getContext('2d');
+  const timeseriesAccumulativeChart = new Chart(timeseriesAccumulativeLines, {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [
+        // Infected
+        {
+          data: [],
+          borderColor: 'rgb(255, 255, 0)',
+          pointBackgroundColor: 'rgba(255, 255, 0, 0.8)',
+          label: 'اصابة',
+          ...timeseriesStyles
+        },
+        // Dead
+        {
+          data: [],
+          borderColor: 'rgb(255, 7, 0)',
+          pointBackgroundColor: 'rgba(255, 7, 0, 0.8)',
+          label: 'وفاة',
+          ...timeseriesStyles
+        },
+        // Recoverd
+        {
+          data: [],
+          borderColor: 'rgb(0, 255, 35)',
+          pointBackgroundColor: 'rgba(0, 255, 35, 0.8)',
+          label: 'شفاء',
+          ...timeseriesStyles
+        },
+      ],
+    },
+
+    options: {
+      legend: {
+        position: 'bottom',
+        labels: {
+          fontColor: 'rgb(255, 255, 255)',
+          fontSize: 15,
+          fontFamily: "'Droid Arabic Kufi'"
+        }
+      }
+    },
+    annotation: {
+     annotations: [{
+       type: 'line',
+       mode: 'horizontal',
+       scaleID: 'y-axis-0',
+       value: 5,
+       borderColor: 'rgb(75, 192, 192)',
+       borderWidth: 4,
+       label: {
+         enabled: false,
+         content: 'Test label'
+
+     }
+   }]
+   }
+  });
+
+
+
+
+
+
+
+
+  // Data cleaned list
+  let timeseriesDaily = [];
+  let timeseriesAccumulative = [];
+
+  axios("{% url 'timeseries' %}").then(res => {
+    let timeseriesList = res.data.timeseries;
+    let infectedTotal = 0;
+    let recoveredTotal = 0;
+    let deathTotal = 0;
+
+    for (timeserie in timeseriesList) {
+      let day = new Date(timeseriesList[timeserie].date * 1000);
+      let date = day.toISOString().split('T')[0].replace('2011', '2020')
+      day = day.toDateString().split(' ').slice(1,3).join(' ');
+
+      const {infected, recovered, death} = timeseriesList[timeserie];
+
+      // Append to daily
+      timeseriesDaily.push({day, date, infected, recovered, death})
+
+      infectedTotal += infected;
+      recoveredTotal += recovered;
+      deathTotal += death;
+
+      // Append to Accumulative
+      timeseriesAccumulative.push({day, date, infected: infectedTotal, recovered: recoveredTotal, death: deathTotal})
+    };
+
+    applyTimeseriesRange(dates[0].value, dates[1].value)
+  });
+
+
+
+  // Given a from and to dates it will filter the timeseries data and update the chart
+  function applyTimeseriesRange(from, to) {
+    // timeseriesDailyChart
+    const series1 = timeseriesDaily.filter(item => item.date >= from && item.date <= to)
+
+    timeseriesDailyChart.data.labels = series1.map(item => item.day)
+    timeseriesDailyChart.data.datasets[0].data = series1.map(item => item.infected);   // infected
+    timeseriesDailyChart.data.datasets[1].data = series1.map(item => item.death);      // death
+    timeseriesDailyChart.data.datasets[2].data = series1.map(item => item.recovered);  // recoverd
+
+
+    // timeseriesAccumulativeChart
+    const series2 = timeseriesAccumulative.filter(item => item.date >= from && item.date <= to)
+
+    timeseriesAccumulativeChart.data.labels = series2.map(item => item.day)
+    timeseriesAccumulativeChart.data.datasets[0].data = series2.map(item => item.infected);   // infected
+    timeseriesAccumulativeChart.data.datasets[1].data = series2.map(item => item.death);      // death
+    timeseriesAccumulativeChart.data.datasets[2].data = series2.map(item => item.recovered);  // recoverd
+
+    timeseriesDailyChart.update();
+    timeseriesAccumulativeChart.update();
+  }
+
+  // Listen for change on the dates
+  dates.forEach(date => date.addEventListener('change', e => applyTimeseriesRange(dates[0].value, dates[1].value)))
+</script>
+{% endblock %}

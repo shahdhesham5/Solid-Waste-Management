@@ -1,0 +1,16 @@
+{% extends 'geonode-mapstore-client/_geonode_config.html' %}
+{% block override_local_config %}
+<script>
+  window.__GEONODE_CONFIG__.overrideLocalConfig = function(localConfig, _) {
+    console.log('jk');
+    
+      localConfig.plugins.map_new.push({ name: 'SampleExtension' });
+      localConfig.plugins.map_embed.push({ name: 'SampleExtension' });
+      localConfig.plugins.map_edit.push({ name: 'SampleExtension' });
+
+
+      return localConfig;
+  };
+    console.log('jk2');
+</script>
+{% endblock %}

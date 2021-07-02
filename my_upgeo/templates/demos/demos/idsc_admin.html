@@ -1,0 +1,247 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://bootswatch.com/4/darkly/bootstrap.min.css">
+  <title>IDSC ADMIN</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/simplebar/5.1.0/simplebar.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css?family=Tajawal&display=swap');
+
+    @font-face {
+      font-family: "Droid Arabic Kufi";
+      src: url("{% static 'demos/fonts/Droid.Arabic.Kufi_DownloadSoftware.iR_.ttf' %}");
+    }
+
+    body {
+      /* font-family: 'Tajawal', sans-serif; */
+      font-family: "Droid Arabic Kufi";
+    }
+
+
+    .bg-darker {
+      background: #111111;
+    }
+
+    .bg-lighter {
+      background: #424242;
+    }
+
+
+    /* input style */
+    input {
+      text-align: center;
+      max-width: 80%;
+      margin: 0 auto;
+      /* color: #fff !important;
+      background: #424242 !important; */
+      background: #f7f7f7 !important;
+    }
+
+    .rtl {
+      direction: rtl;
+    }
+
+    .text-success {
+      color: #00ff23 !important;
+    }
+    .text-warning {
+      color: #ffff00 !important;
+    }
+    .text-danger {
+      color: #ff0700 !important;
+    }
+
+    .city {
+      max-width: 95%;
+    }
+
+    a:hover {
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <main class="container">
+    <!-- <h3 class="text-center">Admin page</h3> -->
+    <!-- <a href="/" class="text-white d-block mt-2"> &#10094; الرجوع الى لوحة التحكم</a> -->
+
+
+    <p class="text-right">Welcome {{user.username}} | <a class="text-danger" href="{% url 'mainLogout' %}">Logout</a></p>
+
+
+    <!-- Egypt scale -->
+    <div class="row my-4 rtl">
+      <div class="col text-center">
+        <div class="bg-darker rounded py-3">
+          <p class="lead mb-1">اجمالى الحالات المصابة</p>
+          <h2 class="total_infected font-weight-bold text-warning">
+            <div class="spinner-border text-primary lead" role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
+          </h2>
+        </div>
+      </div>
+      <div class="col text-center">
+        <div class="bg-darker rounded py-3">
+          <p class="lead mb-1">اجمالى حالات الشفاء</p>
+          <h2 class="total_recoverd font-weight-bold text-success">
+            <div class="spinner-border text-primary lead" role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
+          </h2>
+        </div>
+      </div>
+      <div class="col text-center">
+        <div class="bg-darker rounded py-3">
+          <p class="lead mb-1">اجمالى الوفيات</p>
+          <h2 class="total_died font-weight-bold text-danger">
+            <div class="spinner-border text-primary lead" role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
+          </h2>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Gov scale -->
+    <section class="bg-darker rounded-top py-3">
+      <div class="bg-darker row mx-auto rounded rtl p-2 py-3" style="max-width: 95%;">
+        <div class="col-6"> <h4 class="text-right">المحافظة</h4> </div>
+        <div class="col-2"> <h4 class="text-center">اصابة</h4> </div>
+        <div class="col-2"> <h4 class="text-center">شفاء</h4> </div>
+        <div class="col-2"> <h4 class="text-center">وفيات</h4> </div>
+      </div>
+    </section>
+
+    <!-- Cities list -->
+    <section class="bg-lighter rounded-bottom py-3"  style="height: 52vh;" data-simplebar>
+      <div id="cities" class="pb-5" style="position: relative;">
+        <div class="spinner-border text-primary" role="status" style="position: absolute; top: 3rem;left: 50%;">
+          <span class="sr-only">Loading...</span>
+        </div>
+      </div>
+    </section>
+
+    <button id="update" class="btn btn-success font-weight-bold btn-block my-3 mb-5">تحديث البيانات &#10003;</button>
+
+
+    <p class="text-center m-0">© 2020 Globe Imagine for Geoinformatics All Rights Reserved</p>
+  </main>
+
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/simplebar/5.1.0/simplebar.js"></script>
+  <script>
+    // The whole features obj
+    let changed = {};
+
+    // Get the data from api
+    axios.get("{% url 'GeoJSON' %}").then(res => {
+      let data = '';
+      res.data.features.forEach(feature => {
+        const props = feature.properties;
+
+        data += `
+        <div class="city bg-darker row mx-auto rounded rtl shadow p-2 py-3 mt-3" data-govcode="${props.GOV_CODE}">
+          <div class="col-6"> <h4 class="text-right">${props.GOV_NAME}</h4> </div>
+          <div class="col-2">
+            <div class="form-group mb-0">
+              <input type="number" class="form-control Confirmed_" min="0" oninput="markCahnged(this)" value=${props.Confirmed_}>
+            </div>
+          </div>
+          <div class="col-2">
+            <div class="form-group mb-0">
+              <input type="number" class="form-control Recovered" min="0" oninput="markCahnged(this)" value=${props.Recovered}>
+            </div>
+          </div>
+          <div class="col-2">
+            <div class="form-group mb-0">
+              <input type="number" class="form-control Deathes" min="0" oninput="markCahnged(this)" value=${props.Deathes}>
+            </div>
+          </div>
+        </div>
+        `
+      });
+
+      document.getElementById('cities').innerHTML = data;
+      calcTotal()
+    })
+
+    // Mark input as changed
+    function markCahnged(element) {
+      const ele = element.parentElement.parentElement.parentElement;
+      changed[ele.dataset.govcode] = {
+        Confirmed_: parseInt(ele.querySelector('.Confirmed_').value),
+        Deathes: parseInt(ele.querySelector('.Deathes').value),
+        Recovered: parseInt(ele.querySelector('.Recovered').value),
+      };
+
+      console.log(changed)
+
+      calcTotal()
+    };
+
+
+
+    let TOTAL_INFECTED = 0;
+    let TOTAL_RECOVERD = 0;
+    let TOTAL_DIED = 0;
+
+    // Calc total
+    function calcTotal() {
+      let total_infected = 0;
+      let total_recoverd = 0;
+      let total_died = 0;
+
+      document.querySelectorAll('.city').forEach(city => {
+        total_infected += parseInt(city.querySelector('.Confirmed_').value);
+        total_recoverd += parseInt(city.querySelector('.Recovered').value);
+        total_died += parseInt(city.querySelector('.Deathes').value);
+      })
+
+      // Only first time only
+      if (TOTAL_INFECTED == 0) {
+        TOTAL_INFECTED = total_infected;
+        TOTAL_RECOVERD = total_recoverd;
+        TOTAL_DIED = total_died;
+      }
+
+      document.querySelector('.total_infected').innerHTML = total_infected;
+      document.querySelector('.total_recoverd').innerHTML = total_recoverd;
+      document.querySelector('.total_died').innerHTML = total_died;
+    }
+
+
+    // Update the data
+    document.getElementById('update').addEventListener('click', e => {
+      const diff = {
+        infected: parseInt(document.querySelector('.total_infected').innerHTML) - TOTAL_INFECTED,
+        recovered: parseInt(document.querySelector('.total_recoverd').innerHTML) - TOTAL_RECOVERD,
+        death: parseInt(document.querySelector('.total_died').innerHTML) - TOTAL_DIED
+      }
+
+      if (diff.infected === diff.recovered === diff.death === 0) return
+
+      // Save gov data to the json file
+      const headers = {"X-CSRFToken": '{{csrf_token}}'};
+      $.ajax({
+        headers,
+        method: 'post',
+        url: "{% url 'GeoJSON' %}",
+        data: {changed: JSON.stringify(changed)},
+        success: () => location.reload()
+      })
+
+      // Add the data to the timeseries json
+      $.ajax({headers, method: 'post', data: {diff: JSON.stringify(diff)}, url: "{% url 'timeseries' %}"});
+    })
+
+  </script>
+</body>
+</html>

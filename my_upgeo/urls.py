@@ -31,6 +31,10 @@ from django.contrib import admin
 
 
 from django.urls import path
+<<<<<<< HEAD
+=======
+from django.views.generic import RedirectView
+>>>>>>> 3926bed9ba0b33e57383f8d49a93e0206e746394
 
 
 
@@ -41,7 +45,15 @@ url_patterns = [
      login_required(TemplateView.as_view(template_name='my_index.html')),
      name='home'),
 
+<<<<<<< HEAD
   url(r'^admin/$', include('mainpage.urls'))
+=======
+  url(r'^admin/$',
+       RedirectView.as_view(pattern_name='main', permanent=False)),
+
+  path('offerEditor/',include('offerEditor.urls')),
+   path('idsc',include('demos.urls')),
+>>>>>>> 3926bed9ba0b33e57383f8d49a93e0206e746394
 
 ]
 urlpatterns =url_patterns+geonode_patterns
@@ -60,8 +72,13 @@ urlpatterns += [
 from sw import views as views
 urlpatterns += [
 ## include your urls here
+<<<<<<< HEAD
 url(r'^new/?$', views.index, name='new'),
  url(r'^dashboard/?$', views.dashboard, name='dashboard'),
+=======
+   url(r'^new/?$', views.index, name='new'),
+   url(r'^dashboard/?$', views.dashboard, name='dashboard'),
+>>>>>>> 3926bed9ba0b33e57383f8d49a93e0206e746394
    url(r'^swmap/?$', views.map, name='mapexample'),
    url(r'^database/?$', views.database, name='database'),
    url(r'^ads/?$', views.ads, name='ads'),
