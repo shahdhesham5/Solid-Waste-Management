@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    {% load static %}
+    <!-- bootstrap -->
+    <link href="{% static 'bootstrap/dist/css/bootstrap.min.css' %}" rel="stylesheet" >
+    <script src="{% static 'bootstrap/dist/js/bootstrap.bundle.min.js' %}" ></script>
+    <!-- leaflet for maps   -->
+    <link rel="stylesheet" href="{% static 'leaflet/leaflet.css'%}"  />
+    <script src="{% static 'leaflet/leaflet.js'%}" ></script>
+
+    <!-- esri-leaflet -->
+    <script src="{% static 'esri-leaflet/esri-leaflet.js'%}" ></script>
+    <!-- chart js -->
+    <script src="{% static 'chartjs/dist/chart.js'%}" ></script>
+   <script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.0"></script>
+
+    <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4"></script> -->
+
+    <!-- google font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@700&display=swap" rel="stylesheet">
+
+
+    <style media="screen">
+    body{
+      background-color: #1D2125;
+      font-family: 'Almarai' !important;
+    }
+      #map{
+        height:500px;
+        width:100%;
+        margin:0 auto;
+      }
+      #totalChart ,#hosChart,#myChart ,#gov_data_col,#vil_data_col{
+        background-color:  #272B2E;
+        border-radius: 5%
+
+      }
+
+      span{
+        font-size: 14pt;
+
+      }
+      .my_special_border{
+        border-radius: 10px !important;
+      }
+      .my_border{
+              border-radius: 2.5%;
+               border-width: 2px !important;
+               border-style: solid;
+               border-color: #ACB3BE;
+
+            }
+      .map_border{
+        border-radius: 2.5%;
+
+         border-width: 4 !important;
+         border-style: solid;
+         border-color: #ACB3BE;
+      }
+
+
+#egy_flag{
+  height:70px
+}
+       /* #egy_flag {
+          -webkit-animation: bkg 10s steps(50) infinite alternate;
+          transition: none;
+          /* -webkit-transform: rotate(-15deg);
+               -ms-transform: rotate(-15deg);
+                   transform: rotate(-15deg); */
+
+
+
+
+      /* } */ */
+/*
+      @-webkit-keyframes bkg {
+          0% {width:15% ;opacity: 1;max-height: 10px;align-self: center; transform: rotate(-5deg); }
+        10% {width: 95% ;opacity: 1;max-height: 70px;transform: rotate(0deg);
+          top: -5%;}
+        90% {width: 95% ;opacity: 1;max-height: 70px;transform: rotateY(-5deg);}
+        100%{width: 15%;opacity: 1;max-height: 10px;align-self: center;transform: rotate(0deg);}
+
+      } */
+
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+          <div class="col-3 my-auto ml-0 pl-0 " >
+            <img style="border-radius:5%;margin:0 auto; padding-left:-2.5rem" class="px-2"src="{% static 'static/images/logo.png'%}" width=70% alt="">
+          </div>
+          <div class="col-6 my-1  px-0 text-center d-flex align-content-center text-light" style="margin:0 auto;min-height:70px !important" id='gov_name'>
+          {% block page_title%}
+          <h3 class="mt-3 mx-0 "  style="font-family: 'Almarai', sans-serif !important;font-size: 21pt">لوحة متابعة الموقف التنفيذي للمشروعات - حياة كريمة </h3>
+          {% endblock %}
+
+          </div>
+          <div class="col-3 px-0 d-flex justify-content-center" height='70px' style="padding-left:8.5% !important">
+            <img id="egy_flag" class="egy_flag py-1 my-1" style="border-radius:5%; opacity: 1;" class=""src="{% static 'static/images/tanmia-trans.png'%}" width=95%  alt="eg">
+
+          </div>
+      </div>
+      <div class="row">
+        {% block left_column%}
+          <div class="col-2 my_border   flex-column  " id='gov_data_col'>
+            <div class="col  pt-2 py-0 my-4 text-center text-light" style="background:#686B73;border-radius:5%">
+              <span >اجمالي القرى </span> <h2 id='vil_num' class="text-center ">0</h2>
+            </div>
+            <div class="col d-flex justify-content-center my-3">
+              <!-- <button type="button" class="btn btn-primary px-5 "  onClick="clearToRedraw()">Refresh</button> -->
+            </div>
+            <div class="col  d-flex justify-content-center my-3" style="min-height:57%">
+              <!-- <button type="button" id='show_layer_button' class="btn btn-success" style="width:80%">Show Layers</button> -->
+            </div>
+            <div class="col  d-flex justify-content-center   px-auto" >
+                <a  href="{% url 'dashboard_over_Egypt'%}"id='lvl_btn' class="btn btn-success" style="width:80%" >
+              مستوى الجمهورية</a>
+
+            </div>
+          </div>
+        {% endblock %}
+        <div class="col my_special_border  mx-2 px-0">
+                  <div id='map' class="map_border my_special_border" >  </div>
+        </div>
+      {% block right_column%}
+      <div class="col-2 my_border my_special_border" id='vil_data_col' >
+
+        <div class="col  pt-2 my-4 text-center my_special_border text-light" style="background:#686B73;border-radius:5%">
+          <span style='font-size:18pt'> اجمالي المشاريع </span> <h1 id='total_proj' class="text-center py-1"></h1>
+
+        </div>
+        <div class="col pt-2 my-4 text-center my_special_border text-light" style="background:#334553;border-radius:5%">
+          <span class="py-1" style='color:#0CBCE4'> اجمالي مشاريع التعليم</span><h2 style='color:#0CBCE4' id='school_num'>0</h2>
+        </div>
+        <div class="col   pt-2 my-4 text-center  my_special_border text-light" style="background:#334553;border-radius:5%">
+          <span style="color:#3df49c"> اجمالي مشاريع الصحة </span><h2 id='hos_num' style="color:#2de28b">0</h2>
+        </div>
+        <div class="col   pt-2 my-4 text-center  my_special_border text-light" style="background:#334553;border-radius:5%">
+          <span style="color:#F6E87A">اجمالي مشاريع الكهرباء </span><h2 id='electric_num' style="color:#F6E87A">0</h2>
+        </div>
+
+      </div>
+
+        {% endblock %}
+
+      </div>
+
+    </div>
+
+    <div class="container">
+      {% block buttons %}
+      <div class="row">
+        <div class="col-2 my-1 d-flex justify-content-center">
+          <button type="button" id='show_layer_button' class="btn btn-success" style="width:80%">Show Layers</button>
+        </div>
+        <div class="col-3 d-flex justify-content-center  " style="margin:0 auto;">
+              <select name="villages" id="villages"  class="form-control my-2 map_border" ></select>
+        </div>
+        <div class="col-2 my-2 d-flex justify-content-center ">
+          <button type="button" class="btn btn-primary px-5 "  onClick="clearToRedraw()">Refresh</button>
+        </div>
+      </div>
+      {% endblock%}
+      <div class="row ">
+        <div class="col-sm-12 col-md-8">
+          <div class="row">
+        <!-- <div class="col  text-center"> -->
+              <div class=" col-sm-12 col-md-6 mx-auto px-0 pr-4 d-flex justify-content-center my_border" id='total_chart' style="background:#272B2E">
+                  <canvas id="totalChart" style="width:100%;min-height:400px" ></canvas>
+              </div>
+              <!-- </div> -->
+              <div class="col-sm-12 col-md-6 mx-auto  px-0  d-flex justify-content-center  my_border" id='school_chart_col' style="background-color:#334553 !important">
+                <canvas id="myChart" style="width:100%" ></canvas>
+              </div>
+          </div>
+
+        </div>
+        <div class="col-sm-12 col-md-4  mx-auto  px-0  d-flex justify-content-center  my_border" id='hos_chart_col'  style="background-color:#334553 !important;">
+          <canvas id="hosChart" style="width:100%"  ></canvas>
+        </div>
+
+      </div>
+
+    </div>
+    <script>
+      // var map = L.map('map').setView([30, 31], 6);
+      // L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      //     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      // }).addTo(map);
+
+
+
+
+      var mymap;
+      var baeMap;
+      var view;
+      var zoom;
+      var baseLayers;
+      function loadMap(){
+      if (view){
+         map = L.map('map',{editable: true}).setView([view.lat, view.lng],zoom);
+      }else{
+          map = L.map('map',{editable: true}).setView([27.2,31], 6);
+      }
+      baeMap=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map);
+      var gray = L.layerGroup()
+      baseLayers = {
+        // Grayscale: gray,
+                  Streetmap: L.esri.basemapLayer('Streets'),
+                  baseMap  :   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                      attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
+                    }),
+                   EsriMap:  L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+                      attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+                      maxZoom: 18,
+                      id: 'mapbox/streets-v11',
+                      tileSize: 512,
+                      zoomOffset: -1,
+                      accessToken: 'pk.eyJ1IjoibXVoYW1lZHlvdXNzZWYiLCJhIjoiY2s3cnBhdG00MGVtajNucWQyeDZhanVqdiJ9.ejPNZfqzS3AY0ctYG_4zeg'
+                  }),
+                  Topography :L.esri.basemapLayer('Topographic'),
+                  Imagery :L.esri.basemapLayer('Imagery')
+        }
+      L.control.layers(baseLayers).addTo(map);
+      isMap = true;
+      }
+
+      loadMap()
+
+      let school_icon= L.icon({
+          iconUrl: "{% static '/img/school_marker.png'%}",
+          iconSize:     [40,40], // size of the icon
+          shadowSize:   [15, 30], // size of the shadow
+          iconAnchor:   [12, 26], // point of the icon which will correspond to marker's location
+          shadowAnchor: [4, 10],  // the same for the shadow
+          popupAnchor:  [-3, 0]
+        })
+      let hospital_icon= L.icon({
+            iconUrl: "{% static '/img/hospital_marker_h.png'%}",
+            iconSize:     [30, 30], // size of the icon
+            shadowSize:   [15, 30], // size of the shadow
+            iconAnchor:   [12, 26], // point of the icon which will correspond to marker's location
+            shadowAnchor: [4, 10],  // the same for the shadow
+            popupAnchor:  [-3, 0]
+          })
+
+
+
+      function clearToRedraw(){
+          //Check if map is loaded, if false then load else remove everything and reload it
+          if(isMap != true){
+
+              loadMap();
+          }else{
+              //For each layer on the map remove everything and clear variables
+              map.eachLayer(function(layer){
+                  view= map.getCenter();
+                  zoom=map.getZoom();
+                  map.remove();
+                  if (!!layer.toGeoJSON) {
+                        map.removeLayer(layer);
+                    } //clear the pointManager array of points
+                  isMap = false;
+                  loadMap(); //reload the map function
+              });
+            }}
+      var gov_village;
+      document.getElementById('show_layer_button').addEventListener('click',()=>{
+        fetch('{% url "GovsList" %}',{
+
+        }).then((response)=> {
+            return response.json()
+          }).then(data=>{
+            // console.log(data);
+            var gov_layers=[]
+            for(let i=0;i<data.length;i++){
+
+              gov_layers.push(L.polygon(data[i].polygon.coordinates[0]).bindPopup(data[i].name).addTo(map)
+
+              .on('click',()=>{
+                {% block govs_onClick%}
+                console.log(data[i]);
+                 window.location.href='/kareemaDashboard/gov_dashboard/'+data[i].id
+                // document.getElementById('gov_name').innerHTML='<h1>'+data[i].name+'</h1>'
+                // document.getElementById('vil_num').innerHTML=data[i].Marakez.length;
+                // document.getElementById('villages').innerHTML='<option selected=true disabled="disabled" value="">Choose  village:</option>'
+                // for(let j=0;j<data[i].Marakez.length;j++){
+                //     document.getElementById('villages').innerHTML+='<option value="'+j+'">'+data[i].Marakez[j].name+'</option>'
+                //
+                // }
+                {% endblock %}
+                document.getElementById('villages').addEventListener('change',()=>{
+                  console.log(document.getElementById('villages').value);
+                  var village_data=data[i].villages[document.getElementById('villages').value]
+                  document.getElementById('gov_name').innerHTML='<h2>'+data[i].name+'-'+village_data.name+'</h2>'
+                  document.getElementById('vil_name').innerHTML=village_data.name
+                  document.getElementById('school_num').innerHTML=village_data.schools.length
+                  document.getElementById('hos_num').innerHTML=village_data.hospitals.length
+                  var todayDate = new Date();
+                  var finished_schools=0
+                  var finished_hos=0
+
+                  clearToRedraw()
+                  var vil_polygon=L.polygon(village_data.polygon.coordinates[0], {color: 'red'}).addTo(map);
+                  map.fitBounds(vil_polygon.getBounds());
+                  for(let k=0;k<village_data.schools.length;k++){
+                    L.marker(village_data.schools[k].point.coordinates,{icon: school_icon}).bindPopup(village_data.schools[k].name).addTo(map)
+                    var fin_date=new Date(village_data.schools[k].finished_at)
+                    if(fin_date<todayDate){
+                      finished_schools+=1
+                    };
+                  }
+                  for(let k=0;k<village_data.hospitals.length;k++){
+                    L.marker(village_data.hospitals[k].point.coordinates,{icon: hospital_icon}).bindPopup(village_data.hospitals[k].name).addTo(map)
+                    var fin_date=new Date(village_data.schools[k].finished_at)
+                    console.log('z',fin_date<todayDate);
+                    if(fin_date<todayDate){
+                      finished_hos+=1
+                    };
+
+                    console.log(finished_hos);
+                  }
+                  console.log('school_percentage',finished_schools/village_data.schools.length);
+                  console.log('hospital_percentage',finished_hos/village_data.hospitals.length);
+                  document.getElementById('total_chart').innerHTML='<canvas id="totalChart" width="400" height="400"></canvas>'
+                  document.getElementById('school_chart_col').innerHTML='<canvas id="myChart" width="400" height="400"></canvas>'
+                  document.getElementById('hos_chart_col').innerHTML='<canvas id="hosChart" width="400" height="400"></canvas>'
+                  var total_ctx = document.getElementById('totalChart').getContext('2d');
+                  var totalChart = new Chart(total_ctx, {
+                                type: 'bar',
+                                data: {
+                                    labels: ['School Progress', 'Hospital progress'],
+                                    datasets: [{
+                                        label: 'Total progress',
+                                        data: [100*finished_schools/village_data.schools.length,100* finished_hos/village_data.hospitals.length],
+                                        backgroundColor: [
+                                            '#39BEAC',
+                                            '#312E86',
+                                        ],
+                                        borderColor: [
+                                            'rgba(300, 192, 192, 1)',
+                                            'rgba(255, 200, 132, 1)',
+
+                                                ],
+                                        borderWidth: 1,
+
+                                    }]
+                                },
+                                options: {
+                                  color:'white',
+                                  plugins: {
+
+                                      legend: {
+                                          labels: {
+                                              // This more specific font property overrides the global property
+                                              font: {
+                                                  size: 16,
+                                                    },
+
+
+                                          }
+                                      }
+                                  },
+
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true,
+                                             suggestedMax: 100
+                                        }
+                                    }
+                                }
+                            });
+                  var ctx = document.getElementById('myChart').getContext('2d');
+                  var myChart = new Chart(ctx, {
+                                type: 'pie',
+                                data: {
+                                    labels: ['Finished Schools', 'UnFinished Schools'],
+                                    datasets: [{
+                                        label: 'School progress',
+                                        data: [finished_schools, village_data.schools.length-finished_schools],
+                                        backgroundColor: [
+                                            '#63BD38',
+                                            'rgba(255, 99, 132, 0.6)',
+                                        ],
+                                        borderColor: [
+                                            'rgba(75, 192, 192, 1)',
+                                            'rgba(255, 99, 132, 1)',
+                                                ],
+                                        borderWidth: 1
+                                    }]
+                                },
+                                options: {
+                                    color:'white',
+                                    plugins: {
+
+                                        legend: {
+                                            labels: {
+                                                // This more specific font property overrides the global property
+                                                font: {
+                                                    size: 16,
+                                                      },
+
+
+                                            }
+                                        }
+                                    },
+
+                                    // scales: {
+                                    //     y: {
+                                    //         beginAtZero: true
+                                    //     }
+                                    // }
+                                }
+                            });
+
+                  var hos_ctx=  document.getElementById('hosChart').getContext('2d');
+                  var hos_chart=new Chart(hos_ctx, {
+                                type: 'pie',
+                                data: {
+                                    labels: ['Finished hospitals', 'UnFinished Hospitals'],
+                                    datasets: [{
+                                        label: 'School progress',
+                                        data: [finished_hos, village_data.hospitals.length-finished_hos],
+                                        backgroundColor: [
+                                            '#63BD38',
+                                            'rgba(255, 99, 132, 0.6)',
+                                        ],
+                                        borderColor: [
+                                            'rgba(75, 192, 192, 1)',
+                                            'rgba(255, 99, 132, 1)',
+                                                ],
+                                        borderWidth: 1
+                                    }]
+                                },
+                                options: {
+                                    color:'white',
+                                    plugins: {
+
+                                        legend: {
+                                            labels: {
+                                                // This more specific font property overrides the global property
+                                                font: {
+                                                    size: 16,
+                                                      },
+
+
+                                            }
+                                        }
+                                    },
+
+                                    // scales: {
+                                    //     y: {
+
+                                    //         beginAtZero: true
+                                    //     }
+                                    // }
+                                }
+                            });
+
+
+                })
+
+
+              }))
+              // var village_layer=L.polygon(data[0].villages[0].polygon.coordinates[0]).bindPopup(data[0].villages[0].name)
+              // let school=data[0].villages[0].schools[0].point.coordinates
+              // let hospital=data[0].villages[0].hospitals[0].point.coordinates
+              //
+              //
+              //
+              //
+              // var school_layer=L.marker(school).bindPopup(data[0].villages[0].schools[0].name)
+              // var hospital_layer=L.marker(hospital).bindPopup(data[0].villages[0].hospitals[0].name)
+
+
+              // var layers = L.layerGroup([gov_layer,village_layer,school_layer])
+
+            }
+            // var overlayMaps = {
+            //       "gov_layer": L.layerGroup(gov_layers),
+            //       'village_layer':village_layer,
+            //       'school_layer':school_layer,
+            //       'hospital_layer':hospital_layer
+            //   };
+            // L.control.layers( overlayMaps).addTo(map);
+          })
+      })
+
+
+
+
+      {% block extra_script%}
+
+      {% endblock%}
+      {% block chart_script%}
+      <!-- --------------------------------------------- -->
+      var total_ctx = document.getElementById('totalChart').getContext('2d');
+      var totalChart = new Chart(total_ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['School Progress', 'Hospital progress', 'canal','gas'],
+                        datasets: [{
+                            label: 'Total progress',
+                            data: [30,50,40,89],
+                            backgroundColor: [
+                                '#39BEAC',
+                                '#312E86',
+                            ],
+                            borderColor: [
+                                'rgba(300, 192, 192, 1)',
+                                'rgba(255, 200, 132, 1)',
+
+                                    ],
+                            borderWidth: 1,
+
+                        }]
+                    },
+                    options: {
+                      layout: {
+                        padding: 2
+                    },
+                      color:'white',
+                      plugins: {
+
+                          legend: {
+                              labels: {
+                                  // This more specific font property overrides the global property
+                                  font: {
+                                      size: 16,
+                                      color:'white',
+                                        },
+
+
+                              }
+                          }
+                      },
+
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                 suggestedMax: 100
+                            }
+                        }
+                    }
+                });
+
+
+                var ctx = document.getElementById('myChart').getContext('2d');
+                var myChart = new Chart(ctx, {
+                              type: 'doughnut',
+                              data: {
+                                  labels: ['مشروعات منتهية',
+                                   'مشروعات غير منتهية'],
+                                  datasets: [{
+                                      label: 'School progress',
+                                      data: [40, 60],
+                                      backgroundColor: [
+                                          '#14E37F',
+                                          '#DE455A',
+                                      ],
+                                      borderColor: [
+                                        '#272B2E','#272B2E'
+                                              ],
+                                      borderWidth: 3
+                                  }]
+                              },
+                              options: {
+                                layout: {
+                                  padding: 10
+                              },
+                                  color:'white',
+                                  plugins: {
+                                    title:{
+                                      display:true,
+                                      text:'موقف المشروعات التعليمية',
+                                      color:'white',
+                                      font:{
+                                        size: 22,
+
+                                        family:'Almarai',
+                                        padding: {
+                                              top: 1,
+                                              bottom: 30
+                                          }
+                                      },
+                                                                      },
+
+                                      legend: {
+                                        position:'bottom',
+                                          labels: {
+                                              // This more specific font property overrides the global property
+                                              font: {
+                                                  size: 15,
+                                                  family:'Almarai',
+                                                    },
+
+
+                                          }
+                                      }
+                                  },
+
+                                  // scales: {
+                                  //     y: {
+                                  //         beginAtZero: true
+                                  //     }
+                                  // }
+                              }
+                          });
+
+
+
+
+                          var hos_ctx=  document.getElementById('hosChart').getContext('2d');
+                          var hos_chart=new Chart(hos_ctx, {
+                                        type: 'pie',
+                                        data: {
+                                            labels: ['مشروعات منتهية',
+                                             'مشروعات غير منتهية'],
+                                            datasets: [{
+                                                label: 'School progress',
+                                                data: [40, 60],
+                                                backgroundColor: [
+                                                    '#14E37F',
+                                                    '#DE455A',
+                                                ],
+                                                borderColor: [
+                                              '#272B2E','#272B2E'
+
+                                                        ],
+                                                borderWidth: 7
+                                            }]
+                                        },
+                                        options: {
+                                          layout: {
+                                            padding: 10
+                                        },
+                                            color:'white',
+                                            plugins: {
+                                              title:{
+                                                display:true,
+                                                text:'موقف مشروعات الصحة',
+                                                color:'white',
+                                                font:{
+                                                  size: 22,
+
+                                                  family:'Almarai',
+                                                  padding: {
+                                                        top: 1,
+                                                        bottom: 30
+                                                    }
+                                                },
+                                                                                },
+
+                                                legend: {
+                                                  position:'bottom',
+                                                    labels: {
+                                                        // This more specific font property overrides the global property
+                                                        font: {
+                                                            size: 15,
+                                                            family:'Almarai',
+                                                              },
+
+
+                                                    }
+                                                }
+                                            },
+
+                                            // scales: {
+                                            //     y: {
+                                            //         beginAtZero: true
+                                            //     }
+                                            // }
+                                        }
+                                    });
+      {% endblock%}
+
+    </script>
+
+  </body>
+</html>

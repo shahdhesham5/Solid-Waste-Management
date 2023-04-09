@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    {% load static %}
+    <!-- bootstrap -->
+    <link href="{% static 'bootstrap/dist/css/bootstrap.min.css' %}" rel="stylesheet" >
+    <script src="{% static 'bootstrap/dist/js/bootstrap.bundle.min.js' %}" ></script>
+
+
+    <style media="screen">
+      body{
+        background-color: #1D2125;
+        font-family: 'Almarai' !important;
+      }
+    </style>
+  </head>
+  <body >
+    <div class="container d-flex justify-content-center align-content-center " style='min-height:1070px;background:#272B2E'>
+      <div class="row my-auto " style='background:#334553;border-radius: 5%'>
+        <div class="col-12 m-5 p-5 mx-auto" >
+          <div class="col text-light my-4"  style='font-size:18pt;border-radius:5%'>
+            You don't have permission
+          </div>
+          <div class="mx-auto  d-flex justify-content-center ">
+              <a class="btn btn-success px-5 py-3" style='font-size:18pt;border-radius:5%' href="{% url 'mainLogin'%}"> Log in </a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+
+  </body>
+</html>

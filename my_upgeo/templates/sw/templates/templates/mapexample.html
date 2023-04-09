@@ -32,7 +32,11 @@
         width: 100% ;//100vw;
         height:100vh;
       }
-
+      .fixed-top{
+        /* margin-top:-12px;
+        padding:0px; */
+        height:80px;
+      }
       img {
         -webkit-transform-origin: 20% 40%;
                 transform-origin: 20% 40%;
@@ -450,7 +454,6 @@
                   return console.log(error);
                 }
                 // console.log(result.latlng);
-                console.log(result.address.Match_addr);
                 document.getElementById('dumbSite').innerHTML+=("<option class='text-right' value='"+result.latlng+"'>"+result.address.Match_addr+"</option>")
 
                 document.getElementById('dumbsubmit').onclick = function() {
@@ -460,7 +463,6 @@
                         dumbItem=[parseFloat(option.value.split("(")[1].split(",")[0]),parseFloat(option.value.split("(")[1].split(",")[1])]
                         L.marker(dumbItem,{icon: collectionIcon}).addTo(map)
                         selectedDumb2.push(dumbItem);
-                        console.log(selectedDumb2);
                       }
                     }
                   selectedDumb=selectedDumb2
@@ -502,7 +504,6 @@ console.log(binBox.features.length);
          selectedbin=selectedbin2
        }
 
-    console.log(document.getElementById('bins').options.length)
 
     // using geocode service
     // for(i=0;i<binBox.features.length;i++){
@@ -736,9 +737,7 @@ document.getElementById("animation").onclick=function(){
 var coordinateArray=[];
 var stations=[]
 document.getElementById("showRoute").onclick=function(){
-  console.log(selectedbin);
   var RoutePoints=selectedbin.concat(selectedDumb)
-  console.log(RoutePoints);
             // adding the markers
             const waypoints =[];
             for(i=0;i<RoutePoints.length;i++){
@@ -815,26 +814,21 @@ document.getElementById("showRoute").onclick=function(){
                   });
                   // console.log([ carRoute[0][0][0:8],carRoute[0][1][0:8] ]);
                   routeIndex=[]
-                  console.log(carRoute);
                   for(i=0;i<stations.length;i++){
                     for(j=0;j<markerRoute.length;j++){
-                      // console.log(carRoute[i]);
                       if (stations[i][0].toFixed(4)==markerRoute[j][0].toFixed(4) && stations[i][1].toFixed(4)==markerRoute[j][1].toFixed(4) ){
                         routeIndex.push(j)
                       }
                     }
                   }
-                  console.log(routeIndex);
                   map.addLayer(myMovingMarker);
-
-
                   myMovingMarker.start();
 
                   for (i=0;i<routeIndex.length;i++){
                     myMovingMarker.addStation(routeIndex[i], 1000)
-
-
+                    //   console.log(event.target._latlng);
                   };
+
 
 
 

@@ -1,0 +1,66 @@
+{% extends './add.html'%}
+{% load static%}
+{% block style%}
+    #map{
+      height:280px;
+      width:100%
+    }
+{% endblock%}
+
+
+{% block extraInputs%}
+<div class="p-1 my-1">
+  <input type="radio" name="building_type" id='school_btn' value=1>
+  <label for="school">School</label>
+  <input type="radio"  name="building_type" id='hospital_btn'value=2>
+  <label for="hospital">Hospital</label>
+</div>
+<div class="p-1 my-1 ">
+  <span style='font-weight: bold;'> planned Start date : </span>
+  <input id='planned_start_date' class='form-control' type="date" name="name" style='width:100%;display:inline-block' placeholder="planned start date" value="">
+</div>
+<div class="p-1 my-1 ">
+  <span style='font-weight: bold;'> Planned End Date: </span>
+  <input id='planned_end_date' class='form-control' type="date" name="name" style='width:100%;display:inline-block' placeholder="planned end date" value="">
+</div>
+<div class="p-1 my-1 ">
+  <span style='font-weight: bold;'> Actual Start Date: </span>
+  <input id='actual_start_date' class='form-control' type="date" name="name" style='width:100%;display:inline-block' placeholder="actual start date" value="">
+</div>
+<div class="p-1 my-1 ">
+  <span style='font-weight: bold;'> Actual End Date  </span>
+  <input id='actual_end_date' class='form-control' type="date" name="name" style='width:100%;display:inline-block' placeholder="actual end date" value="">
+</div>
+<div class="p-1 my-1 ">
+  <span style='font-weight: bold;'> Planned Cost </span>
+  <input id='planned_cost' class='form-control' type="number" name="name" style='width:100%;display:inline-block' placeholder="planned cost" value="">
+</div>
+<div class="p-1 my-1 ">
+  <span style='font-weight: bold;'> Actual  Cost   </span>
+  <input id='actual_cost' class='form-control' type="number" name="name" style='width:100%;display:inline-block' placeholder="actual cost" value="">
+</div>
+
+<div class="p-1 my-1 ">
+  <span style='font-weight: bold;'> Progress   </span>
+  <input id='progress' class='form-control' type="number" name="name" style='width:100%;display:inline-block' placeholder="progress" value="">
+</div>
+
+
+{% endblock%}
+
+
+{% block draw %}
+{% endblock  %}
+
+{% block show_layer_script%}
+
+{% endblock show_layer_script%}
+
+{% block add_record_script%}
+{% endblock add_record_script%}
+
+{% block update_layer_script%}
+{% endblock update_layer_script%}
+
+{% block delete_record_script%}
+{% endblock delete_record_script%}

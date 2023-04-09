@@ -1,0 +1,255 @@
+{% extends './map.html'%}
+{% block left_column%}
+  <div class="col-2 my_border   my_special_border flex-column  " id='gov_data_col'>
+    <div class="col  pt-2 py-0 my-4 text-center my_special_border text-light" style="background:#686B73;border-radius:5%">
+      <span>مركز   </span> <h3 id='markaz_name_col' class="text-center "></h3>
+    </div>
+
+    <div class="col  pt-2 py-0 my-4 text-center my_special_border text-light" style="background:#686B73;border-radius:5%">
+      <span>محافظة   </span> <h3 id='gov_name_col' class="text-center "></h3>
+    </div>
+
+
+    <div class="col  pt-2 py-0 my-4 text-center  my_special_border text-light" style="background:#686B73;border-radius:5%">
+      <span>اجمالي القرى </span> <h2 id='vil_num' class="text-center ">0</h2>
+
+    </div>
+    <div class="col d-flex justify-content-center my-3">
+      <!-- <button type="button" class="btn btn-primary px-5 "  onClick="clearToRedraw()">Refresh</button> -->
+    </div>
+    <div class="col  d-flex justify-content-center my-3" style="min-height:57%">
+      <!-- <button type="button" id='show_layer_button' class="btn btn-success" style="width:80%">Show Layers</button> -->
+    </div>
+    <div class="col  d-flex justify-content-center   px-auto" >
+        <a  href="{% url 'dashboard_over_Egypt'%}"id='lvl_btn' class="btn btn-success" style="width:80%" > مستوى الجمهورية</a>
+    </div>
+  </div>
+{% endblock %}
+{% block buttons %}
+<div class="col   pt-2 my-2 text-center text-light" id='show_layer_button' ></div>
+
+{% endblock %}
+
+
+
+{% block extra_script%}
+    var markaz_data={{ markaz |safe}}
+    document.getElementById('markaz_name_col').innerHTML=markaz_data.name
+    document.getElementById('gov_name_col').innerHTML='{{gov.name}}'
+
+    if({{ point_projects |safe}}['Education']){
+    document.getElementById('school_num').innerHTML={{ point_projects |safe}}['Education']
+  }if({{ point_projects |safe}}['Medicine']){
+    document.getElementById('hos_num').innerHTML={{ point_projects|safe}}['Medicine']
+}
+    document.getElementById('vil_num').innerHTML=markaz_data.villages.length
+    var markaz_polygon=L.polygon(markaz_data.polygon.coordinates[0],{color: "#000",fillOpacity:0, weight: 6}).bindPopup(markaz_data.name)
+    .bindTooltip(markaz_data.name,
+     {permanent: false, direction:"center",})
+    .addTo(map)
+    map.fitBounds(markaz_polygon.getBounds());
+
+
+
+    for(let i=0;i<markaz_data.villages.length;i++){
+      console.log(markaz_data.villages[i])
+      var num_of_villages=0
+      L.polygon(markaz_data.villages[i].polygon.coordinates[0],{color: "#000",fillOpacity:0.2, weight: 2}).bindPopup(markaz_data.villages[i].name)
+                      .bindTooltip(markaz_data.villages[i].name,
+                       {permanent: false, direction:"center",}
+                       ).addTo(map)
+                       .on('click',()=>{
+                        window.location.href='/kareemaDashboard/village_dashboard/'+markaz_data.villages[i].id
+                      })
+    }
+{% endblock%}
+{% block chart_script%}
+<!-- --------------------------------------------- -->
+var total_ctx = document.getElementById('totalChart').getContext('2d');
+var totalChart = new Chart(total_ctx, {
+              type: 'bar',
+              data: {
+                  labels: ['تم',
+                      'جاري',
+                      'لم يبدأ بعد',
+                      'أخرى'],
+                  datasets: [{
+                      label: 'تقدم العمل',
+                      data: [30,50,40,89],
+                      backgroundColor: [
+                      '#14E37F',
+                          '#312E86',
+                            '#DE455A',
+                            '#39BEAC',
+
+
+
+                      ],
+                      borderColor: [
+                          'rgba(300, 192, 192, 1)',
+                          'rgba(255, 200, 132, 1)',
+
+
+                              ],
+                      borderWidth: 1,
+
+                  }]
+              },
+              options: {
+                layout: {
+                  padding: 2
+              },
+                color:'white',
+                plugins: {
+
+                    legend: {
+                        labels: {
+                            // This more specific font property overrides the global property
+                            font: {
+                                size: 16,
+                                color:'white',
+                                  },
+
+
+                        }
+                    }
+                },
+
+                  scales: {
+                      y: {
+                          beginAtZero: true,
+                           suggestedMax: 100
+                      }
+                  }
+              }
+          });
+
+
+          var ctx = document.getElementById('myChart').getContext('2d');
+          var myChart = new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['مشروعات منتهية',
+                             'مشروعات غير منتهية'],
+                            datasets: [{
+                                label: 'School progress',
+                                data: [40, 60],
+                                backgroundColor: [
+                                    '#14E37F',
+                                    '#DE455A',
+                                ],
+                                borderColor: [
+                                  '#272B2E','#272B2E'
+                                        ],
+                                borderWidth: 3
+                            }]
+                        },
+                        options: {
+                          layout: {
+                            padding: 10
+                        },
+                            color:'white',
+                            plugins: {
+                              title:{
+                                display:true,
+                                text:'موقف المشروعات التعليمية',
+                                color:'white',
+                                font:{
+                                  size: 22,
+
+                                  family:'Almarai',
+                                  padding: {
+                                        top: 1,
+                                        bottom: 30
+                                    }
+                                },
+                                                                },
+
+                                legend: {
+                                  position:'bottom',
+                                    labels: {
+                                        // This more specific font property overrides the global property
+                                        font: {
+                                            size: 15,
+                                            family:'Almarai',
+                                              },
+
+
+                                    }
+                                }
+                            },
+
+                            // scales: {
+                            //     y: {
+                            //         beginAtZero: true
+                            //     }
+                            // }
+                        }
+                    });
+
+
+
+
+                    var hos_ctx=  document.getElementById('hosChart').getContext('2d');
+                    var hos_chart=new Chart(hos_ctx, {
+                                  type: 'pie',
+                                  data: {
+                                      labels: ['مشروعات منتهية',
+                                       'مشروعات غير منتهية'],
+                                      datasets: [{
+                                          label: 'School progress',
+                                          data: [40, 60],
+                                          backgroundColor: [
+                                              '#14E37F',
+                                              '#DE455A',
+                                          ],
+                                          borderColor: [
+                                        '#272B2E','#272B2E'
+
+                                                  ],
+                                          borderWidth: 7
+                                      }]
+                                  },
+                                  options: {
+                                    layout: {
+                                      padding: 10
+                                  },
+                                      color:'white',
+                                      plugins: {
+                                        title:{
+                                          display:true,
+                                          text:'موقف مشروعات الصحة',
+                                          color:'white',
+                                          font:{
+                                            size: 22,
+
+                                            family:'Almarai',
+                                            padding: {
+                                                  top: 1,
+                                                  bottom: 30
+                                              }
+                                          },
+                                                                          },
+
+                                          legend: {
+                                            position:'bottom',
+                                              labels: {
+                                                  // This more specific font property overrides the global property
+                                                  font: {
+                                                      size: 15,
+                                                      family:'Almarai',
+                                                        },
+
+
+                                              }
+                                          }
+                                      },
+
+                                      // scales: {
+                                      //     y: {
+                                      //         beginAtZero: true
+                                      //     }
+                                      // }
+                                  }
+                              });
+{% endblock%}

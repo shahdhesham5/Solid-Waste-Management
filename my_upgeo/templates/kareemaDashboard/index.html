@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    {% load static %}
+    <meta charset="utf-8">
+    <title> Dashboard </title>
+    <!-- bootstrap -->
+    <link href="{% static 'bootstrap/dist/css/bootstrap.min.css' %}" rel="stylesheet" >
+    <script src="{% static 'bootstrap/dist/js/bootstrap.bundle.min.js' %}" ></script>
+    <!-- leaflet for maps   -->
+    <link rel="stylesheet" href="{% static 'leaflet/leaflet.css'%}"  />
+    <script src="{% static 'leaflet/leaflet.js'%}" ></script>
+    <!-- chart js -->
+    <script src="{% static 'chartjs/dist/chart.js'%}" ></script>
+
+    <style media="screen">
+      body{
+        background:#252525
+        /* #141111 */
+      }
+
+      #PieChart ,#PieChart2,#PieChart3{
+        height:280px !important;
+        width:320px !important;
+        opacity:1
+      }
+      #lineChart{
+        height:250px !important;
+        padding:1px
+        opacity:0
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container" style='background:#303030;'>
+      <div class="row justify-content-center py-3" style='background:#282828;color:white;'>
+        <div class="col-4">
+
+        </div>
+        <div class="col">
+            <img src="{% static 'static/images/logo.png'%}" alt="" width="100%" height="30px">
+        </div>
+        <div class="col-4">
+
+        </div>
+
+      </div>
+      <div class="row  p-3 mb-4 " style='height:300px'>
+        <div class="col py-1" style=''>
+           <div id="map" style='height:290px;width:100%'> </div>
+        </div>
+        <div class="col pb-3" style=''>
+          <canvas id="myChart" width="400" height="200"></canvas>
+        </div>
+      </div>
+      <div class="row p-3 my-1" style=''>
+        <div class="col justify-content-center" style=''>
+          <div style="margin: auto;width:50%;color:white;" > School Pogress</div>
+
+          <canvas id="PieChart"  ></canvas>
+        </div>
+        <div class="col" style=''>
+          <div style="margin: auto;width:50%;color:white;" > Hospital Pogress</div>
+          <canvas id="PieChart2"  ></canvas>
+        </div>
+        <div class="col" style=''>
+          <div style="margin: auto;width:50%;color:white;" > Canal Pogress</div>
+          <canvas id="PieChart3"  ></canvas>
+        </div>
+      </div>
+
+
+      <div class="row" style='height:300px'>
+
+        <div class="col" style=''>
+          <div style="margin: auto;width:10%;color:white;" > Time Series Chart</div>
+
+            <canvas id="lineChart" width="400" height="180"></canvas>
+        </div>
+      </div>
+    </div>
+
+
+
+  <script src="{% static 'kareemaDashboard/data.js'%}" ></script>
+  <script type="text/javascript">
+    var map = L.map('map').setView([31.505,30], 5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+  var markers=[]
+  var schools={'finished':0,'all':3};
+  var medicines={'finished':0,'all':3};;
+  var canals={'finished':0,'all':3};;
+  for (let i=0;i<data.features.length;i++){
+    let feat= data.features[i]
+
+    markers.push(L.marker([feat.geometry.coordinates[1], feat.geometry.coordinates[0]]).on('click', function(e){
+      schools=feat.properties.schools
+      medicines=feat.properties.medicine
+      canals=feat.properties.canals
+      document.getElementById('myChart').parentNode.innerHTML='<canvas id="myChart" width="400" height="200"></canvas>'
+      document.getElementById('PieChart').parentNode.innerHTML='<div style="margin: auto;width:50%;color:white;" > School Pogress</div>'+
+                                                                '<canvas id="PieChart"  ></canvas>'
+      document.getElementById('PieChart2').parentNode.innerHTML=' <div style="margin: auto;width:50%;color:white;" > Hospital Pogress</div>'+
+                                                                '<canvas id="PieChart2"  ></canvas>'
+      document.getElementById('PieChart3').parentNode.innerHTML='<div style="margin: auto;width:50%;color:white;" > Canal Pogress</div>'+
+                                                                '<canvas id="PieChart3"  ></canvas>'
+      document.getElementById('lineChart').parentNode.innerHTML='<div style="margin: auto;width:15%;color:white;" > Time Series Chart</div>'+
+                                                                '<canvas id="lineChart" width="400" height="180"></canvas>'
+    drawCharts()
+
+  }).bindPopup(feat.properties.name).addTo(map))
+    }
+
+
+function drawCharts(){
+    var ctx = document.getElementById('myChart').getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Schools', 'medicines', 'canals'],
+            datasets: [{
+                label: 'Total progress',
+                data: [schools.finished/schools.all, medicines.finished/medicines.all,canals.finished/canals.all],
+                backgroundColor: [
+                '#08d620',
+                '#e50f0b',
+                '#eaea02',
+                ],
+                borderColor: [
+                '#08d620',
+                '##e50f0b',
+                    '#eaea02',
+
+                ],
+                borderWidth: 1,
+                color:  '#ffffff'
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                },
+
+
+            }
+        }
+    })
+
+//
+var piectx = document.getElementById('PieChart').getContext('2d');
+var PieChart = new Chart(piectx, {
+    type: 'pie',
+    data: {
+        labels: [ 'finished schools','undefined schools'],
+        datasets: [{
+            label: 'schools progress',
+            data: [schools.finished,schools.all-schools.finished],
+            backgroundColor: ['rgba(0, 255, 35, 0.8)',  'rgba(255, 7, 0, 0.8)'],
+            borderColor: ['rgba(0, 255, 35, 1)',  'rgba(255, 7, 0, 1)'],
+            borderWidth: 1,
+
+
+        }]
+    },
+    options: {
+      legend: {
+        position: 'bottom',
+        labels: {
+          fontColor: 'rgb(255, 255, 255)',
+          fontSize: 20,
+          fontFamily: "'Droid Arabic Kufi'"
+        }
+      }
+    }
+});
+
+
+
+
+var pie2ctx = document.getElementById('PieChart2').getContext('2d');
+var PieChart2 = new Chart(pie2ctx, {
+    type: 'pie',
+    data: {
+        labels: [ 'finished hospitals','Unfinished hospitals'],
+        datasets: [{
+            label: 'hospitals',
+            data: [medicines.finished, medicines.all-medicines.finished],
+            backgroundColor: ['rgba(0, 255, 35, 0.8)',  'rgba(255, 7, 0, 0.8)'],
+            borderColor: ['rgba(0, 255, 35, 1)',  'rgba(255, 7, 0, 1)'],
+            borderWidth: 1,
+            color:  '#ffffff'
+        }]
+    },
+    options: {
+        // scales: {
+        //     y: {
+        //         beginAtZero: true
+        //     }
+        // }
+    }
+});
+
+var pie3ctx = document.getElementById('PieChart3').getContext('2d');
+var PieChart3 = new Chart(pie3ctx, {
+    type: 'pie',
+    data: {
+        labels:[ 'finished canals','undefined canals'],
+        datasets: [{
+            label: 'canals',
+            data: [canals.finished,canals.all-canals.finished],
+            backgroundColor: ['rgba(0, 255, 35, 0.8)',  'rgba(255, 7, 0, 0.8)'],
+            borderColor: ['rgba(0, 255, 35, 1)',  'rgba(255, 7, 0, 1)'],
+            borderWidth: 1,
+            color:  '#ffffff'
+        }]
+    },
+    options: {
+        scales: {
+
+        },
+        legend: {
+
+            position: 'bottom',
+            labels: {
+              fontColor: 'rgb(255, 255, 255)',
+                }
+          }
+
+    }
+});
+
+
+
+
+
+
+
+
+
+
+var linectx = document.getElementById('lineChart').getContext('2d');
+var myChart = new Chart(linectx, {
+    type: 'line',
+    data: {
+        labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+        datasets: [{
+            label: '# of Votes',
+            data: [12, 19, 3, 5, 2, 3],
+            backgroundColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+            ],
+            borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+
+        }
+    }
+});
+}
+
+drawCharts()
+function destroyChart(chart) {
+  chart.destroy();
+}
+
+  </script>
+  </body>
+</html>

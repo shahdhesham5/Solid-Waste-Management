@@ -1,0 +1,168 @@
+{% extends "./add.html" %}
+{% block show_layer_script%}
+  function show_layers(){
+    console.log(layer);
+    layer="village"
+    let url="/kareemaDashboard/show_layers/"+layer
+    console.log(url);
+    fetch(url,{}).then((response)=> {
+        return response.json()
+      }).then(data=>{
+        for (let i=0;i<data['features'].length;i++){
+              L.polygon(JSON.parse(data['features'][i].latlngs).coordinates,
+                {color: 'red'})
+                .bindPopup(function () {
+                      return data['features'][i].name
+                    }).addTo(map);
+            }
+          })
+        }
+  document.getElementById('Show_layers').addEventListener('click',show_layers)
+{% endblock show_layer_script%}
+
+
+
+
+{% block add_record_script%}
+    var coordinates=[]
+    var coordinatList=[]
+
+    document.getElementById('save').addEventListener('click',()=>{
+      name =document.getElementById('name').value
+      for ( let i=0; i< latlngs[0].length;i++){
+        var coordinate={}
+        coordinate['lat']=latlngs[0][i].lat
+        coordinate['lng']=latlngs[0][i].lng
+        coordinates.push(coordinate)
+        coordinatList.push([latlngs[0][i].lat,latlngs[0][i].lng])
+
+      }
+    })
+
+
+
+
+
+    document.getElementById('submit').addEventListener('click',function(){
+      var url='{% url "add_village" %}'
+
+      fetch(url,{
+        method: 'POST',
+        headers: {'X-CSRFToken': csrftoken,  },
+        body:JSON.stringify({
+                        'name':name,
+                        'latlngs':coordinatList
+                      })
+
+      }).then((response)=> {
+        console.log(response);
+        clearToRedraw()
+        document.getElementById('name').value=""
+        latlngs=[]
+        coordinatList=[]
+        coordinates=[]
+        return response.json()
+    }).then (data=>{
+      console.log(data['message']);
+    });
+
+    })
+{% endblock add_record_script%}
+
+
+
+
+
+
+
+
+
+
+{% block update_layer_script%}
+document.getElementById('update').addEventListener('click',()=>{
+  console.log('js');
+  layer="village"
+  let url="/kareemaDashboard/show_layers/"+layer
+  console.log(url);
+  fetch(url,{}).then((response)=> {
+      return response.json()
+    }).then(data=>{
+      for (let i=0;i<data['features'].length;i++){
+          let Epolygon=L.polygon(JSON.parse(data['features'][i].latlngs).coordinates,
+              {color: 'red'})
+            .addTo(map);
+            Epolygon.on('click',(e)=>{
+                Epolygon.enableEdit()
+                document.getElementById('name').value=data['features'][i].name
+              })
+              Epolygon.on('dblclick',()=>{
+                console.log('shj');
+                console.log(Epolygon._latlngs);
+                Epolygon.disableEdit()
+                latlngs=Epolygon._latlngs
+                console.log('latlngs',latlngs);
+                console.log('name',name);
+                let updated_coordinatList=[]
+                for ( let i=0; i< latlngs[0].length;i++){
+                      updated_coordinatList.push([latlngs[0][i].lat,latlngs[0][i].lng])
+                }
+                document.getElementById('submit_update').addEventListener('click',()=>{
+                  name =document.getElementById('name').value
+                  update_url='/kareemaDashboard/update_village/'+data['features'][i].id
+                  fetch(update_url,{
+                    method: 'POST',
+                    headers: {'X-CSRFToken': csrftoken,  },
+                    body:JSON.stringify({
+                                    'name':name,
+                                    'latlngs':updated_coordinatList
+                                  })
+
+                  }).then((response)=> {
+                    console.log(response);
+                    clearToRedraw()
+                    document.getElementById('name').value=""
+                    latlngs=[]
+                    coordinatList=[]
+                    coordinates=[]
+                    return response.json()
+                }).then (data=>{
+                  console.log(data['message']);
+                });
+
+                })
+
+
+              })
+
+          }
+        })
+})
+{% endblock update_layer_script%}
+
+
+
+{% block delete_record_script%}
+document.getElementById('delete').addEventListener('click',()=>{
+  let url="/kareemaDashboard/show_layers/village"
+  console.log(url);
+  fetch(url,{}).then((response)=> {
+      return response.json()
+    }).then(data=>{
+      for (let i=0;i<data['features'].length;i++){
+          let Epolygon=L.polygon(JSON.parse(data['features'][i].latlngs).coordinates,
+              {color: 'red'})
+            .addTo(map);
+            Epolygon.on('click',(e)=>{
+                let del_url='/kareemaDashboard/delete_village/'+data['features'][i].id
+                fetch(del_url,{
+                  method: 'DELETE',
+                  headers: {'X-CSRFToken': csrftoken,  },
+                }).then((response)=>{
+                  clearToRedraw()
+                  show_layers()
+                  return response.json()
+                })
+              })
+}})
+})
+ {% endblock delete_record_script%}

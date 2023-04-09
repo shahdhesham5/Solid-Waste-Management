@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    {% load static%}
+    <meta charset="utf-8">
+    <title></title>
+          <!-- bootstrap -->
+          <link href="{% static 'bootstrap/dist/css/bootstrap.min.css' %}" rel="stylesheet" >
+          <script src="{% static 'bootstrap/dist/js/bootstrap.bundle.min.js' %}" ></script>
+          <!-- leaflet for maps   -->
+          <link rel="stylesheet" href="{% static 'leaflet/leaflet.css'%}"  />
+          <script src="{% static 'leaflet/leaflet.js'%}" ></script>
+
+
+          <script src="{% static 'leafletEditable/leafletEditable.js' %}"></script>
+
+
+          <style media="screen">
+          body{
+            background-color:#838CA7
+          }
+          {% block style%}
+            #map{
+              height:520px;
+              width:100%
+            }
+            {% endblock%}
+          </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row my-5">
+        <div class="col-2">
+
+        </div>
+        <div class=" col justify-content-center p-4" role="alert" style="background:#585C67;border-radius:10px">
+          <div class="text">
+            <h3 style="color:white;margin:auto;text-align:center">   منصة حياة كريمة</h3>
+          </div>
+
+          </div>
+        <div class="col-2">
+
+        </div>
+      </div>
+      <div class="row my-2"  style="width:50%">
+            <select id="type"  class='form-control' name="cars" >
+                        <option value="school">Select Layer</option>
+                        <option value="{% url 'Gov_create'%}" data="{% url 'Gov_create'%}">governerate</option>
+                        <option value="{% url 'Village_list'%}" data="{% url 'Village_list'%}">village</option>
+                        <option value="{% url 'Point_Project_list'%}"> school</option>
+                        <!-- <option value="hospital">hospital</option> -->
+                        <!-- <option value="hospital">canal</option> -->
+
+                    </select>
+      </div>
+      <div class="row my-2 " style='background:#FFF5F0'>
+        <div class="col-3 my-2 py-2 ">
+            <p> Show Current Layers</p>
+            <button id='Show_layers' class='btn btn-secondary'   type="button" name="button"> Show_layers</button>
+            <p>---------------------</p>
+            <p> Clear map layers </p>
+            <button id='clear' class='btn  btn-secondary'  type="button" name="button"> clear</button>
+            <p>---------------------</p>
+            <p> Add new record</p>
+            <div class="btn-group" role="group">
+                <button id='draw' class='btn btn-secondary' type="button" name="button"> draw</button>
+                <button id='save' class='btn btn-secondary'type="button" name="button">save</button>
+                <button id='submit' class='btn btn-secondary'type="button" name="button"> click to submit</button>
+            </div>
+            <p>---------------------</p>
+            <p> update Record</p>
+            <div class="btn-group" role="group">
+                <button id='update'  class='btn btn-secondary'type="button" name="button"> Update</button>
+                <button id="submit_update" class='btn btn-secondary'  type="button" name="button"> Submit_update</button>
+            </div>
+            <p>---------------------</p>
+            <p> Delete Record</p>
+            <button id='delete' class='btn btn-danger' type="button" name="button"> Delete</button>
+        </div>
+        <div class="col py-2 ">
+          <div class="p-1 my-2 ">
+            <input id='name' class='form-control' type="text" name="name" placeholder="Name" value="">
+          </div>
+          {% block extraInputs%}{% endblock%}
+          <div id='map' class='py-5'height='500px'> </div>
+       </div>
+
+      </div>
+
+
+
+</div>
+  <script>
+    function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+                }
+              }
+          }
+          return cookieValue;
+      }
+    const csrftoken = getCookie('csrftoken');
+    //initiate map;
+    var mymap;
+    var baeMap;
+    var view;
+    var zoom;
+    function loadMap(){
+    if (view){
+       map = L.map('map',{editable: true}).setView([view.lat, view.lng],zoom);
+    }else{
+        map = L.map('map',{editable: true}).setView([31.505,30], 5);
+    }
+    baeMap=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+    isMap = true;
+    }
+    loadMap()
+
+
+    function clearToRedraw(){
+        //Check if map is loaded, if false then load else remove everything and reload it
+        if(isMap != true){
+
+            loadMap();
+        }else{
+            //For each layer on the map remove everything and clear variables
+            map.eachLayer(function(layer){
+                view= map.getCenter();
+                zoom=map.getZoom();
+                map.remove();
+                if (!!layer.toGeoJSON) {
+                      map.removeLayer(layer);
+                  } //clear the pointManager array of points
+                isMap = false;
+                loadMap(); //reload the map function
+            });
+          }}
+          var name =document.getElementById('name').value
+          var latlngs;
+        document.getElementById('clear').addEventListener('click',()=>clearToRedraw())
+        {% block draw %}
+        document.getElementById('draw').addEventListener('click',function(){
+          var x_poly=map.editTools.startPolygon();
+          map.on('editable:drawing:end',
+          ()=>{
+            latlngs=x_poly._latlngs
+
+        })
+        x_poly.addEventListener('click',()=>{
+          latlngs=x_poly._latlngs
+        })
+
+
+      })
+      {% endblock  %}
+
+    var layer=document.getElementById("type").value
+    document.getElementById("type").addEventListener('change',()=>{
+      layer=document.getElementById("type").value
+      location=layer
+      })
+
+    {% block show_layer_script%}
+    function show_layers(){
+      layer=document.getElementById("type").value
+      let url="/kareemaDashboard/show_layers/"+layer
+      fetch(url,{}).then((response)=> {
+          return response.json()
+        }).then(data=>{
+          for (let i=0;i<data['features'].length;i++){
+                L.polygon(JSON.parse(data['features'][i].latlngs).coordinates,
+                  {color: 'red'})
+                  .bindPopup(function () {
+                        return data['features'][i].name+'\n'+data['features'][i].area
+                      }).addTo(map);
+              }
+            })
+          }
+    document.getElementById('Show_layers').addEventListener('click',show_layers)
+    {% endblock show_layer_script%}
+
+
+{% block update_layer_script%}
+document.getElementById('update').addEventListener('click',()=>{
+  layer=document.getElementById("type").value
+  let url="/kareemaDashboard/show_layers/"+layer
+  fetch(url,{}).then((response)=> {
+      return response.json()
+    }).then(data=>{
+      for (let i=0;i<data['features'].length;i++){
+          let Epolygon=L.polygon(JSON.parse(data['features'][i].latlngs).coordinates,
+              {color: 'red'})
+            .addTo(map);
+            Epolygon.on('click',(e)=>{
+                Epolygon.enableEdit()
+                document.getElementById('name').value=data['features'][i].name
+              })
+              Epolygon.on('dblclick',()=>{
+                Epolygon.disableEdit()
+                latlngs=Epolygon._latlngs
+                let updated_coordinatList=[]
+                for ( let i=0; i< latlngs[0].length;i++){
+                      updated_coordinatList.push([latlngs[0][i].lat,latlngs[0][i].lng])
+                }
+                document.getElementById('submit_update').addEventListener('click',()=>{
+                  name =document.getElementById('name').value
+                  update_url='/kareemaDashboard/update_governerate/'+data['features'][i].id
+                  fetch(update_url,{
+                    method: 'POST',
+                    headers: {'X-CSRFToken': csrftoken,  },
+                    body:JSON.stringify({
+                                    'name':name,
+                                    'latlngs':updated_coordinatList
+                                  })
+
+                  }).then((response)=> {
+                    clearToRedraw()
+                    document.getElementById('name').value=""
+                    latlngs=[]
+                    coordinatList=[]
+                    coordinates=[]
+                    return response.json()
+                }).then (data=>{
+                  console.log(data['message']);
+                });
+
+                })
+
+
+              })
+
+          }
+        })
+})
+{% endblock update_layer_script%}
+
+
+{% block add_record_script%}
+var coordinates=[]
+var coordinatList=[]
+
+document.getElementById('save').addEventListener('click',()=>{
+  name =document.getElementById('name').value
+  for ( let i=0; i< latlngs[0].length;i++){
+    var coordinate={}
+    coordinate['lat']=latlngs[0][i].lat
+    coordinate['lng']=latlngs[0][i].lng
+    coordinates.push(coordinate)
+    coordinatList.push([latlngs[0][i].lat,latlngs[0][i].lng])
+
+  }
+})
+
+
+
+
+
+document.getElementById('submit').addEventListener('click',function(){
+  var url='{% url "add_governerate" %}'
+  if   (document.getElementById('type').value=='village'){
+    url='{% url "add_village" %}'
+  }
+  fetch(url,{
+    method: 'POST',
+    headers: {'X-CSRFToken': csrftoken,  },
+    body:JSON.stringify({
+                    'name':name,
+                    'latlngs':coordinatList
+                  })
+
+  }).then((response)=> {
+    clearToRedraw()
+    document.getElementById('name').value=""
+    latlngs=[]
+    coordinatList=[]
+    coordinates=[]
+    return response.json()
+}).then (data=>{
+  console.log(data['message']);
+});
+
+})
+{% endblock add_record_script%}
+
+{% block delete_record_script%}
+document.getElementById('delete').addEventListener('click',()=>{
+  layer=document.getElementById("type").value
+  let url="/kareemaDashboard/show_layers/"+layer
+  fetch(url,{}).then((response)=> {
+      return response.json()
+    }).then(data=>{
+      for (let i=0;i<data['features'].length;i++){
+          let Epolygon=L.polygon(JSON.parse(data['features'][i].latlngs).coordinates,
+              {color: 'red'})
+            .addTo(map);
+            Epolygon.on('click',(e)=>{
+                let del_url='/kareemaDashboard/delete_governerate/'+data['features'][i].id
+                fetch(del_url,{
+                  method: 'DELETE',
+                  headers: {'X-CSRFToken': csrftoken,  },
+                }).then((response)=>{
+                  clearToRedraw()
+                  show_layers()
+                  return response.json()
+                })
+              })
+}})
+})
+ {% endblock delete_record_script%}
+  </script>
+  </body>
+</html>

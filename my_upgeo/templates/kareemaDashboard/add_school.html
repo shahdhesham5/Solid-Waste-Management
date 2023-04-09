@@ -1,0 +1,322 @@
+{% extends './add.html'%}
+{% load static%}
+{% block style%}
+
+  #map{
+    height:280px;
+    width:100%
+  }
+  {% endblock%}
+{% block extraInputs%}
+<div class="p-1 my-1">
+  <input type="radio" name="building_type" id='school_btn' value=1>
+  <label for="school">School</label>
+  <input type="radio"  name="building_type" id='hospital_btn'value=2>
+  <label for="hospital">Hospital</label>
+</div>
+<div class="p-1 my-1 ">
+  <span style='font-weight: bold;'> planned Start date : </span>
+  <input id='planned_start_date' class='form-control' type="date" name="name" style='width:100%;display:inline-block' placeholder="planned start date" value="">
+</div>
+<div class="p-1 my-1 ">
+  <span style='font-weight: bold;'> Planned End Date: </span>
+  <input id='planned_end_date' class='form-control' type="date" name="name" style='width:100%;display:inline-block' placeholder="planned end date" value="">
+</div>
+<div class="p-1 my-1 ">
+  <span style='font-weight: bold;'> Actual Start Date: </span>
+  <input id='actual_start_date' class='form-control' type="date" name="name" style='width:100%;display:inline-block' placeholder="actual start date" value="">
+</div>
+<div class="p-1 my-1 ">
+  <span style='font-weight: bold;'> Actual End Date  </span>
+  <input id='actual_end_date' class='form-control' type="date" name="name" style='width:100%;display:inline-block' placeholder="actual end date" value="">
+</div>
+<div class="p-1 my-1 ">
+  <span style='font-weight: bold;'> Planned Cost </span>
+  <input id='planned_cost' class='form-control' type="number" name="name" style='width:100%;display:inline-block' placeholder="planned cost" value="">
+</div>
+<div class="p-1 my-1 ">
+  <span style='font-weight: bold;'> Actual  Cost   </span>
+  <input id='actual_cost' class='form-control' type="number" name="name" style='width:100%;display:inline-block' placeholder="actual cost" value="">
+</div>
+
+<div class="p-1 my-1 ">
+  <span style='font-weight: bold;'> Progress   </span>
+  <input id='progress' class='form-control' type="number" name="name" style='width:100%;display:inline-block' placeholder="progress" value="">
+</div>
+
+
+{% endblock%}
+
+
+{% block draw %}
+      document.getElementById('draw').addEventListener('click',function(){
+        count=0
+        map.addEventListener('click',function addmarker(e){
+        if(count==0){
+        var newMarker = new L.marker(e.latlng).bindPopup(document.getElementById('name').value).addTo(map);
+        latlngs=e.latlng
+
+        count+=1
+      }else{
+        map.removeEventListener('click',addmarker)
+      }
+      })
+      })
+{% endblock  %}
+
+{% block show_layer_script%}
+let school_icon= L.icon({
+    iconUrl: "{% static '/img/schoolMarker.png'%}",
+    iconSize:     [20, 30], // size of the icon
+    shadowSize:   [15, 30], // size of the shadow
+    iconAnchor:   [12, 26], // point of the icon which will correspond to marker's location
+    shadowAnchor: [4, 10],  // the same for the shadow
+    popupAnchor:  [-3, 0]
+  })
+let hospital_icon= L.icon({
+      iconUrl: "{% static '/img/hospital_marker.png'%}",
+      iconSize:     [20, 30], // size of the icon
+      shadowSize:   [15, 30], // size of the shadow
+      iconAnchor:   [12, 26], // point of the icon which will correspond to marker's location
+      shadowAnchor: [4, 10],  // the same for the shadow
+      popupAnchor:  [-3, 0]
+    })
+      function show_layers(){
+        let url="/kareemaDashboard/show_layers/village"
+        fetch("{% url 'Village_list'%}",{}).then((response)=> {
+            return response.json()
+          }).then(data=>{
+            console.log(data)
+            for (let i=0;i<data.length;i++){
+                  L.polygon(data[i].polygon.coordinates,
+                    {color: 'red'})
+                    .bindTooltip(data[i].name+'\n')
+                    // .bindPopup(function () {
+                      //  return data[i].name+'\n'
+                      //  })
+                        .addTo(map);
+
+                }
+              })
+            }
+      document.getElementById('Show_layers').addEventListener('click',show_layers)
+{% endblock show_layer_script%}
+
+{% block add_record_script%}
+         var coordinatList=[]
+         var village_id;
+          document.getElementById('save').addEventListener('click',()=>{
+          type=document.querySelector('input[name="building_type"]:checked').value
+          name =document.getElementById('name').value
+          planned_start_date=document.getElementById('planned_start_date').value+"T00:00:00Z"
+          planned_end_date=document.getElementById('planned_end_date').value+"T00:00:00Z"
+          actual_start_date=document.getElementById('actual_start_date').value+"T00:00:00Z"
+          actual_end_date=document.getElementById('actual_end_date').value+"T00:00:00Z"
+
+          planned_cost=document.getElementById('planned_cost').value
+
+          actual_cost=document.getElementById('actual_cost').value
+          coordinatList=[latlngs.lat,latlngs.lng]
+          fetch('{% url "get_village" %}',{
+            method: 'POST',
+            headers: {'X-CSRFToken': csrftoken,  },
+            body:JSON.stringify({
+                            'latlngs':coordinatList,
+                          })
+          }).then((response)=>{
+              return response.json()
+          }).then(data=>{
+            village_id=data.village
+          })
+          progress=document.getElementById('progress').value
+
+
+
+          })
+
+          document.getElementById('submit').addEventListener('click',function(){
+            var  url='{% url "Point_Project_list" %}'
+            console.log(coordinatList,village_id,name)
+            fetch(url,{
+              method: 'POST',
+              headers: {'X-CSRFToken': csrftoken, "Content-Type": "application/json" },
+              body:JSON.stringify({
+                            "name": name,
+                            "point": {
+                                  "type": "Point",
+                                  "coordinates": coordinatList
+                              },
+                              "planned_start_date": planned_start_date,
+                              "planned_end_date": planned_end_date,
+                              "actual_start_date": actual_start_date,
+                              "actual_end_date": actual_end_date,
+                              "planned_cost": planned_cost,
+                              "actual_cost": actual_cost,
+                              "Proj_completion_Percent": progress,
+                              "village": village_id,
+                              "project_type": 1,
+                            })
+
+            }).then((response)=> {
+              clearToRedraw()
+              document.getElementById('name').value=""
+              latlngs=[]
+              coordinatList=[]
+              coordinates=[]
+              return response.json()
+          }).then (data=>{
+            console.log(data['message']);
+          });
+
+          })
+{% endblock add_record_script%}
+
+
+
+<!-- in this part we show layers of school and hospital
+by getting them from village layer -->
+{% block update_layer_script%}
+document.getElementById('update').addEventListener('click',()=>{
+  document.getElementById('name').value=''
+  let url="/kareemaDashboard/show_layers/"+'village'
+  fetch("{% url 'Village_list' %}",{}).then((response)=> {
+      return response.json()
+    }).then(data=>{
+      console.log(data)
+      var school_marker;
+      var point_proj_marker;
+      for (let i=0;i<data.length;i++){
+                L.polygon(data[i].polygon.coordinates,
+                  {color: 'green'})
+                  .bindPopup(function () {
+                        return data['features'][i].name+'\n'+data['features'][i].area
+                      }).addTo(map);
+
+                for(let j=0;j<data[i].point_projects.length;j++){
+                  console.log(data[i].point_projects[j].project_type)
+                      if (data[i].point_projects[j].project_type==1){
+                      point_proj_marker= L.marker(data[i].point_projects[j].point.coordinates,{icon:school_icon})
+                      .bindPopup(function(){return data[i].point_projects[j].name})
+                      .addTo(map)
+                    }else if (data[i].point_projects[j].project_type==2){
+                      point_proj_marker= L.marker(data[i].point_projects[j].point.coordinates,{icon:hospital_icon})
+                      .bindPopup(function(){return data[i].point_projects[j].name})
+                      .addTo(map)
+                    }
+                point_proj_marker.on('click',(e)=>{
+                      document.getElementById('name').placeholder=data[i].point_projects[j].name
+                      <!-- document.getElementById('school_btn').checked = true; -->
+                      e.target.dragging.enable()
+                      e.target.on('dblclick',()=>{
+                        var latlngs=e.target._latlng
+                        type=document.querySelector('input[name="building_type"]:checked').value
+                        if (document.getElementById('name').value==''){
+                          name=data[i].point_projects[j].school_name
+                        }else{
+                            name =document.getElementById('name').value
+                        }
+                        type=document.querySelector('input[name="building_type"]:checked').value
+
+                        planned_start_date=document.getElementById('planned_start_date').value+"T00:00:00Z"
+                        planned_end_date=document.getElementById('planned_end_date').value+"T00:00:00Z"
+                        actual_start_date=document.getElementById('actual_start_date').value+"T00:00:00Z"
+                        actual_end_date=document.getElementById('actual_end_date').value+"T00:00:00Z"
+
+                        planned_cost=document.getElementById('planned_cost').value
+                        actual_cost=document.getElementById('actual_cost').value
+
+                        progress=document.getElementById('progress').value
+
+                        coordinatList=[latlngs.lat,latlngs.lng]
+                        e.target.dragging.disable()
+                        let school_update_url='/kareemaDashboard/Point_Project_details/'+data[i].point_projects[j].id
+                        fetch(school_update_url,{
+                          headers: {'X-CSRFToken': csrftoken,  "Content-Type": "application/json"  },
+                          method: 'PUT',
+                          body:JSON.stringify({
+                                              "name": name,
+                                              "point": {
+                                                  "type": "Point",
+                                                  "coordinates": coordinatList
+                                              },
+                                              "planned_start_date": planned_start_date,
+                                              "planned_end_date": planned_end_date,
+                                              "actual_start_date": actual_start_date,
+                                              "actual_end_date": actual_end_date,
+                                              "planned_cost": planned_cost,
+                                              "actual_cost": actual_cost,
+                                              "Proj_completion_Percent": progress,
+                                              "village": data[i].id,
+                                              "project_type": type
+                                          })
+
+
+                                      }).then((response)=> {
+                                        console.log(response)
+                                      })
+                            })
+                  })
+                }
+              }
+            })
+          })
+
+
+{% endblock update_layer_script%}
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% block delete_record_script%}
+    document.getElementById('delete').addEventListener('click',()=>{
+      fetch("{% url 'Village_list' %}",{}).then((response)=> {
+          return response.json()
+        }).then(data=>{
+          console.log(data)
+          var school_marker;
+          var point_proj_marker;
+          for (let i=0;i<data.length;i++){
+                    L.polygon(data[i].polygon.coordinates,
+                      {color: 'green'})
+                      .bindPopup(function () {
+                            return data['features'][i].name+'\n'+data['features'][i].area
+                          }).addTo(map);
+
+                    for(let j=0;j<data[i].point_projects.length;j++){
+                      console.log(data[i].point_projects[j].project_type)
+                          if (data[i].point_projects[j].project_type==1){
+                          point_proj_marker= L.marker(data[i].point_projects[j].point.coordinates,{icon:school_icon})
+                          .bindPopup(function(){return data[i].point_projects[j].name})
+                          .addTo(map)
+                        }else if (data[i].point_projects[j].project_type==2){
+                          point_proj_marker= L.marker(data[i].point_projects[j].point.coordinates,{icon:hospital_icon})
+                          .bindPopup(function(){return data[i].point_projects[j].name})
+                          .addTo(map)
+                        }
+                  point_proj_marker.on('click',(e)=>{
+                    console.log(e)
+                    let del_url='/kareemaDashboard/Point_Project_details/'+data[i].point_projects[j].id
+                    fetch(del_url,{
+                      method: 'DELETE',
+                      headers: {'X-CSRFToken': csrftoken,  },
+                    }).then((response)=>{
+                      clearToRedraw()
+                      show_layers()
+                      return response.json()
+                    })
+                    })
+                }
+
+
+    }})
+    })
+ {% endblock delete_record_script%}

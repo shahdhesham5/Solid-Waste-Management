@@ -1,0 +1,332 @@
+{% extends './map.html'%}
+{% block govs_onClick%}
+{% endblock %}
+{% block left_column%}
+  <div class="col-2 my_border   flex-column  " id='gov_data_col'>
+    <div class="col  pt-2 py-0 my-4 text-center text-light" style="background:#686B73;border-radius:5%">
+      <span> اجمالي المحافظات </span> <h2 id='gov_num' class="text-center ">0</h2>
+    </div>
+    <div class="col  pt-2 py-0 my-4 text-center text-light" style="background:#686B73;border-radius:5%">
+      <span>اجمالي المراكز </span> <h2 id='marakez_num' class="text-center ">0</h2>
+    </div>
+    <div class="col  pt-2 py-0 my-4 text-center text-light" style="background:#686B73;border-radius:5%">
+      <span>اجمالي القرى </span> <h2 id='vil_num' class="text-center ">0</h2>
+    </div>
+    <div class="col d-flex justify-content-center my-3">
+      <!-- <button type="button" class="btn btn-primary px-5 "  onClick="clearToRedraw()">Refresh</button> -->
+    </div>
+    <div class="col  d-flex justify-content-center my-3" style="min-height:57%">
+      <!-- <button type="button" id='show_layer_button' class="btn btn-success" style="width:80%">Show Layers</button> -->
+    </div>
+    <div class="col  d-flex justify-content-center px-auto" >
+      <!-- <button type="button" id='lvl_btn' class="btn btn-success" style="width:80%" > مستوى القرى</button> -->
+        <a  href="{% url 'map_page'%}"id='lvl_btn' class="btn btn-success" style="width:80%" > مستوى القرى </a>
+    </div>
+  </div>
+{% endblock %}
+{% block right_column%}
+  <div class="col-2 my_border my_special_border" id='vil_data_col' >
+
+    <div class="col  pt-2 my-4 text-center my_special_border text-light" style="background:#686B73;border-radius:5%">
+      <span style='font-size:18pt'> اجمالي المشاريع </span> <h1 id='total_proj' class="text-center py-1"></h1>
+
+    </div>
+    <div class="col pt-2 my-4 text-center my_special_border text-light" style="background:#334553;border-radius:5%">
+      <span class="py-1" style='color:#0CBCE4'> اجمالي مشاريع التعليم</span><h2 style='color:#0CBCE4' id='school_num'>0</h2>
+    </div>
+    <div class="col   pt-2 my-4 text-center  my_special_border text-light" style="background:#334553;border-radius:5%">
+      <span style="color:#3df49c"> اجمالي مشاريع الصحة </span><h2 id='hos_num' style="color:#2de28b">0</h2>
+    </div>
+    <div class="col   pt-2 my-4 text-center  my_special_border text-light" style="background:#334553;border-radius:5%">
+      <span style="color:#F6E87A">اجمالي مشاريع الكهرباء </span><h2 id='electric_num' style="color:#F6E87A">0</h2>
+    </div>
+
+  </div>
+{% endblock %}
+  {% block buttons %}
+  <div class="col   pt-2 my-2 text-center text-light" id='show_layer_button' ></div>
+  {% endblock %}
+
+
+{% block extra_script %}
+document.getElementById('gov_num').innerHTML='{{govs_num}}'
+document.getElementById('marakez_num').innerHTML='{{marakez_num}}'
+document.getElementById('vil_num').innerHTML='{{villages_num}}'
+document.getElementById('total_proj').innerHTML='{{total_projects}}'
+  fetch("{% url 'GovsList'%}").then((response)=> {
+      return response.json()
+    }).then(data=>{
+       console.log(data)
+       var gov_layer=[]
+       for (let i=0;i<data.length;i++){
+         gov_layer.push(L.polygon(data[i].polygon.coordinates[0],{color: "#000",fillOpacity:0, weight: 6}).bindPopup(data[i].name).addTo(map)
+         .bindTooltip(data[i].name,
+          {permanent: false, direction:"center",background:'red',}
+         )
+         .on('click',()=>{
+           console.log(data[i].id)
+           let d= data[i].id
+
+           let detailed_url= '/kareemaDashboard/Gov_details/' +  data[i].id
+
+           window.location.href='/kareemaDashboard/gov_dashboard/'+data[i].id
+
+
+           <!-- If we wanted to make it change with gov -->
+           fetch(detailed_url).then((response)=> {
+               return response.json()
+             }).then(data=>{
+                console.log(data)
+              })
+         })
+
+
+
+         )
+       }
+
+    })
+
+
+{% endblock%}
+{% block extra_script_hashed%}
+    var villages_over_Egypt={{ villages | safe}}
+    var govs_over_Egypt={{ govs | safe}}
+    var schools_over_Egypt={{ schools | safe}}
+    var hospitals_over_Egypt={{ hospitals | safe}}
+    var gov_layer=[]
+    var village_layer=[]
+    var school_layer=[]
+    var hospital_layer=[]
+    var todayDate = new Date();
+    var finished_schools=0
+    var finished_hos=0
+
+    for (let i=0;i<govs_over_Egypt.length;i++){
+      gov_layer.push(L.polygon(govs_over_Egypt[i].polygon.coordinates[0]))
+    }
+    for (let i=0;i<villages_over_Egypt.length;i++){
+      village_layer.push(L.polygon(villages_over_Egypt[i].polygon.coordinates[0]))
+    }
+    for (let i=0;i<schools_over_Egypt.length;i++){
+      school_layer.push(L.marker(schools_over_Egypt[i].point.coordinates,{icon: school_icon}).bindPopup(schools_over_Egypt[i].name))
+      var fin_date=new Date(schools_over_Egypt[i].finished_at)
+      if(fin_date<todayDate){
+        finished_schools+=1
+      };
+    }
+    for (let i=0;i<hospitals_over_Egypt.length;i++){
+      hospital_layer.push(L.marker(hospitals_over_Egypt[i].point.coordinates,{icon: hospital_icon}).bindPopup(hospitals_over_Egypt[i].name))
+      var fin_date=new Date(hospitals_over_Egypt[i].finished_at)
+      if(fin_date<todayDate){
+        finished_hos+=1
+      };
+    }
+    var overlayMaps = {
+    "المحافظات":  L.layerGroup(gov_layer),
+    "القرى": L.layerGroup(village_layer),
+    "التعليم":L.layerGroup(school_layer),
+    "الصحة":L.layerGroup(hospital_layer)
+      };
+    L.control.layers(baseLayers,overlayMaps).addTo(map);
+
+
+
+    document.getElementById('vil_num').innerHTML=villages_over_Egypt.length
+    document.getElementById('school_num').innerHTML=schools_over_Egypt.length
+    document.getElementById('hos_num').innerHTML=hospitals_over_Egypt.length
+
+
+
+
+
+
+{% endblock%}
+
+{% block chart_script%}
+<!-- --------------------------------------------- -->
+var total_ctx = document.getElementById('totalChart').getContext('2d');
+var totalChart = new Chart(total_ctx, {
+              type: 'bar',
+              data: {
+                  labels: ['School Progress', 'Hospital progress', 'canal','gas'],
+                  datasets: [{
+                      label: 'Total progress',
+                      data: [30,50,40,89],
+                      backgroundColor: [
+                      '#14E37F',
+                          '#312E86',
+                            '#DE455A',
+                            '#39BEAC',
+
+
+
+                      ],
+                      borderColor: [
+                          'rgba(300, 192, 192, 1)',
+                          'rgba(255, 200, 132, 1)',
+
+
+                              ],
+                      borderWidth: 1,
+
+                  }]
+              },
+              options: {
+                layout: {
+                  padding: 2
+              },
+                color:'white',
+                plugins: {
+
+                    legend: {
+                        labels: {
+                            // This more specific font property overrides the global property
+                            font: {
+                                size: 16,
+                                color:'white',
+                                  },
+
+
+                        }
+                    }
+                },
+
+                  scales: {
+                      y: {
+                          beginAtZero: true,
+                           suggestedMax: 100
+                      }
+                  }
+              }
+          });
+
+
+          var ctx = document.getElementById('myChart').getContext('2d');
+          var myChart = new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['مشروعات منتهية',
+                             'مشروعات غير منتهية'],
+                            datasets: [{
+                                label: 'School progress',
+                                data: [40, 60],
+                                backgroundColor: [
+                                    '#14E37F',
+                                    '#DE455A',
+                                ],
+                                borderColor: [
+                                  '#272B2E','#272B2E'
+                                        ],
+                                borderWidth: 3
+                            }]
+                        },
+                        options: {
+                          layout: {
+                            padding: 10
+                        },
+                            color:'white',
+                            plugins: {
+                              title:{
+                                display:true,
+                                text:'موقف المشروعات التعليمية',
+                                color:'white',
+                                font:{
+                                  size: 22,
+
+                                  family:'Almarai',
+                                  padding: {
+                                        top: 1,
+                                        bottom: 30
+                                    }
+                                },
+                                                                },
+
+                                legend: {
+                                  position:'bottom',
+                                    labels: {
+                                        // This more specific font property overrides the global property
+                                        font: {
+                                            size: 15,
+                                            family:'Almarai',
+                                              },
+
+
+                                    }
+                                }
+                            },
+
+                            // scales: {
+                            //     y: {
+                            //         beginAtZero: true
+                            //     }
+                            // }
+                        }
+                    });
+
+
+
+
+                    var hos_ctx=  document.getElementById('hosChart').getContext('2d');
+                    var hos_chart=new Chart(hos_ctx, {
+                                  type: 'pie',
+                                  data: {
+                                      labels: ['مشروعات منتهية',
+                                       'مشروعات غير منتهية'],
+                                      datasets: [{
+                                          label: 'School progress',
+                                          data: [40, 60],
+                                          backgroundColor: [
+                                              '#14E37F',
+                                              '#DE455A',
+                                          ],
+                                          borderColor: [
+                                        '#272B2E','#272B2E'
+
+                                                  ],
+                                          borderWidth: 7
+                                      }]
+                                  },
+                                  options: {
+                                    layout: {
+                                      padding: 10
+                                  },
+                                      color:'white',
+                                      plugins: {
+                                        title:{
+                                          display:true,
+                                          text:'موقف مشروعات الصحة',
+                                          color:'white',
+                                          font:{
+                                            size: 22,
+
+                                            family:'Almarai',
+                                            padding: {
+                                                  top: 1,
+                                                  bottom: 30
+                                              }
+                                          },
+                                                                          },
+
+                                          legend: {
+                                            position:'bottom',
+                                              labels: {
+                                                  // This more specific font property overrides the global property
+                                                  font: {
+                                                      size: 15,
+                                                      family:'Almarai',
+                                                        },
+
+
+                                              }
+                                          }
+                                      },
+
+                                      // scales: {
+                                      //     y: {
+                                      //         beginAtZero: true
+                                      //     }
+                                      // }
+                                  }
+                              });
+{% endblock%}
